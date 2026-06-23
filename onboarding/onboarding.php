@@ -148,8 +148,21 @@ $page_title = 'Create Trust - WyomingTrust';
     </script>
 <style>
         .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .payment-method-card {
             cursor: pointer;
@@ -554,7 +567,7 @@ function renderTrustTypeStep() {
                 </p>
             </div>
             <div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/30 py-4 px-8 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="max-w-container-max mx-auto flex justify-between items-center">
                     <button onclick="handleCancelOrExit(); window.location.href='../index.php'" class="px-6 py-2 text-on-surface-variant hover:text-primary">Cancel</button>
                     <button onclick="nextStep()" ${onboardingData.trust_service_id ? '' : 'disabled'} id="nextBtn" class="bg-secondary text-on-secondary hover:opacity-90 font-semibold py-3 px-8 rounded-lg flex items-center shadow-lg transform transition hover:-translate-y-0.5 focus:ring-4 focus:ring-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed">
                         Next
@@ -569,7 +582,7 @@ function renderTrustTypeStep() {
 function renderPersonalInfoStep() {
     const pi = onboardingData.personal_info || {};
     return `
-        <div class="max-w-[1200px] mx-auto">
+        <div class="max-w-container-max mx-auto">
             <div class="mb-10">
                 <div class="flex flex-col gap-3 max-w-[960px] mx-auto">
                     <div class="flex gap-6 justify-between">
@@ -1787,7 +1800,7 @@ function renderSelectedPaymentDetails(amount) {
         return `
             <div class="text-center py-4">
                 <p class="text-sm text-on-surface-variant">Select a payment method to continue.</p>
-                <button onclick="backToPaymentSelection()" class="mt-3 text-primary font-semibold">Back</button>
+                <button onclick="backToPaymentSelection()" class="mt-3 text-secondary font-semibold">Back</button>
             </div>
         `;
     }

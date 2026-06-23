@@ -1,92 +1,77 @@
 <?php
 $page_title = 'Learning Center | WyomingTrust';
 include 'includes/header.php';
+
+$hero_label = 'Learning Center';
+$hero_title = 'Learning Center';
+$hero_subtitle = 'Master crypto estate planning with our expert-led resources and comprehensive guides.';
+$hero_cta_text = 'Get Started';
+$hero_cta_href = 'onboarding/onboarding.php';
+include 'includes/components/hero-primary.php';
 ?>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-<script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#7C3AED", // Vibrant Purple from the screenshots
-                        "background-light": "#FFFFFF",
-                        "background-dark": "#0F172A",
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                    },
-                },
-            },
-        };
-    </script>
-<style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .hero-gradient {
-            background: linear-gradient(135deg, #2563EB 0%, #0D9488 100%);
-        }
-    </style>
-<section class="hero-gradient text-white py-24 sm:py-32 relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full mb-8">
-            <span class="material-icons-outlined text-sm">school</span>
-            <span class="text-xs font-semibold tracking-wider uppercase">Learning Center</span>
-        </div>
-        <h1 class="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
-                Learning Center
-            </h1>
-        <p class="text-xl sm:text-2xl text-blue-50/90 max-w-2xl mx-auto mb-12">
-                Master crypto estate planning with our expert-led resources and comprehensive guides.
-            </p>
-        <div class="flex justify-center">
-            <a href="onboarding/onboarding.php" class="bg-white text-primary hover:bg-blue-50 px-8 py-3.5 rounded-xl font-bold text-lg shadow-xl shadow-black/10 transition-all flex items-center gap-2 group">
-                <span class="material-icons-outlined group-hover:translate-x-1 transition-transform">rocket_launch</span>
-                    Get Started
-                </a>
-        </div>
-    </div>
-    <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-teal-400/10 rounded-full blur-3xl"></div>
+
+<section class="py-section-padding-lg px-gutter bg-warm-cream">
+<div class="max-w-container-max mx-auto text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-4">Educational Resources</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mx-auto">
+Comprehensive guides and tutorials coming soon. Our experts are crafting the most detailed repository for blockchain estate planning.
+</p>
+</div>
+
+<div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm">
+<div class="bg-secondary-fixed w-12 h-12 rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-2xl">account_balance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3">Trust Fundamentals</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Learn the basics of revocable and irrevocable trusts for digital asset protection.</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm">
+<div class="bg-secondary-fixed w-12 h-12 rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-2xl">currency_bitcoin</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3">Crypto Estate Planning</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Guides on securing Bitcoin, Ethereum, NFTs, and wallet inheritance strategies.</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-outline-variant/30 p-8 shadow-sm">
+<div class="bg-secondary-fixed w-12 h-12 rounded-xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-2xl">gavel</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3">Wyoming Trust Law</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Understand Wyoming's favorable trust statutes and LLC structures for asset protection.</p>
+</div>
+</div>
 </section>
-<section class="py-24 bg-background-light dark:bg-background-dark">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-                Educational Resources
-            </h2>
-        <p class="text-lg sm:text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto mb-16">
-                Comprehensive guides and tutorials coming soon. Our experts are crafting the most detailed repository for blockchain estate planning.
-            </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 animate-pulse">
-                <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4"></div>
-                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-3/4 mb-4"></div>
-                <div class="space-y-2">
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-full"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-5/6"></div>
-                </div>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 animate-pulse">
-                <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4"></div>
-                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-3/4 mb-4"></div>
-                <div class="space-y-2">
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-full"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-5/6"></div>
-                </div>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 animate-pulse">
-                <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4"></div>
-                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded-full w-3/4 mb-4"></div>
-                <div class="space-y-2">
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-full"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-5/6"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+<section class="py-section-padding-md px-gutter bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+<a href="compare_trust_types_page.php" class="bg-primary-container rounded-2xl p-6 border border-white/10 hover:border-sky-accent transition-colors group">
+<span class="material-symbols-outlined text-sky-accent text-3xl mb-4 block">compare</span>
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-2">Compare Trust Types</h3>
+<p class="font-body-md text-body-md text-on-primary-container">Find the right trust structure for your estate plan.</p>
+</a>
+<a href="revocable_living_trust_details.php" class="bg-primary-container rounded-2xl p-6 border border-white/10 hover:border-sky-accent transition-colors group">
+<span class="material-symbols-outlined text-sky-accent text-3xl mb-4 block">description</span>
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-2">Revocable Living Trust</h3>
+<p class="font-body-md text-body-md text-on-primary-container">Flexible estate planning you can update as life changes.</p>
+</a>
+<a href="crypto_asset_trust_service.php" class="bg-primary-container rounded-2xl p-6 border border-white/10 hover:border-sky-accent transition-colors group">
+<span class="material-symbols-outlined text-sky-accent text-3xl mb-4 block">token</span>
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-2">Crypto Asset Trust</h3>
+<p class="font-body-md text-body-md text-on-primary-container">Blockchain-native security for your digital wealth.</p>
+</a>
+</div>
 </section>
+
+<?php
+$cta_title = 'Ready to secure your digital legacy?';
+$cta_subtitle = 'Start your trust setup with guided onboarding.';
+$cta_primary_text = 'Get Started';
+$cta_primary_href = 'onboarding/onboarding.php';
+$cta_secondary_text = '';
+include 'includes/components/cta-banner.php';
+?>
+
 <?php include 'includes/footer.php'; ?>

@@ -19,7 +19,9 @@ $cta_secondary_text = $cta_secondary_text ?? 'Create Your Will';
 <?php endif; ?>
 <div class="flex flex-col sm:flex-row justify-center gap-4 pt-2">
 <a href="<?php echo escape_html($cta_primary_href); ?>" class="bg-white text-secondary px-10 py-4 rounded-xl font-label-md font-bold hover:bg-sky-accent transition-colors shadow-lg"><?php echo escape_html($cta_primary_text); ?></a>
+<?php if (!empty($cta_secondary_text)): ?>
 <a href="<?php echo escape_html($cta_secondary_href); ?>" class="bg-primary text-on-primary px-10 py-4 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity"><?php echo escape_html($cta_secondary_text); ?></a>
+<?php endif; ?>
 </div>
 </div>
 </div>

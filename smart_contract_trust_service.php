@@ -1,129 +1,135 @@
 <?php
 $page_title = 'Smart Contract Trust - WyomingTrust';
 include 'includes/header.php';
+
+$hero_label = 'Fully Automated';
+$hero_title = 'Smart Contract Trust';
+$hero_subtitle = 'Automated, self-executing trusts powered by blockchain technology — no intermediaries, no delays, no disputes.';
+$hero_bullets = [
+    'Self-executing contracts when conditions are met',
+    'Full transparency with on-chain audit trails',
+    'Eliminate trustee fees and probate costs',
+];
+$hero_cta_text = 'Create Smart Contract Trust';
+$hero_cta_href = 'onboarding/onboarding.php';
+$hero_secondary_text = 'Compare Trust Types';
+$hero_secondary_href = 'compare_trust_types_page.php';
+$hero_badge_value = '$499';
+$hero_badge_label = 'Starting Price';
+$hero_image = 'https://lh3.googleusercontent.com/aida-public/AB1WRLsd2Y5kwnSOihFhXNRim1IXArn6wVbsZ1IAFPgjIn4xj-ClwpECLJkqzklWqjcd_ds-kFSN_YLfHnZxKlzf6hlQrIfQkFarMutwWSw-4o4yyHv5qhK8WRqFXPaf4FoIHlOP4aM0eqTMmg0Sn6JC9igCp4KvJV7hxRe22pEt4vwsuh8P_5bFigc6cVhXfwfpTRNF7f5SQN0j5lwktNO5MIot9m0hME2o6JIvXP90vNythi1cZr23SGxV7g0';
+include 'includes/components/service-hero-split.php';
 ?>
-<section class="bg-navy-900 py-12 sm:py-16 lg:py-20 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-5 pointer-events-none">
-        <img alt="pattern" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4V037pfPLp7dfFOnJJFwSFAn4tkEKj5epC_RhMw7AUd2U1FhQ5hQJsLTSjwpQx69Jq1NAkRvAAI-JlaruNpcCDLsrxN3n3qta6f6Emxyp75E9Afgj797R5kHXdqJJyAygd73uC7gE7dQfs6LiYSUvQO3Lwdo9PAuvwAc0rqNx0Fs_rcLGAwh3vLDQlkB99jLWCNp7ZKpXvFpJddtCSPqZVczSotNDWbh9J_l4aYO06qlIAKA2I1ioNTVRaDNdP3LMe8mH9fuhtXa1"/>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold mb-4 sm:mb-6 border border-primary/30">
-                <span class="material-icons-outlined text-xs sm:text-sm text-primary">description</span>
-                <span class="text-primary">Fully Automated</span>
-            </div>
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 sm:mb-6 tracking-tight">Smart Contract Trust</h1>
-            <p class="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 lg:mb-10 leading-relaxed max-w-3xl mx-auto px-2">
-                Automated, self-executing trusts powered by blockchain technology—no intermediaries needed
-            </p>
-            <a href="onboarding/onboarding.php" class="inline-block bg-primary text-navy-900 hover:opacity-90 px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 mx-auto w-auto max-w-xs">
-                <span class="material-icons-outlined text-base sm:text-lg">account_balance_wallet</span>
-                <span>Create Smart Contract Trust</span>
-            </a>
-        </div>
-    </div>
+
+<!-- Overview -->
+<section class="py-section-padding-lg px-gutter bg-surface">
+<div class="max-w-container-max mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+<div class="space-y-6">
+<span class="inline-block px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider">Overview</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">What is a Smart Contract Trust?</h2>
+<div class="space-y-4 font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<p>A smart contract trust uses blockchain technology to automate trust execution. Your wishes are encoded into self-executing smart contracts that automatically transfer assets to beneficiaries when predetermined conditions are met.</p>
+<p>No lawyers, no executors, no delays. The smart contract monitors the blockchain and executes distributions exactly as programmed, with complete transparency and zero human intervention.</p>
+<p>Perfect for tech-savvy individuals who want maximum automation, transparency, and cost-efficiency in their estate planning.</p>
+</div>
+<a href="onboarding/onboarding.php" class="inline-flex items-center gap-2 text-secondary font-label-md font-bold hover:underline">
+Deploy your smart contract trust
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<div class="bg-primary-container p-8 md:p-10 rounded-2xl border border-white/10 shadow-xl">
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-8">How It Works</h3>
+<div class="space-y-6">
+<?php
+$how = [
+    ['num' => '1', 'title' => 'Define Conditions', 'desc' => 'Set triggers like death certificate, time delays, or milestones.'],
+    ['num' => '2', 'title' => 'Deploy Contract', 'desc' => 'Smart contract is deployed to the blockchain permanently.'],
+    ['num' => '3', 'title' => 'Auto-Execution', 'desc' => 'When conditions are met, assets transfer automatically.'],
+];
+foreach ($how as $h):
+?>
+<div class="flex gap-5">
+<div class="flex-shrink-0 w-10 h-10 bg-secondary text-on-secondary rounded-xl flex items-center justify-center font-bold"><?php echo $h['num']; ?></div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-primary mb-1"><?php echo $h['title']; ?></h4>
+<p class="font-body-md text-body-md text-on-primary-container"><?php echo $h['desc']; ?></p>
+</div>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
+</div>
 </section>
-<section class="py-24 px-4">
-    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start">
-        <div class="space-y-6">
-            <h2 class="text-4xl font-bold dark:text-white">What is a Smart Contract Trust?</h2>
-            <div class="space-y-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                <p>
-                        A smart contract trust is a revolutionary approach to estate planning that uses blockchain technology to automate trust execution. Your wishes are encoded into self-executing smart contracts that automatically transfer assets to beneficiaries when predetermined conditions are met.
-                    </p>
-                <p>
-                        No lawyers, no executors, no delays. The smart contract monitors the blockchain and executes distributions exactly as programmed, with complete transparency and zero human intervention.
-                    </p>
-                <p>
-                        Perfect for tech-savvy individuals who want maximum automation, transparency, and cost-efficiency in their estate planning.
-                    </p>
-            </div>
-        </div>
-        <div class="bg-primary/5 dark:bg-slate-800/50 border border-primary/20 dark:border-slate-700 p-8 rounded-3xl">
-            <h3 class="text-2xl font-bold mb-8 dark:text-white">How It Works</h3>
-            <div class="space-y-8">
-                <div class="flex gap-6">
-                    <div class="flex-shrink-0 w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-xl flex items-center justify-center text-xl font-bold">1</div>
-                    <div>
-                        <h4 class="font-bold text-lg dark:text-white mb-1">Define Conditions</h4>
-                        <p class="text-slate-600 dark:text-slate-400">Set triggers like death certificate, time delays, or milestones.</p>
-                    </div>
-                </div>
-                <div class="flex gap-6">
-                    <div class="flex-shrink-0 w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-xl flex items-center justify-center text-xl font-bold">2</div>
-                    <div>
-                        <h4 class="font-bold text-lg dark:text-white mb-1">Deploy Contract</h4>
-                        <p class="text-slate-600 dark:text-slate-400">Smart contract is deployed to the blockchain permanently.</p>
-                    </div>
-                </div>
-                <div class="flex gap-6">
-                    <div class="flex-shrink-0 w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-xl flex items-center justify-center text-xl font-bold">3</div>
-                    <div>
-                        <h4 class="font-bold text-lg dark:text-white mb-1">Auto-Execution</h4>
-                        <p class="text-slate-600 dark:text-slate-400">When conditions are met, assets transfer automatically.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+<!-- Features -->
+<section class="py-section-padding-lg px-gutter bg-warm-cream">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-3">Smart Contract Features</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">The future of automated estate planning</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+<?php
+$features = [
+    ['icon' => 'bolt', 'title' => 'Instant Execution', 'desc' => 'No waiting for probate or executor decisions. Transfers happen immediately when conditions are met.'],
+    ['icon' => 'visibility', 'title' => 'Full Transparency', 'desc' => 'All transactions recorded on the blockchain—completely transparent and auditable.'],
+    ['icon' => 'lock', 'title' => 'Immutable', 'desc' => 'Once deployed, the contract cannot be altered, ensuring your wishes are honored without dispute.'],
+    ['icon' => 'payments', 'title' => 'Cost-Effective', 'desc' => 'Eliminate ongoing trustee fees, executor commissions, and expensive probate costs.'],
+    ['icon' => 'settings_suggest', 'title' => 'Complex Logic', 'desc' => 'Sophisticated distribution rules based on multiple conditions, time frames, and triggers.'],
+    ['icon' => 'language', 'title' => 'Global Access', 'desc' => 'Beneficiaries anywhere in the world receive their inheritance automatically.'],
+];
+foreach ($features as $f):
+?>
+<div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm hover:shadow-md hover:border-secondary/30 transition-all">
+<div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary mb-5">
+<span class="material-symbols-outlined"><?php echo $f['icon']; ?></span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-3"><?php echo $f['title']; ?></h4>
+<p class="font-body-md text-body-md text-on-surface-variant"><?php echo $f['desc']; ?></p>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
 </section>
-<section class="py-24 px-4 bg-slate-50 dark:bg-slate-900/50">
-    <div class="max-w-7xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-16 dark:text-white">Smart Contract Features</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">bolt</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Instant Execution</h4>
-                <p class="text-slate-600 dark:text-slate-400">No waiting for probate or executor decisions. Transfers happen immediately when conditions are met.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">visibility</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Full Transparency</h4>
-                <p class="text-slate-600 dark:text-slate-400">All transactions are recorded on the blockchain—completely transparent and auditable by stakeholders.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">lock</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Immutable</h4>
-                <p class="text-slate-600 dark:text-slate-400">Once deployed, the contract cannot be altered, ensuring your wishes are honored without dispute.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">payments</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Cost-Effective</h4>
-                <p class="text-slate-600 dark:text-slate-400">Eliminate ongoing trustee fees, executor commissions, and expensive legal costs of probate.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">settings_suggest</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Complex Logic</h4>
-                <p class="text-slate-600 dark:text-slate-400">Create sophisticated distribution rules based on multiple conditions, time frames, and triggers.</p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-primary/10 dark:bg-primary/20 text-primary rounded-lg flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">language</span>
-                </div>
-                <h4 class="text-xl font-bold mb-3 dark:text-white">Global Access</h4>
-                <p class="text-slate-600 dark:text-slate-400">Works across borders—beneficiaries anywhere in the world can receive their inheritance automatically.</p>
-            </div>
-        </div>
-    </div>
+
+<!-- Highlight -->
+<section class="py-section-padding-lg px-gutter bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto grid lg:grid-cols-2 gap-12 items-center">
+<div>
+<h2 class="font-headline-lg text-headline-lg mb-4">Code Your Legacy.<br/><span class="text-sky-accent">Execute Automatically.</span></h2>
+<p class="font-body-lg text-body-lg text-on-primary-container mb-6">Smart contract trusts remove human error and delay from estate distribution. Your beneficiaries receive exactly what you intended, when you intended — enforced by immutable blockchain code.</p>
+<ul class="space-y-3">
+<?php foreach (['No executor fees or delays', 'On-chain proof of every transaction', 'Works across borders and jurisdictions', 'Integrates with major blockchains'] as $item): ?>
+<li class="flex items-center gap-3 text-on-primary-container font-body-md">
+<span class="material-symbols-outlined text-sky-accent" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo $item; ?>
+</li>
+<?php endforeach; ?>
+</ul>
+</div>
+<div class="bg-primary-container p-8 rounded-2xl border border-white/10">
+<div class="font-mono text-sm text-sky-accent/80 space-y-2 p-4 bg-primary rounded-xl border border-white/5">
+<div><span class="text-on-primary-container">contract</span> <span class="text-sky-accent">WyomingTrust</span> {</div>
+<div class="pl-4"><span class="text-on-primary-container">function</span> <span class="text-sky-accent">distribute</span>() {</div>
+<div class="pl-8 text-on-primary-container">// Auto-execute on trigger</div>
+<div class="pl-8 text-on-primary-container">transfer(beneficiary, amount);</div>
+<div class="pl-4">}</div>
+<div>}</div>
+</div>
+<p class="font-body-md text-body-md text-on-primary-container mt-4 text-center">Simplified illustration — your trust is legally structured and blockchain-enforced.</p>
+</div>
+</div>
 </section>
-<section class="bg-primary py-24 px-4 text-white text-center">
-    <div class="max-w-4xl mx-auto">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">The Future of Estate Planning</h2>
-        <p class="text-xl mb-10 text-white/90">Smart contract trust starting at $499</p>
-        <a href="onboarding/onboarding.php" class="inline-block bg-white text-primary hover:opacity-90 px-8 py-4 rounded-xl font-bold text-base sm:text-lg transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 mx-auto w-auto max-w-xs">
-            <span class="material-icons-outlined">rocket_launch</span>
-            <span>Deploy Your Smart Contract</span>
-        </a>
-    </div>
-</section>
+
+<?php
+$cta_title = 'The Future of Estate Planning';
+$cta_subtitle = 'Smart contract trust starting at $499';
+$cta_primary_text = 'Deploy Your Smart Contract';
+$cta_primary_href = 'onboarding/onboarding.php';
+$cta_secondary_text = '';
+include 'includes/components/cta-banner.php';
+
+$current_service = 'smart_contract';
+include 'includes/components/service-explore.php';
+?>
+
 <?php include 'includes/footer.php'; ?>

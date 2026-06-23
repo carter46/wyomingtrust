@@ -1,207 +1,143 @@
 <?php
 $page_title = 'Revocable Living Trust - WyomingTrust';
 include 'includes/header.php';
+
+$hero_label = 'Most Popular Choice';
+$hero_title = 'Revocable Living Trust';
+$hero_subtitle = 'Maintain full control of your crypto assets while ensuring smooth transfer to beneficiaries — no probate required.';
+$hero_bullets = [
+    'Modify or revoke anytime during your lifetime',
+    'Assets transfer immediately to beneficiaries',
+    'Complete privacy — trusts are not public record',
+];
+$hero_cta_text = 'Create Your Trust Now';
+$hero_cta_href = 'onboarding/onboarding.php';
+$hero_secondary_text = 'Compare Trust Types';
+$hero_secondary_href = 'compare_trust_types_page.php';
+$hero_badge_value = '$299';
+$hero_badge_label = 'Starting Price';
+include 'includes/components/service-hero-split.php';
 ?>
-<section class="bg-navy-900 py-12 sm:py-16 lg:py-20 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-5 pointer-events-none">
-        <img alt="pattern" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4V037pfPLp7dfFOnJJFwSFAn4tkEKj5epC_RhMw7AUd2U1FhQ5hQJsLTSjwpQx69Jq1NAkRvAAI-JlaruNpcCDLsrxN3n3qta6f6Emxyp75E9Afgj797R5kHXdqJJyAygd73uC7gE7dQfs6LiYSUvQO3Lwdo9PAuvwAc0rqNx0Fs_rcLGAwh3vLDQlkB99jLWCNp7ZKpXvFpJddtCSPqZVczSotNDWbh9J_l4aYO06qlIAKA2I1ioNTVRaDNdP3LMe8mH9fuhtXa1"/>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium mb-4 sm:mb-6 border border-primary/30">
-                <span class="material-icons-outlined text-xs sm:text-sm text-primary">edit_note</span>
-                <span class="text-primary">Most Popular Choice</span>
-            </div>
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 sm:mb-6 tracking-tight">
-                Revocable Living Trust
-            </h1>
-            <p class="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 lg:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-                Maintain full control of your crypto assets while ensuring smooth transfer to beneficiaries
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="onboarding/onboarding.php" class="w-full sm:w-auto max-w-xs bg-primary text-navy-900 hover:opacity-90 px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
-                    <span class="material-icons-outlined text-base sm:text-lg">rocket_launch</span>
-                    <span>Create Your Trust Now</span>
-                </a>
-                <a href="compare_trust_types_page.php" class="w-full sm:w-auto max-w-xs bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/30 text-white px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2">
-                <span class="material-icons-outlined">compare_arrows</span>
-                    Compare Trust Types
-                </a>
-        </div>
-    </div>
+
+<!-- Overview -->
+<section class="py-section-padding-lg px-gutter bg-surface">
+<div class="max-w-container-max mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+<div class="space-y-6">
+<span class="inline-block px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider">Overview</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">What is a Revocable Trust?</h2>
+<div class="space-y-4 font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<p>A revocable living trust is a legal entity you create during your lifetime to hold and manage your cryptocurrency assets. As the grantor, you maintain complete control and can modify or dissolve the trust at any time while you're alive and competent.</p>
+<p>Unlike a will, a revocable trust allows your crypto assets to pass directly to beneficiaries without probate, saving time, money, and maintaining privacy. You serve as the trustee during your lifetime.</p>
+<p>When you pass away or become incapacitated, your chosen successor trustee takes over, executing your wishes exactly as specified in the trust document.</p>
+</div>
+</div>
+<div class="bg-primary-container p-8 md:p-10 rounded-2xl border border-white/10 shadow-xl">
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-8">Key Features</h3>
+<div class="space-y-5">
+<?php
+$features = [
+    ['title' => 'Full Control', 'desc' => 'Modify, amend, or revoke anytime during your lifetime'],
+    ['title' => 'Avoid Probate', 'desc' => 'Assets transfer immediately to beneficiaries'],
+    ['title' => 'Privacy', 'desc' => 'Unlike wills, trusts remain private and not public record'],
+    ['title' => 'Incapacity Planning', 'desc' => 'Successor trustee manages assets if you\'re unable to'],
+];
+foreach ($features as $f):
+?>
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-primary"><?php echo $f['title']; ?></h4>
+<p class="font-body-md text-body-md text-on-primary-container"><?php echo $f['desc']; ?></p>
+</div>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
+</div>
 </section>
-<section class="py-24 px-4 max-w-7xl mx-auto">
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
-        <div class="space-y-6">
-            <h2 class="text-3xl font-bold text-slate-900 dark:text-white">What is a Revocable Trust?</h2>
-            <div class="space-y-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-                <p>
-                        A revocable living trust is a legal entity you create during your lifetime to hold and manage your cryptocurrency assets. As the grantor, you maintain complete control and can modify or dissolve the trust at any time while you're alive and competent.
-                    </p>
-                <p>
-                        Unlike a will, a revocable trust allows your crypto assets to pass directly to your beneficiaries without probate, saving time, money, and maintaining privacy. You serve as the trustee during your lifetime, managing your assets as you always have.
-                    </p>
-                <p>
-                        When you pass away or become incapacitated, your chosen successor trustee takes over, executing your wishes exactly as specified in the trust document—all recorded immutably on the blockchain.
-                    </p>
-            </div>
-        </div>
-        <div class="bg-slate-50 dark:bg-slate-800/50 p-8 md:p-10 rounded-3xl border border-slate-100 dark:border-slate-800">
-            <h3 class="text-xl font-bold mb-8 text-slate-900 dark:text-white">Key Features</h3>
-            <div class="space-y-6">
-                <div class="flex gap-4">
-                    <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center">
-                        <span class="material-icons-outlined text-sm font-bold">check</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Full Control</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Modify, amend, or revoke anytime during your lifetime</p>
-                    </div>
-                </div>
-                <div class="flex gap-4">
-                    <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center">
-                        <span class="material-icons-outlined text-sm font-bold">check</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Avoid Probate</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Assets transfer immediately to beneficiaries</p>
-                    </div>
-                </div>
-                <div class="flex gap-4">
-                    <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center">
-                        <span class="material-icons-outlined text-sm font-bold">check</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Privacy</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Unlike wills, trusts remain private and not public record</p>
-                    </div>
-                </div>
-                <div class="flex gap-4">
-                    <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center">
-                        <span class="material-icons-outlined text-sm font-bold">check</span>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Incapacity Planning</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400">Successor trustee manages assets if you're unable to</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+<!-- Benefits -->
+<section class="py-section-padding-lg px-gutter bg-warm-cream">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-3">Benefits of a Revocable Trust</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Why thousands choose revocable trusts for their crypto assets</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+<?php
+$benefits = [
+    ['icon' => 'gavel', 'title' => 'Avoid Probate Court', 'desc' => 'Bypass probate entirely, saving beneficiaries months of legal proceedings and thousands in court fees.'],
+    ['icon' => 'group', 'title' => 'Maintain Privacy', 'desc' => 'Trusts remain completely private. Your crypto holdings and beneficiaries stay confidential.'],
+    ['icon' => 'tune', 'title' => 'Maximum Flexibility', 'desc' => 'Change beneficiaries, update allocations, or modify terms anytime as life changes.'],
+    ['icon' => 'monitor_heart', 'title' => 'Incapacity Protection', 'desc' => 'Successor trustee seamlessly takes over without court intervention if you\'re unable to manage assets.'],
+    ['icon' => 'bolt', 'title' => 'Immediate Transfer', 'desc' => 'Beneficiaries receive crypto assets immediately upon your passing—no waiting for probate.'],
+    ['icon' => 'verified_user', 'title' => 'Harder to Contest', 'desc' => 'Trusts are more difficult to challenge than wills, better protecting your wishes.'],
+];
+foreach ($benefits as $b):
+?>
+<div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm hover:shadow-md hover:border-secondary/30 transition-all">
+<div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary mb-5">
+<span class="material-symbols-outlined"><?php echo $b['icon']; ?></span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3"><?php echo $b['title']; ?></h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed"><?php echo $b['desc']; ?></p>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
 </section>
-<section class="py-24 bg-slate-50/50 dark:bg-slate-900/50">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">Benefits of a Revocable Trust</h2>
-            <p class="text-slate-600 dark:text-slate-400">Why thousands choose revocable trusts for their crypto assets</p>
-        </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">gavel</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Avoid Probate Court</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Assets in a revocable trust bypass probate entirely, saving your beneficiaries months or years of legal proceedings and thousands in court fees.
-                    </p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">group</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Maintain Privacy</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Unlike wills that become public record, trusts remain completely private. Your crypto holdings and beneficiaries stay confidential.
-                    </p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">tune</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Maximum Flexibility</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Change beneficiaries, update asset allocations, or modify distribution terms anytime. Perfect for life's changing circumstances.
-                    </p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">monitor_heart</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Incapacity Protection</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        If you become unable to manage your assets, your successor trustee seamlessly takes over without court intervention.
-                    </p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">bolt</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Immediate Transfer</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Beneficiaries receive their crypto assets immediately upon your passing—no waiting for probate to clear.
-                    </p>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-primary rounded-xl flex items-center justify-center mb-6">
-                    <span class="material-icons-outlined">verified_user</span>
-                </div>
-                <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Contestation Harder</h3>
-                <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Trusts are more difficult to challenge than wills, providing better protection for your wishes and beneficiaries.
-                    </p>
-            </div>
-        </div>
-    </div>
+
+<!-- How It Works -->
+<section class="py-section-padding-lg px-gutter bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-12">
+<h2 class="font-headline-lg text-headline-lg mb-3">How It Works</h2>
+<p class="font-body-md text-body-md text-on-primary-container">Create your revocable trust in four simple steps</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+<?php
+$steps = [
+    ['num' => '1', 'title' => 'Setup Trust Details', 'desc' => 'Name your trust, appoint yourself as trustee, and designate a successor trustee.'],
+    ['num' => '2', 'title' => 'Add Crypto Assets', 'desc' => 'Transfer Bitcoin, Ethereum, and other cryptocurrencies via secure integration.'],
+    ['num' => '3', 'title' => 'Name Beneficiaries', 'desc' => 'Specify who receives what, when, and under what conditions.'],
+    ['num' => '4', 'title' => 'Sign & Activate', 'desc' => 'Digital signature deploys your trust, making it legally binding.'],
+];
+foreach ($steps as $step):
+?>
+<div class="bg-primary-container p-6 rounded-2xl border border-white/10 text-center">
+<div class="w-12 h-12 bg-secondary text-on-secondary rounded-xl flex items-center justify-center text-lg font-bold mx-auto mb-4"><?php echo $step['num']; ?></div>
+<h3 class="font-headline-md text-headline-md text-sky-accent mb-2"><?php echo $step['title']; ?></h3>
+<p class="font-body-md text-body-md text-on-primary-container text-sm"><?php echo $step['desc']; ?></p>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
 </section>
-<section class="py-24 px-4">
-    <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-20">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-white">How It Works</h2>
-            <p class="text-slate-600 dark:text-slate-400">Create your revocable trust in four simple steps</p>
-        </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 relative">
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-xl shadow-indigo-500/30 group-hover:scale-110 transition-transform">1</div>
-                <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Setup Trust Details</h3>
-                <p class="text-slate-600 dark:text-slate-400">Name your trust, appoint yourself as trustee, and designate a successor trustee for future management.</p>
-            </div>
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-xl shadow-indigo-500/30 group-hover:scale-110 transition-transform">2</div>
-                <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Add Crypto Assets</h3>
-                <p class="text-slate-600 dark:text-slate-400">Transfer your Bitcoin, Ethereum, and other cryptocurrencies into the trust via secure blockchain integration.</p>
-            </div>
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-xl shadow-indigo-500/30 group-hover:scale-110 transition-transform">3</div>
-                <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Name Beneficiaries</h3>
-                <p class="text-slate-600 dark:text-slate-400">Specify who receives what, when they receive it, and under what conditions—all enforced by smart contracts.</p>
-            </div>
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-xl shadow-indigo-500/30 group-hover:scale-110 transition-transform">4</div>
-                <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Sign &amp; Activate</h3>
-                <p class="text-slate-600 dark:text-slate-400">Digital signature deploys your trust to the blockchain, making it immutable and legally binding.</p>
-            </div>
-        </div>
-    </div>
+
+<?php
+$cta_title = 'Ready to Create Your Revocable Trust?';
+$cta_subtitle = 'Starting at $299 — complete setup in under 15 minutes';
+$cta_primary_text = 'Get Started Now';
+$cta_primary_href = 'onboarding/onboarding.php';
+$cta_secondary_text = '';
+include 'includes/components/cta-banner.php';
+?>
+
+<section class="py-section-padding-md px-gutter bg-surface">
+<div class="max-w-container-max mx-auto">
+<div class="flex flex-wrap justify-center gap-6 md:gap-10">
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">security</span> Blockchain secured</span>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">verified</span> Legally compliant</span>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">credit_card_off</span> No credit card required</span>
+</div>
+</div>
 </section>
-<section class="py-24 px-4">
-    <div class="max-w-5xl mx-auto">
-        <div class="bg-navy-900 rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
-            <div class="relative z-10">
-                <h2 class="text-3xl md:text-5xl font-extrabold mb-6">Ready to Create Your Revocable Trust?</h2>
-                <p class="text-xl text-indigo-100 mb-10">Starting at $299 - Complete setup in under 15 minutes</p>
-                <a href="onboarding/onboarding.php" class="inline-block bg-white text-primary hover:bg-indigo-50 px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl flex items-center justify-center gap-3 mx-auto">
-                    <span class="material-icons-outlined">rocket_launch</span>
-                        Get Started Now
-                    </a>
-                <div class="mt-8 flex flex-wrap justify-center gap-6 text-white/80 text-sm">
-                    <span class="flex items-center gap-1.5"><span class="material-icons-outlined text-base">security</span> Blockchain secured</span>
-                    <span class="flex items-center gap-1.5"><span class="material-icons-outlined text-base">verified</span> Legally compliant</span>
-                    <span class="flex items-center gap-1.5"><span class="material-icons-outlined text-base">credit_card_off</span> No credit card required</span>
-                </div>
-            </div>
-            <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl"></div>
-        </div>
-    </div>
-</section>
+
+<?php
+$current_service = 'revocable';
+include 'includes/components/service-explore.php';
+?>
+
 <?php include 'includes/footer.php'; ?>

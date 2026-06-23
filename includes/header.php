@@ -126,8 +126,21 @@ $nav_active = function ($page) use ($current_page) {
     </script>
 <style>
         .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.7);
@@ -158,7 +171,6 @@ Services
 </div>
 </div>
 </div>
-<a class="<?php echo $nav_active('learning_center_landing'); ?>" href="learning_center_landing.php">Resources</a>
 <a class="<?php echo $nav_active('about_us'); ?>" href="about_us.php">About</a>
 <a class="<?php echo $nav_active('contact_us'); ?>" href="contact_us.php">Contact</a>
 <a class="<?php echo $nav_active('pricing'); ?>" href="pricing.php">Pricing</a>
@@ -185,7 +197,6 @@ Get Started
 <a href="smart_contract_trust_service.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Smart Contract Trust</a>
 <a href="trust_llc.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Wyoming LLC</a>
 <div class="border-t border-outline-variant/30 my-2"></div>
-<a href="learning_center_landing.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Resources</a>
 <a href="about_us.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">About</a>
 <a href="contact_us.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Contact</a>
 <a href="pricing.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Pricing</a>
