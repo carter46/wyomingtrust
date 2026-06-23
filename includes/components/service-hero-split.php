@@ -6,7 +6,7 @@ $hero_label = $hero_label ?? null;
 $hero_bullets = $hero_bullets ?? [];
 $hero_cta_href = $hero_cta_href ?? 'onboarding/onboarding.php';
 $hero_cta_text = $hero_cta_text ?? 'Get Started';
-$hero_image = $hero_image ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuBvRYp0dvstYxodtw784FyHjyvs3SYAMkiRfoYQHJgKA99SXuN6Mup5mFrMly1F7PUfIAqsnyfEMTuCU9ZHfpeFHTiL2DOPIyAV1O5lDrlj3kb3hjXo6DvEYoxjPzmYmpE2Qb3r2qbmMRIQ02IbSnE9Tdl6dMgXmm6RaHoDHEwEoAvKeKjDhxsyykiax7teX-H95wWD6BvttSZscWlBLdN45H_cxhvLCoIEd_P64e3_GyXhpcegsVOBCwjYoEFReykqxcsl56gvXOc';
+$hero_image = $hero_image ?? asset_url('Storage/images/wyoming-business-landscape.jpg');
 $hero_image_alt = $hero_image_alt ?? 'WyomingTrust estate planning';
 ?>
 <section class="relative overflow-hidden bg-primary py-section-padding-lg px-gutter">

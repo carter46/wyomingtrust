@@ -23,7 +23,7 @@ include 'includes/header.php';
 </div>
 <div class="relative">
 <div class="aspect-video rounded-xl overflow-hidden shadow-2xl">
-<img class="w-full h-full object-cover" alt="Multi-generational family in a modern living room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlUZlfLH2S-u8gwwDzghvSm4cwzTTEsqNwenovb7Zr1dzwC5C_IfIVGUB-8df9coK1kzPs3GjQHWta3eyjymliAyiYYEvJ2QblXUcCZtRyEfIoc--eqIrNznNHm8sbI9j6GYTm5yYIioDyEPZNRQXpTPI2a_02OSym0xTyA6Vt5fxUhR96lqIfS-KArZ-Q4csH0XwrnA9KwUpfe0HuFr11TdtJWZbmR65c9vpvUGrCpY_JyNR2_EVs-P38-V3uvQeREwqPDsGfE3jF"/>
+<img class="w-full h-full object-cover" alt="Multi-generational family in a modern living room" src="<?php echo asset_url('Storage/images/about-family-hero.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-6 -left-6 bg-primary text-on-primary p-6 rounded-xl shadow-lg hidden md:block max-w-[240px]">
 <p class="font-label-md text-label-md italic">"Connecting generations through smarter planning."</p>
@@ -55,7 +55,7 @@ include 'includes/header.php';
 </div>
 <div class="lg:col-span-5 relative">
 <div class="bg-surface p-4 rounded-2xl shadow-xl transform lg:rotate-3">
-<img class="rounded-xl w-full" alt="Clean workspace with estate planning dashboard on laptop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAVlgmoerDC25ivG8JSeEkR8ONboQEr-wB5okKNeVOgIG0sJpgxp1mqEJuCF7FQ0NTmNp4oEaP23o8ZjMpZ_cGJcuYy3Ij626-nWD71idFf6Cu5iYiCopfE2VbFjZSyXzqLiTPrUL0n45jxSx5IDxqg9CIObW-2JuTwxQfCXdFYM6AALYuCU49kpkEqY4zccX8IFazfmGZYXIVvitnH91QRFaxTlakOenGCNeiVyxW2NKj4lqVvl2iyYzG8_ymxz3qjUkPR2sXY3jB"/>
+<img class="rounded-xl w-full" alt="Clean workspace with estate planning dashboard on laptop" src="<?php echo asset_url('Storage/images/about-workspace-dashboard.jpg'); ?>"/>
 </div>
 </div>
 </div>
@@ -71,7 +71,7 @@ include 'includes/header.php';
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="md:col-span-2 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-<img alt="The Kramm Family" class="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida/AP1WRLvy_9xPxxP08XsHA8z6KUZCWs1EF7IEkuWQ2s2UI1tD9YLkCS2f14eRuLVNY9GCutT15-Tzf731vQG-67ImyvSjyzn935JfRBAmm5WzkYgMJgR-wZg_9upfLD78vmFxKJ_lA_ewpQ20eS0Ecg1XoYNULCBSTE_fWbb50IJBkBmQhM9288S2DtXHI3ZVJGOnLg_cEV79x0JKPk1Erlt8iIXzb8NVL4AhX4pod4ZxbN7M-ghuhJ2Dy2a4bZxv"/>
+<img alt="The Kramm Family" class="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500" src="<?php echo asset_url('Storage/images/family-multigenerational.jpg'); ?>"/>
 <div class="p-8">
 <h3 class="font-headline-md text-headline-md text-primary mb-2">Connecting Generations</h3>
 <p class="font-body-md text-body-md text-on-surface-variant">Justin, Vica, and their sons Alex and Oscar represent why we do what we do. They chose WyomingTrust to ensure their kids were protected, turning a "New Year's resolution" into a legacy of security.</p>

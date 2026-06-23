@@ -7,7 +7,6 @@ $service_pages = [
     'revocable_living_trust_details',
     'smart_contract_trust_service',
     'trust_llc',
-    'compare_trust_types_page',
 ];
 $is_service_page = in_array($current_page, $service_pages, true);
 $nav_active = function ($page) use ($current_page) {
@@ -154,7 +153,7 @@ $nav_active = function ($page) use ($current_page) {
 <body class="bg-background text-on-background font-body-md">
 <header class="fixed top-0 left-0 right-0 z-50 bg-surface shadow-sm h-20 flex items-center">
 <div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-20">
-<a href="index.php" class="font-headline-md text-headline-md font-bold text-primary">WyomingTrust</a>
+<?php include __DIR__ . '/components/site-logo.php'; ?>
 <nav class="hidden lg:flex gap-8 items-center font-label-md text-label-md">
 <div class="relative group">
 <a class="<?php echo $is_service_page ? 'text-secondary font-bold' : 'text-on-surface-variant hover:text-secondary'; ?> transition-colors cursor-pointer flex items-center gap-1" href="#">

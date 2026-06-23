@@ -55,7 +55,7 @@ Start Your Business
 </div>
 <div class="relative mt-8 lg:mt-0">
 <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] border-8 border-white/10">
-<img class="w-full h-full object-cover" alt="Wyoming business landscape" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvRYp0dvstYxodtw784FyHjyvs3SYAMkiRfoYQHJgKA99SXuN6Mup5mFrMly1F7PUfIAqsnyfEMTuCU9ZHfpeFHTiL2DOPIyAV1O5lDrlj3kb3hjXo6DvEYoxjPzmYmpE2Qb3r2qbmMRIQ02IbSnE9Tdl6dMgXmm6RaHoDHEwEoAvKeKjDhxsyykiax7teX-H95wWD6BvttSZscWlBLdN45H_cxhvLCoIEd_P64e3_GyXhpcegsVOBCwjYoEFReykqxcsl56gvXOc"/>
+<img class="w-full h-full object-cover" alt="Wyoming business landscape" src="<?php echo asset_url('Storage/images/wyoming-business-landscape.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-6 -left-6 bg-primary-container text-on-primary p-6 rounded-2xl shadow-xl flex items-center gap-4 border-4 border-white/10 hidden sm:flex">
 <div class="bg-secondary p-3 rounded-full">
@@ -204,8 +204,8 @@ Start Your Business
 <h3 class="font-headline-md text-headline-md text-primary">Annual Fees &amp; Requirements</h3>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-4">Many do business in Wyoming due to the relatively minimal state requirements and fees. To set up an LLC, you are only required to list a registered agent and to pay a $100 filing fee to the Secretary of State. Maintaining the company in future years is simple. You are only required to file a $60 annual report with the Secretary of State.</p>
-<a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="learning_center_landing.php">
-Read More
+<a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="pricing.php">
+View Pricing
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
@@ -217,8 +217,8 @@ Read More
 <h3 class="font-headline-md text-headline-md text-primary">Wyoming LLC Taxes</h3>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-4">Limited Liability Companies offer the ability to be taxed as partnerships, corporations, or s-corporations. Each designation maintains the limited liability benefits. This hybrid structure is partly what drives the popularity of LLCs. If you choose the partnership designation, then you will be taxed according to your personal tax rate.</p>
-<a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="learning_center_landing.php">
-Read More
+<a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="pricing.php">
+View Pricing
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>

@@ -201,7 +201,7 @@ $page_title = 'Create Trust - WyomingTrust';
 <div class="min-h-screen flex flex-col">
 <header class="sticky top-0 z-50 bg-surface border-b border-outline-variant/30">
 <div class="max-w-container-max mx-auto px-gutter h-16 flex items-center justify-between">
-<a href="../index.php" class="font-headline-md text-headline-md font-bold text-primary">WyomingTrust</a>
+<?php include __DIR__ . '/../includes/components/site-logo.php'; ?>
 <div class="flex items-center gap-3 sm:gap-4">
 <?php if ($isLoggedIn): ?>
 <a href="../dashboard/user/dashboard.php" class="hidden sm:inline font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors">Dashboard</a>

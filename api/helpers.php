@@ -293,6 +293,29 @@ function escape_html($string) {
 }
 
 /**
+ * Resolve a project-relative asset path from the current script location.
+ */
+function asset_url($relativePath) {
+    $relativePath = ltrim(str_replace('\\', '/', (string) $relativePath), '/');
+    $projectRoot = realpath(dirname(__DIR__));
+    $scriptFile = $_SERVER['SCRIPT_FILENAME'] ?? '';
+    $scriptDir = realpath(dirname($scriptFile) ?: $scriptFile);
+
+    if (!$projectRoot || !$scriptDir) {
+        return $relativePath;
+    }
+
+    $depth = 0;
+    $current = $scriptDir;
+    while ($current && $current !== $projectRoot && dirname($current) !== $current) {
+        $depth++;
+        $current = dirname($current);
+    }
+
+    return ($depth > 0 ? str_repeat('../', $depth) : '') . $relativePath;
+}
+
+/**
  * Validate password strength
  */
 function validate_password($password) {

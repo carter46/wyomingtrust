@@ -5,7 +5,11 @@
 <footer class="bg-primary text-on-primary">
 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-stack-gap px-gutter py-section-padding-lg max-w-container-max mx-auto">
 <div class="col-span-2 lg:col-span-1">
-<a href="index.php" class="font-headline-md text-headline-md font-bold text-on-primary block mb-6">WyomingTrust</a>
+<?php
+$logo_class = 'flex items-center gap-2.5 mb-6';
+$logo_text_class = 'font-headline-md text-headline-md font-bold text-on-primary';
+include __DIR__ . '/components/site-logo.php';
+?>
 <p class="text-on-primary-container text-sm leading-relaxed mb-8 max-w-xs">
                     Helping families protect their crypto legacy with modern estate planning and bank-grade security.
                 </p>
@@ -28,7 +32,6 @@
 <div>
 <h4 class="font-bold mb-6 text-sky-accent text-label-md">Resources</h4>
 <ul class="space-y-3 text-sm text-on-primary-container">
-<li><a class="hover:text-sky-accent transition-colors" href="learning_center_landing.php">Learn Center</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="compare_trust_types_page.php">Compare Trust Types</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="pricing.php">Pricing</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="contact_us.php">Support</a></li>

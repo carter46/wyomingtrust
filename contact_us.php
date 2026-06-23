@@ -66,9 +66,9 @@ include 'includes/header.php';
 <p class="text-on-primary-container mt-2">Get instant answers to common questions about your estate plan 24/7.</p>
 </div>
 </div>
-<a class="inline-flex items-center gap-2 text-sky-accent hover:underline font-label-md" href="learning_center_landing.php">
-                            Visit Support Center
-                            <span class="material-symbols-outlined text-[20px]">open_in_new</span>
+<a class="inline-flex items-center gap-2 text-sky-accent hover:underline font-label-md" href="compare_trust_types_page.php">
+                            Compare Trust Types
+                            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
 </a>
 </div>
 <div class="contact-card-hover bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/30">
@@ -100,34 +100,34 @@ include 'includes/header.php';
 </div>
 </section>
 
-<!-- Learn Center Teaser -->
+<!-- Helpful Resources -->
 <section class="bg-warm-cream py-section-padding-lg border-t border-outline-variant/20">
 <div class="max-w-container-max mx-auto px-gutter text-center">
-<span class="text-label-sm text-secondary font-bold uppercase tracking-[0.2em] mb-4 block">Knowledge Base</span>
-<h2 class="font-headline-lg text-headline-lg text-primary mb-12">Search our Learn Center</h2>
+<span class="text-label-sm text-secondary font-bold uppercase tracking-[0.2em] mb-4 block">Resources</span>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-12">Explore our services</h2>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-<a href="learning_center_landing.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">menu_book</span>
-<h4 class="font-headline-md text-headline-md text-primary mb-2">Getting Started</h4>
-<p class="text-on-surface-variant mb-4">Learn the basics of creating your first Will or Trust.</p>
+<a href="compare_trust_types_page.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
+<span class="material-symbols-outlined text-secondary mb-4 text-3xl">compare_arrows</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Compare Trust Types</h4>
+<p class="text-on-surface-variant mb-4">Side-by-side comparison of revocable, irrevocable, and smart contract trusts.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            Read Guide <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            View Comparison <span class="material-symbols-outlined text-sm">chevron_right</span>
 </span>
 </a>
-<a href="learning_center_landing.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">gavel</span>
-<h4 class="font-headline-md text-headline-md text-primary mb-2">Legal Legality</h4>
-<p class="text-on-surface-variant mb-4">Understand how our state-specific documents stay legally valid.</p>
+<a href="pricing.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
+<span class="material-symbols-outlined text-secondary mb-4 text-3xl">payments</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Pricing</h4>
+<p class="text-on-surface-variant mb-4">Transparent plans and starting prices for every trust type.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            View Details <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            View Pricing <span class="material-symbols-outlined text-sm">chevron_right</span>
 </span>
 </a>
-<a href="learning_center_landing.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">verified_user</span>
-<h4 class="font-headline-md text-headline-md text-primary mb-2">Security &amp; Privacy</h4>
-<p class="text-on-surface-variant mb-4">How we use bank-level encryption to protect your data.</p>
+<a href="about_us.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
+<span class="material-symbols-outlined text-secondary mb-4 text-3xl">groups</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">About WyomingTrust</h4>
+<p class="text-on-surface-variant mb-4">Learn about our mission and why families trust us with their estates.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            Safety First <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            About Us <span class="material-symbols-outlined text-sm">chevron_right</span>
 </span>
 </a>
 </div>

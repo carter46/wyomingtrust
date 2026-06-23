@@ -16,7 +16,7 @@ $hero_secondary_text = 'Compare Trust Types';
 $hero_secondary_href = 'compare_trust_types_page.php';
 $hero_badge_value = '$499';
 $hero_badge_label = 'Starting Price';
-$hero_image = 'https://lh3.googleusercontent.com/aida-public/AB1WRLsd2Y5kwnSOihFhXNRim1IXArn6wVbsZ1IAFPgjIn4xj-ClwpECLJkqzklWqjcd_ds-kFSN_YLfHnZxKlzf6hlQrIfQkFarMutwWSw-4o4yyHv5qhK8WRqFXPaf4FoIHlOP4aM0eqTMmg0Sn6JC9igCp4KvJV7hxRe22pEt4vwsuh8P_5bFigc6cVhXfwfpTRNF7f5SQN0j5lwktNO5MIot9m0hME2o6JIvXP90vNythi1cZr23SGxV7g0';
+$hero_image = asset_url('Storage/images/hero-family-living-room.jpg');
 include 'includes/components/service-hero-split.php';
 ?>
 

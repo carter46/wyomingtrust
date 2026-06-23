@@ -224,7 +224,7 @@ $page_title = 'Link Wallet - WyomingTrust';
 <div id="wallet-metamask" onclick="selectWallet('metamask')" class="flex items-center justify-between p-4 rounded-lg bg-primary/10 border-2 border-primary shadow-sm cursor-pointer hover:bg-primary/20 transition-colors">
 <div class="flex items-center gap-3">
 <div class="size-10 rounded-full bg-white dark:bg-[#3d2f1f] p-1 flex items-center justify-center">
-<img class="size-full object-contain" alt="MetaMask logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWfVybyxVRMMOA3-0jJXnV0NSa3hm3i9NSY6KBGa5YJKjvsUunZmezgaei3EgOaOmVPQsVa-3DO8QUkrj8oW_vBIGux0TWZMbnrp7kU0JwCyFTbP4MI-JMzyIdxbNRcZ33bVZU6A7-lUAKkC98Nwm_UYfbnzgBhPRXWKIWyEo2Nlv9Votw8z271vMEZFZ1KOCTNWs21osdA7q4GMkfTLZgi-47MbQT7YjK1WV1jSKmMkYSkft1tUg_r7-p1J21uAb35OVJdT7mswUM"/>
+<img class="size-full object-contain" alt="MetaMask logo" src="<?php echo escape_html(asset_url('Storage/images/metamask-logo.png')); ?>"/>
 </div>
 <div class="text-left">
 <span class="text-navy-brand dark:text-white font-semibold text-base block">MetaMask</span>
@@ -283,7 +283,7 @@ Connect
 </footer>
 <script>
 const wallets = {
-    'metamask': { name: 'MetaMask', iconUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAWfVybyxVRMMOA3-0jJXnV0NSa3hm3i9NSY6KBGa5YJKjvsUunZmezgaei3EgOaOmVPQsVa-3DO8QUkrj8oW_vBIGux0TWZMbnrp7kU0JwCyFTbP4MI-JMzyIdxbNRcZ33bVZU6A7-lUAKkC98Nwm_UYfbnzgBhPRXWKIWyEo2Nlv9Votw8z271vMEZFZ1KOCTNWs21osdA7q4GMkfTLZgi-47MbQT7YjK1WV1jSKmMkYSkft1tUg_r7-p1J21uAb35OVJdT7mswUM' },
+    'metamask': { name: 'MetaMask', iconUrl: <?php echo json_encode(asset_url('Storage/images/metamask-logo.png')); ?> },
     'coinbase': { name: 'Coinbase Wallet', icon: 'account_balance_wallet', color: 'blue-600' },
     'trust': { name: 'Trust Wallet', icon: 'shield_with_heart', color: 'primary' },
     'walletconnect': { name: 'WalletConnect', icon: 'sync', color: 'blue-400' }

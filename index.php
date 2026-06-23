@@ -35,7 +35,7 @@ include 'includes/header.php';
 </div>
 <div class="relative">
 <div class="rounded-2xl overflow-hidden shadow-2xl">
-<img class="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-700" alt="A diverse family sharing a joyful moment in a sun-drenched living room" src="https://lh3.googleusercontent.com/aida/AP1WRLsd2Y5kwnSOihFhXNRim1IXArn6wVbsZ1IAFPgjIn4xj-ClwpECLJkqzklWqjcd_ds-kFSN_YLfHnZxKlzf6hlQrIfQkFarMutwWSw-4o4yyHv5qhK8WRqFXPaf4FoIHlOP4aM0eqTMmg0Sn6JC9igCp4KvJV7hxRe22pEt4vwsuh8P_5bFigc6cVhXfwfpTRNF7f5SQN0j5lwktNO5MIot9m0hME2o6JIvXP90vNythi1cZr23SGxV7g0"/>
+<img class="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-700" alt="A diverse family sharing a joyful moment in a sun-drenched living room" src="<?php echo asset_url('Storage/images/hero-family-living-room.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-6 -left-6 glass-card p-6 rounded-xl shadow-xl hidden md:block border border-white/20">
 <ul class="space-y-3">
@@ -58,12 +58,12 @@ include 'includes/header.php';
 <section class="py-section-padding-md border-y border-outline-variant/30 bg-surface-container-low">
 <div class="max-w-container-max mx-auto px-gutter">
 <p class="text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-8">Proudly Featured By</p>
-<div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-<span class="font-bold text-headline-md italic font-headline-md">TechCrunch</span>
-<span class="font-bold text-headline-md font-headline-md">Inc.</span>
-<span class="font-bold text-headline-md uppercase tracking-tighter font-headline-md">Forbes</span>
-<span class="font-bold text-headline-md font-headline-md">The New York Times</span>
-<span class="font-bold text-headline-md italic font-headline-md">USA TODAY</span>
+<div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-14">
+<img src="<?php echo asset_url('Storage/images/Tech_Crunch.png'); ?>" alt="TechCrunch" class="h-8 md:h-10 w-auto max-w-[140px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/Inc.png'); ?>" alt="Inc." class="h-7 md:h-9 w-auto max-w-[100px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/image_252.png'); ?>" alt="Forbes" class="h-7 md:h-9 w-auto max-w-[120px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/image_253.png'); ?>" alt="The New York Times" class="h-7 md:h-9 w-auto max-w-[180px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/USA_Today.png'); ?>" alt="USA TODAY" class="h-8 md:h-10 w-auto max-w-[150px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
 </div>
 </div>
 </section>
@@ -159,13 +159,13 @@ include 'includes/header.php';
 </div>
 </li>
 </ul>
-<a class="bg-secondary text-on-secondary px-6 py-3 rounded-lg font-bold inline-block" href="learning_center_landing.php">Learn More</a>
+<a class="bg-secondary text-on-secondary px-6 py-3 rounded-lg font-bold inline-block" href="compare_trust_types_page.php">Compare Trust Types</a>
 </div>
 </div>
 <div class="w-full lg:w-1/2">
 <div class="relative">
 <div class="rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-<img class="w-full h-auto" alt="Modern estate planning dashboard interface" src="https://lh3.googleusercontent.com/aida/AP1WRLu7NpctA6ob1iqRoAjbZ3aFRMxKkYe67Swer_1zTAxRMvWuynmcQbd6V7QoofB7HqrI2r9rRHVyGskB0M773DCD9EDZGtjLhvzao7YQH_26yd-ci4yasv-JqqaYbRkRoYIU2IkmI3R0iEB6pQ9V5Yfx50y6l2w0V0GNfeAVuoharQW3itV11wwk5K1oe9uHaJ8I_ewPmLlt3pHEYaQk-VzL8U9a0mdr9YQsB-uFEIekRH1TbKZY2L-jO65q"/>
+<img class="w-full h-auto" alt="Modern estate planning dashboard interface" src="<?php echo asset_url('Storage/images/dashboard-estate-planning.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-8 -right-8 bg-primary text-on-primary p-6 rounded-2xl max-w-xs shadow-xl hidden xl:block">
 <p class="text-sm italic mb-4">"I loved knowing exactly what my plan was missing. The AI powered recommendations showed me gaps I hadn't even considered."</p>
@@ -243,7 +243,7 @@ include 'includes/header.php';
 <h2 class="font-headline-lg text-headline-lg text-primary">Connecting generations.</h2>
 </div>
 <div class="relative rounded-3xl overflow-hidden group">
-<img class="w-full h-[500px] object-cover" alt="Multigenerational family gathering around a table" src="https://lh3.googleusercontent.com/aida/AP1WRLvy_9xPxxP08XsHA8z6KUZCWs1EF7IEkuWQ2s2UI1tD9YLkCS2f14eRuLVNY9GCutT15-Tzf731vQG-67ImyvSjyzn935JfRBAmm5WzkYgMJgR-wZg_9upfLD78vmFxKJ_lA_ewpQ20eS0Ecg1XoYNULCBSTE_fWbb50IJBkBmQhM9288S2DtXHI3ZVJGOnLg_cEV79x0JKPk1Erlt8iIXzb8NVL4AhX4pod4ZxbN7M-ghuhJ2Dy2a4bZxv"/>
+<img class="w-full h-[500px] object-cover" alt="Multigenerational family gathering around a table" src="<?php echo asset_url('Storage/images/family-multigenerational.jpg'); ?>"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end">
 <div class="p-8 md:p-12 text-white max-w-3xl">
 <p class="text-2xl font-headline-md italic mb-6">
@@ -262,32 +262,33 @@ include 'includes/header.php';
 </div>
 </section>
 
-<!-- Learn Center / Resources Bento -->
+<!-- Plan with confidence -->
 <section class="py-section-padding-lg px-gutter bg-primary text-on-primary">
 <div class="max-w-container-max mx-auto">
 <div class="flex justify-between items-end mb-12">
 <div>
-<h2 class="font-headline-lg text-headline-lg">Get more familiar with Estate / crypto planning.</h2>
+<h2 class="font-headline-lg text-headline-lg">Plan with confidence.</h2>
+<p class="text-on-primary-container mt-3 max-w-xl">Explore our trust options, pricing, and services to find the right fit for your estate.</p>
 </div>
-<a class="hidden md:flex items-center gap-2 text-sky-accent font-label-md border-b border-sky-accent pb-1" href="learning_center_landing.php">
-                        Check Out the Learn Center
+<a class="hidden md:flex items-center gap-2 text-sky-accent font-label-md border-b border-sky-accent pb-1" href="compare_trust_types_page.php">
+                        Compare All Trust Types
                         <span class="material-symbols-outlined">chevron_right</span>
 </a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<a href="learning_center_landing.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
-<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Financial Advisors &bull; 8 min</p>
-<h3 class="font-headline-md text-headline-md mb-6 leading-snug">Will vs Trust - What's The Difference &amp; Which Option is Right for You?</h3>
+<a href="compare_trust_types_page.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
+<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Compare</p>
+<h3 class="font-headline-md text-headline-md mb-6 leading-snug">Will vs Trust — Which Option Is Right for You?</h3>
 <span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
 </a>
-<a href="learning_center_landing.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
-<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">End of Life Planning &bull; 12 min</p>
-<h3 class="font-headline-md text-headline-md mb-6 leading-snug">What to do When Someone Dies - A Step by Step Guide</h3>
+<a href="pricing.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
+<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Pricing</p>
+<h3 class="font-headline-md text-headline-md mb-6 leading-snug">Transparent Plans for Every Trust Type</h3>
 <span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
 </a>
-<a href="learning_center_landing.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
-<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Probate &bull; 3 min</p>
-<h3 class="font-headline-md text-headline-md mb-6 leading-snug">How do you know if probate is required?</h3>
+<a href="about_us.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
+<p class="text-xs uppercase tracking-widest text-sky-accent mb-4">About Us</p>
+<h3 class="font-headline-md text-headline-md mb-6 leading-snug">Why Families Choose WyomingTrust</h3>
 <span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
 </a>
 </div>
