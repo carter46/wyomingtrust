@@ -6,12 +6,30 @@ include 'includes/header.php';
 <!-- Hero Section -->
 <section class="relative overflow-hidden pt-section-padding-lg pb-section-padding-lg px-gutter">
 <div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-<div class="z-10">
+<div class="relative order-1 lg:order-2">
+<div class="rounded-2xl overflow-hidden shadow-2xl">
+<img class="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-700" alt="Family planning their estate together" src="<?php echo asset_url('Storage/images/hero_slide3.jpg'); ?>"/>
+</div>
+<div class="absolute -bottom-6 -left-6 glass-card p-6 rounded-xl shadow-xl hidden md:block border border-white/20">
+<ul class="space-y-3">
+<li class="flex items-center gap-3 text-deep-forest font-label-md">
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> Power of Attorney
+                            </li>
+<li class="flex items-center gap-3 text-deep-forest font-label-md">
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> Last Will &amp; Testament
+                            </li>
+<li class="flex items-center gap-3 text-deep-forest font-label-md">
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> HIPAA Authorization
+                            </li>
+</ul>
+</div>
+</div>
+<div class="z-10 order-2 lg:order-1">
 <h1 class="font-display-lg text-display-lg mb-6 text-primary leading-tight">
-                        Make your Estate / crypto plan and make it count.
+                        Create an Estate Plan That Protects What Matters Most
                     </h1>
 <p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-lg">
-                        Create your will or trust with the platform built to evolve, protecting your loved ones today, tomorrow, and beyond.
+                        Build your will or trust with a secure platform designed to safeguard your assets, protect your loved ones, and adapt to your needs over time.
                     </p>
 <div class="flex flex-col sm:flex-row gap-4">
 <a class="bg-secondary text-on-secondary px-8 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all group" href="onboarding/onboarding.php">
@@ -33,24 +51,6 @@ include 'includes/header.php';
 <span class="font-label-md text-label-md">Excellent on Trustpilot</span>
 </div>
 </div>
-<div class="relative">
-<div class="rounded-2xl overflow-hidden shadow-2xl">
-<img class="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-700" alt="A diverse family sharing a joyful moment in a sun-drenched living room" src="<?php echo asset_url('Storage/images/hero-family-living-room.jpg'); ?>"/>
-</div>
-<div class="absolute -bottom-6 -left-6 glass-card p-6 rounded-xl shadow-xl hidden md:block border border-white/20">
-<ul class="space-y-3">
-<li class="flex items-center gap-3 text-deep-forest font-label-md">
-<?php echo wt_icon('check-circle', 'text-secondary'); ?> Power of Attorney
-                            </li>
-<li class="flex items-center gap-3 text-deep-forest font-label-md">
-<?php echo wt_icon('check-circle', 'text-secondary'); ?> Last Will &amp; Testament
-                            </li>
-<li class="flex items-center gap-3 text-deep-forest font-label-md">
-<?php echo wt_icon('check-circle', 'text-secondary'); ?> HIPAA Authorization
-                            </li>
-</ul>
-</div>
-</div>
 </div>
 </section>
 
@@ -69,57 +69,70 @@ include 'includes/header.php';
 </section>
 
 <!-- Service Comparison (Trust vs Will) -->
-<section class="py-section-padding-lg px-gutter bg-primary text-on-primary">
-<div class="max-w-container-max mx-auto text-center mb-16">
-<h2 class="font-headline-lg text-headline-lg mb-6">It's time—start your online Estate / crypto plan now.</h2>
-<p class="font-body-lg text-body-lg text-on-primary-container max-w-2xl mx-auto">
-                    Our guided online platform makes creating or updating your will or trust a breeze. Need expert input? Our attorneys are ready to offer one-on-one support.
+<section class="py-section-padding-lg px-gutter bg-white border-y border-outline-variant/20">
+<div class="max-w-container-max mx-auto">
+<div class="text-center max-w-3xl mx-auto mb-14">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary mb-4 block">Get Started</span>
+<h2 class="font-headline-lg text-headline-lg mb-5 text-primary">It's time—start your online estate plan now.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                    Our guided online platform makes creating or updating your will or trust simple and straightforward. Need expert input? Our attorneys are ready to offer one-on-one support.
                 </p>
 </div>
-<div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-<div class="bg-primary-container p-8 md:p-12 rounded-2xl border border-white/10 hover:border-sky-accent transition-colors group">
-<h3 class="font-headline-md text-headline-md mb-4 text-sky-accent">Set up a Trust.</h3>
-<p class="font-body-md text-body-md mb-8 text-on-primary-container">
-                        Your complete plan to protect and transfer your assets. A trust prevents your loved ones from losing time and money in probate court.
+<div class="max-w-4xl mx-auto flex flex-col lg:flex-row lg:items-stretch divide-y lg:divide-y-0 lg:divide-x divide-outline-variant/30">
+<div class="flex-1 py-10 lg:py-0 lg:pr-12 text-center lg:text-left">
+<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-secondary/10 text-secondary mb-5">
+<?php echo wt_icon('shield', 'w-6 h-6'); ?>
+</div>
+<h3 class="font-headline-md text-headline-md mb-3 text-primary">Set up a Trust</h3>
+<p class="font-body-md text-body-md mb-6 text-on-surface-variant leading-relaxed">
+                        Your complete plan to protect and transfer your assets. A trust helps your loved ones avoid probate court and keep more of what you've built.
                     </p>
-<a class="inline-flex items-center text-sky-accent font-label-md mb-10 hover:underline" href="compare_trust_types_page.php">
+<ul class="space-y-3 mb-8 text-left max-w-sm mx-auto lg:mx-0">
+<li class="flex items-center gap-3 text-on-surface">
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?> Popular choice for homeowners
+                        </li>
+<li class="flex items-center gap-3 text-on-surface">
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?> Contains all Will documents
+                        </li>
+<li class="flex items-center gap-3 text-on-surface">
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?> Goes into effect while you're living
+                        </li>
+</ul>
+<a class="inline-flex items-center text-secondary font-label-md font-bold mb-6 hover:underline" href="compare_trust_types_page.php">
                         More About Trusts
                         <?php echo wt_icon('arrow-forward', 'ml-1'); ?>
 </a>
-<ul class="space-y-4 mb-10">
-<li class="flex items-center gap-3">
-<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Popular choice for homeowners
+<div>
+<a class="inline-flex items-center justify-center w-full sm:w-auto bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity" href="onboarding/onboarding.php">Create Your Trust</a>
+</div>
+</div>
+<div class="flex-1 py-10 lg:py-0 lg:pl-12 text-center lg:text-left">
+<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-accent/30 text-primary mb-5">
+<?php echo wt_icon('edit', 'w-6 h-6'); ?>
+</div>
+<h3 class="font-headline-md text-headline-md mb-3 text-primary">Write a Will</h3>
+<p class="font-body-md text-body-md mb-6 text-on-surface-variant leading-relaxed">
+                        Cover the basics—who will care for your children and what happens to your assets after you're gone.
+                    </p>
+<ul class="space-y-3 mb-8 text-left max-w-sm mx-auto lg:mx-0">
+<li class="flex items-center gap-3 text-on-surface">
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?> Simple, legal, and state-specific
                         </li>
-<li class="flex items-center gap-3">
-<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Contains all Will documents
+<li class="flex items-center gap-3 text-on-surface-variant">
+<?php echo wt_icon('close', 'text-error flex-shrink-0'); ?> Does not prevent probate court
                         </li>
-<li class="flex items-center gap-3">
-<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Goes into effect while you're living
+<li class="flex items-center gap-3 text-on-surface">
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?> Goes into effect after you're gone
                         </li>
 </ul>
-<a class="block w-full text-center bg-secondary text-on-secondary py-4 rounded-xl font-bold hover:bg-secondary-container transition-colors" href="onboarding/onboarding.php">Create Your Trust</a>
-</div>
-<div class="bg-primary-container p-8 md:p-12 rounded-2xl border border-white/10 hover:border-sky-accent transition-colors group">
-<h3 class="font-headline-md text-headline-md mb-4 text-sky-accent">Write a Will.</h3>
-<p class="font-body-md text-body-md mb-8 text-on-primary-container">
-                        Cover the basics, like who will be responsible for your children and what should happen to your assets after you're gone.
-                    </p>
-<a class="inline-flex items-center text-sky-accent font-label-md mb-10 hover:underline" href="compare_trust_types_page.php">
+<a class="inline-flex items-center text-secondary font-label-md font-bold mb-6 hover:underline" href="compare_trust_types_page.php">
                         More About Wills
                         <?php echo wt_icon('arrow-forward', 'ml-1'); ?>
 </a>
-<ul class="space-y-4 mb-10">
-<li class="flex items-center gap-3">
-<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Simple, legal, and state-specific
-                        </li>
-<li class="flex items-center gap-3">
-<?php echo wt_icon('close', 'text-error'); ?> Does not prevent probate court
-                        </li>
-<li class="flex items-center gap-3">
-<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Goes into effect after you're gone
-                        </li>
-</ul>
-<a class="block w-full text-center bg-sky-accent text-primary py-4 rounded-xl font-bold hover:bg-white transition-colors" href="onboarding/onboarding.php">Create Your Will</a>
+<div>
+<a class="inline-flex items-center justify-center w-full sm:w-auto border-2 border-secondary text-secondary px-8 py-4 rounded-xl font-bold hover:bg-secondary/5 transition-colors" href="onboarding/onboarding.php">Create Your Will</a>
+</div>
+</div>
 </div>
 </div>
 </section>
@@ -165,7 +178,7 @@ include 'includes/header.php';
 <div class="w-full lg:w-1/2">
 <div class="relative">
 <div class="rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-<img class="w-full h-auto" alt="Modern estate planning dashboard interface" src="<?php echo asset_url('Storage/images/dashboard-estate-planning.jpg'); ?>"/>
+<img class="w-full h-auto object-cover" alt="Planning for retirement and long-term security" src="<?php echo asset_url('Storage/images/retirement_1.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-8 -right-8 bg-primary text-on-primary p-6 rounded-2xl max-w-xs shadow-xl hidden xl:block">
 <p class="text-sm italic mb-4">"I loved knowing exactly what my plan was missing. The AI powered recommendations showed me gaps I hadn't even considered."</p>
