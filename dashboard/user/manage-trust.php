@@ -154,7 +154,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         }
 
         confirmBtn.onclick = () => {
-            closeModal();
+            closeModal({ reject: false });
             resolve(true);
         };
 
@@ -190,7 +190,7 @@ function showAlertModal(title, message, type = 'info') {
         }
 
         confirmBtn.onclick = () => {
-            closeModal();
+            closeModal({ reject: false });
             resolve();
         };
 
@@ -198,15 +198,17 @@ function showAlertModal(title, message, type = 'info') {
     });
 }
 
-function closeModal() {
+function closeModal(options = {}) {
+    const reject = options.reject !== false;
     const modal = document.getElementById('customModal');
     const cancelBtn = document.getElementById('modalCancelBtn');
     modal.classList.add('hidden');
     cancelBtn.classList.remove('hidden');
-    if (modalReject) {
+    if (reject && modalReject) {
         modalReject(false);
-        modalReject = null;
     }
+    modalReject = null;
+    modalResolve = null;
 }
 
 document.addEventListener('DOMContentLoaded', loadTrusts);
@@ -219,11 +221,20 @@ document.addEventListener('DOMContentLoaded', loadTrusts);
 
 $page_title = 'Manage Trust | WyomingTrust';
 $active_nav = 'trusts';
-$extra_styles = '@media print { aside, header, .no-print { display: none !important; } body { background: white; color: black; } }';
+$extra_styles = '
+@media print { aside, header, .no-print { display: none !important; } body { background: white; color: black; } }
+.card-shadow { box-shadow: 0 4px 20px rgba(4, 22, 39, 0.05); }
+.bg-primary-fixed { background-color: #d2e4fb; }
+.text-on-primary-fixed-variant { color: #38485a; }
+.text-on-error-container { color: #93000a; }
+.border-surface-container-high { border-color: #e7e8e9; }
+.bg-background { background-color: #f8f9fa; }
+';
 include __DIR__ . '/includes/layout.php';
 ?>
 
-<section class="flex flex-wrap justify-between items-end gap-4 pb-6 border-b border-outline-variant mb-6">
+<div id="standardTrustLayout" class="space-y-8">
+<section class="flex flex-wrap justify-between items-end gap-4 pb-6 border-b border-outline-variant">
 <div class="flex flex-col gap-2">
 <div class="flex items-center gap-2">
 <span id="trustTypeBadge" class="bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Loading...</span>
@@ -243,12 +254,12 @@ include __DIR__ . '/includes/layout.php';
 </div>
 </section>
 
-<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-<div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
+<section id="trustMetricsSection" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div id="portfolioAssetsCard" class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Portfolio Assets</p>
 <div class="flex items-baseline gap-2">
 <p id="portfolioAssets" class="text-primary text-2xl font-black">0/0</p>
-<span class="text-xs text-on-surface-variant">0% allocation</span>
+<span id="portfolioAllocation" class="text-xs text-on-surface-variant">0% allocation</span>
 </div>
 </div>
 <div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
@@ -378,9 +389,169 @@ Liquidate Trust
 </div>
 </section>
 
-<section id="irrevocableNotice" class="hidden rounded-xl border border-outline-variant bg-surface-container-low p-6 mb-12">
+<section id="irrevocableNotice" class="hidden rounded-xl border border-outline-variant bg-surface-container-low p-6">
 <?php echo wt_icon('lock', 'w-5 h-5 text-secondary inline-block mr-2'); ?>
 <p class="text-sm text-on-surface-variant inline"><strong class="text-primary">Irrevocable Trust:</strong> This trust cannot be deleted or liquidated. Assets placed here are managed under irrevocable terms.</p>
+</section>
+</div>
+
+<!-- Smart Contract Trust — Crypto Portfolio Dashboard layout -->
+<div id="cryptoTrustLayout" class="hidden space-y-10">
+<section class="flex flex-wrap justify-between items-end gap-4 pb-2 border-b border-surface-container-high">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span id="cryptoTrustTypeBadge" class="bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Smart Contract Trust</span>
+</div>
+<p id="cryptoTrustName" class="font-headline-lg text-headline-lg text-primary leading-tight">Loading...</p>
+<p id="cryptoTrustId" class="text-on-surface-variant text-sm font-mono font-medium">ID: Loading...</p>
+</div>
+<div class="flex gap-2 items-center no-print">
+<button type="button" onclick="window.location.href='../../onboarding/onboarding.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-on-primary text-sm font-bold gap-2 hover:bg-primary/90 transition-all">
+<?php echo wt_icon('add', 'text-sm'); ?>
+<span>Create New Trust</span>
+</button>
+<button type="button" onclick="window.location.href='manage-trust.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-surface-container-lowest border border-outline-variant text-primary text-sm font-bold gap-2 hover:bg-surface-container transition-all">
+<?php echo wt_icon('arrow-back', 'text-sm'); ?>
+<span>Back to Trusts</span>
+</button>
+</div>
+</section>
+
+<section id="cryptoMetricsSection" class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Portfolio Assets</p>
+<p id="cryptoPortfolioAssets" class="font-headline-lg text-headline-lg text-primary">0</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Total Value</p>
+<p id="cryptoTotalValue" class="font-headline-lg text-headline-lg text-primary">$0.00</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Beneficiaries</p>
+<div class="flex items-center justify-between">
+<p id="cryptoBeneficiaryCount" class="font-headline-lg text-headline-lg text-primary">0</p>
+<?php echo wt_icon('group', 'text-secondary w-6 h-6'); ?>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Status</p>
+<div class="flex items-center gap-2">
+<span id="cryptoStatusDot" class="w-3 h-3 rounded-full bg-deep-forest animate-pulse"></span>
+<p id="cryptoTrustStatus" class="font-headline-lg text-headline-lg text-deep-forest">Loading...</p>
+</div>
+</div>
+</section>
+
+<section class="bg-primary-fixed p-4 rounded-xl flex flex-wrap items-center gap-gutter no-print">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant ml-2">Quick Actions:</span>
+<div class="flex flex-wrap gap-stack-gap">
+<button type="button" onclick="exportTrustReport()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('share', 'w-[18px] h-[18px]'); ?> Export Report
+</button>
+<button type="button" onclick="printTrustDetails()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('print', 'w-[18px] h-[18px]'); ?> Print Details
+</button>
+<button type="button" onclick="shareWithAdvisor()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('share', 'w-[18px] h-[18px]'); ?> Share with Advisor
+</button>
+</div>
+</section>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<div class="lg:col-span-7 space-y-10">
+<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Trust Settings</h3>
+<?php echo wt_icon('settings', 'text-outline w-6 h-6'); ?>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-background rounded-lg border border-surface-container">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Trust Name</p>
+<p id="cryptoTrustNameDisplay" class="font-body-lg text-body-lg font-bold text-primary">Loading...</p>
+</div>
+<button type="button" onclick="editTrustName()" class="text-secondary font-label-md text-label-md hover:underline">Edit Trust Name</button>
+</div>
+<div class="flex items-center justify-between p-4 bg-background rounded-lg border border-surface-container">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Trust Status</p>
+<p id="cryptoStatusBadge" class="font-body-lg text-body-lg font-bold text-primary">Loading...</p>
+</div>
+<button type="button" onclick="changeStatus()" class="text-secondary font-label-md text-label-md hover:underline">Change Status</button>
+</div>
+</div>
+</div>
+
+<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+<h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
+<div class="flex flex-wrap gap-stack-gap no-print">
+<a href="receive.php" class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
+<?php echo wt_icon('add-circle', 'w-[18px] h-[18px]'); ?> Receive Crypto
+</a>
+<a href="send.php" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
+<?php echo wt_icon('send', 'w-[18px] h-[18px]'); ?> Send Crypto
+</a>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container text-on-surface-variant font-label-md text-label-md">
+<th class="pb-4 font-medium">Asset</th>
+<th class="pb-4 font-medium text-right">Balance</th>
+<th class="pb-4 font-medium text-right">Allocation</th>
+<th class="pb-4 font-medium text-right">Status</th>
+</tr>
+</thead>
+<tbody id="cryptoPortfolioTableBody" class="divide-y divide-surface-container-low">
+<tr><td colspan="4" class="py-8 text-center text-on-surface-variant text-sm">Loading portfolio...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="lg:col-span-5 space-y-10">
+<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high h-fit">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Manage Beneficiaries</h3>
+<div class="flex items-center gap-3">
+<button type="button" id="cryptoSaveChangesBtn" onclick="saveBeneficiaries()" class="hidden text-deep-forest font-label-md text-label-md hover:underline">Save Changes</button>
+<button type="button" onclick="addBeneficiary()" class="text-secondary flex items-center gap-1 font-label-md text-label-md hover:underline no-print">
+<?php echo wt_icon('add-circle', 'w-[18px] h-[18px]'); ?> Add Beneficiary
+</button>
+</div>
+</div>
+<div id="cryptoBeneficiariesContainer" class="space-y-6">
+<div class="text-center py-10 text-on-surface-variant">Loading beneficiaries...</div>
+</div>
+</div>
+
+<section class="bg-error-container/20 p-8 rounded-xl border border-error/20 space-y-6 no-print" id="cryptoDangerZoneSection">
+<div class="flex items-center gap-3">
+<?php echo wt_icon('warning', 'w-6 h-6 text-error'); ?>
+<h3 class="font-headline-md text-headline-md text-error">Danger Zone</h3>
+</div>
+<p class="text-sm text-on-error-container/80 leading-relaxed italic">
+Warning: The following actions are irreversible and may require additional legal authorization under Wyoming Digital Asset statutes. Please proceed with extreme caution.
+</p>
+<div class="flex flex-col gap-3">
+<button type="button" onclick="suspendTrust()" class="w-full py-3 px-4 rounded-lg border-2 border-error text-error font-bold font-label-md text-label-md hover:bg-error hover:text-on-primary transition-colors text-center">
+Suspend Trust Access
+</button>
+<button type="button" onclick="archiveTrust()" id="cryptoLiquidateTrustBtn" class="w-full py-3 px-4 rounded-lg bg-error text-on-primary font-bold font-label-md text-label-md hover:opacity-90 transition-opacity text-center shadow-md">
+Liquidate Trust &amp; Withdraw
+</button>
+</div>
+</section>
+</div>
+</div>
+</div>
+
+<section id="irrevocableNoticeCrypto" class="hidden rounded-xl border border-outline-variant bg-surface-container-low p-6 mb-12">
+<?php echo wt_icon('lock', 'w-5 h-5 text-secondary inline-block mr-2'); ?>
+<p class="text-sm text-on-surface-variant inline"><strong class="text-primary">Irrevocable Trust:</strong> This trust cannot be deleted or liquidated.</p>
 </section>
 
 <script src="<?php echo escape_html(asset_url('assets/js/trust-asset-ui.js')); ?>"></script>
@@ -393,6 +564,34 @@ let currentTrust = null;
 let beneficiariesState = [];
 let hasBeneficiaryChanges = false;
 let originalBeneficiariesState = [];
+let isCryptoLayout = false;
+let cryptoBenEditing = null;
+
+function applyTrustLayout(trust) {
+    isCryptoLayout = !!(trust?.service_meta?.is_crypto);
+    const standard = document.getElementById('standardTrustLayout');
+    const crypto = document.getElementById('cryptoTrustLayout');
+    if (standard) standard.classList.toggle('hidden', isCryptoLayout);
+    if (crypto) crypto.classList.toggle('hidden', !isCryptoLayout);
+    if (isCryptoLayout) {
+        document.title = 'Crypto Portfolio Dashboard | WyomingTrust';
+    }
+}
+
+function syncCryptoHeader(trust) {
+    const name = trust.trust_name || 'Untitled Trust';
+    const typeLabel = trust.service_meta?.is_crypto ? 'Smart Contract Trust' : (trust.trust_type || 'Trust');
+    const els = {
+        cryptoTrustName: name,
+        cryptoTrustId: `ID: ${trust.id || 'N/A'}`,
+        cryptoTrustNameDisplay: name,
+        cryptoTrustTypeBadge: typeLabel,
+    };
+    Object.entries(els).forEach(([id, text]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    });
+}
 
 var modalResolve = null;
 var modalReject = null;
@@ -426,7 +625,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         }
 
         confirmBtn.onclick = () => {
-            closeModal();
+            closeModal({ reject: false });
             resolve(true);
         };
 
@@ -462,7 +661,7 @@ function showAlertModal(title, message, type = 'info') {
         }
 
         confirmBtn.onclick = () => {
-            closeModal();
+            closeModal({ reject: false });
             resolve();
         };
 
@@ -470,7 +669,7 @@ function showAlertModal(title, message, type = 'info') {
     });
 }
 
-function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
+function showInputModal(title, message, initialValue = '', confirmText = 'Confirm') {
     return new Promise((resolve, reject) => {
         modalResolve = resolve;
         modalReject = reject;
@@ -487,8 +686,8 @@ function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
         cancelBtn.classList.remove('hidden');
         titleEl.textContent = title;
         messageEl.textContent = message;
-        inputField.placeholder = placeholder;
-        inputField.value = '';
+        inputField.placeholder = 'Enter trust name';
+        inputField.value = initialValue === 'Untitled Trust' ? '' : (initialValue || '');
         confirmBtn.textContent = confirmText;
 
         setModalIcon('edit', 'text-secondary text-xl');
@@ -498,7 +697,7 @@ function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
         const handleConfirm = () => {
             const value = inputField.value.trim();
             if (value) {
-                closeModal();
+                closeModal({ reject: false });
                 resolve(value);
             }
         };
@@ -513,15 +712,17 @@ function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
     });
 }
 
-function closeModal() {
+function closeModal(options = {}) {
+    const reject = options.reject !== false;
     const modal = document.getElementById('customModal');
     const cancelBtn = document.getElementById('modalCancelBtn');
     modal.classList.add('hidden');
     cancelBtn.classList.remove('hidden');
-    if (modalReject) {
+    if (reject && modalReject) {
         modalReject(false);
-        modalReject = null;
     }
+    modalReject = null;
+    modalResolve = null;
 }
 
 async function loadTrustData() {
@@ -538,18 +739,27 @@ async function loadTrustData() {
         if (data.success && data.trust) {
             const trust = data.trust;
             currentTrust = trust;
-            document.getElementById('trustName').textContent = trust.trust_name || 'Untitled Trust';
+            applyTrustLayout(trust);
+
+            const trustName = trust.trust_name || 'Untitled Trust';
+            document.getElementById('trustName').textContent = trustName;
             document.getElementById('trustId').textContent = `ID: ${trust.id || 'N/A'}`;
             document.getElementById('trustTypeBadge').textContent = trust.service_meta?.is_irrevocable ? 'Irrevocable Trust' : (trust.service_meta?.is_revocable ? 'Revocable Living Trust' : (trust.service_meta?.is_crypto ? 'Smart Contract Trust' : (trust.trust_type || 'Standard')));
+            if (isCryptoLayout) syncCryptoHeader(trust);
+
             updateStatusUI(trust);
             updateTrustPermissionsUI(trust);
-            updatePortfolioMetrics(trust);
+            await updateTrustMetrics(trust);
 
             beneficiariesState = Array.isArray(trust.beneficiaries) ? trust.beneficiaries : [];
             originalBeneficiariesState = JSON.parse(JSON.stringify(beneficiariesState));
             hasBeneficiaryChanges = false;
+            cryptoBenEditing = null;
             renderBeneficiaries(beneficiariesState);
-            document.getElementById('beneficiaryCount').textContent = beneficiariesState.length || 0;
+            const benCount = beneficiariesState.length || 0;
+            document.getElementById('beneficiaryCount').textContent = benCount;
+            const cryptoBenCount = document.getElementById('cryptoBeneficiaryCount');
+            if (cryptoBenCount) cryptoBenCount.textContent = benCount;
             updateSaveButtonVisibility();
 
             if (trust.service_meta?.supports_assets) {
@@ -558,8 +768,8 @@ async function loadTrustData() {
                 loadTrustAssetsUI(trust);
             } else if (trust.service_meta?.is_crypto) {
                 document.getElementById('trustAssetsSection').style.display = 'none';
-                document.getElementById('cryptoTrustSection').style.display = '';
-                renderCryptoTrustSection(trust);
+                document.getElementById('cryptoTrustSection').style.display = 'none';
+                await renderCryptoPortfolioTable(trust);
             } else {
                 document.getElementById('trustAssetsSection').style.display = 'none';
                 document.getElementById('cryptoTrustSection').style.display = 'none';
@@ -575,6 +785,10 @@ async function loadTrustData() {
 }
 
 function renderBeneficiaries(beneficiaries) {
+    if (isCryptoLayout) {
+        renderCryptoBeneficiaries(beneficiaries);
+        return;
+    }
     const container = document.getElementById('beneficiariesContainer');
     if (!beneficiaries || beneficiaries.length === 0) {
         container.innerHTML = '<div class="text-center py-10 text-on-surface-variant">No beneficiaries added yet. Click "Add Beneficiary".</div>';
@@ -630,11 +844,102 @@ function renderBeneficiaries(beneficiaries) {
     updateAllocationTotal();
 }
 
+const CRYPTO_BEN_ACCENT = ['bg-secondary', 'bg-sky-accent'];
+
+function renderCryptoBeneficiaries(beneficiaries) {
+    const container = document.getElementById('cryptoBeneficiariesContainer');
+    if (!container) return;
+
+    if (!beneficiaries || beneficiaries.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-on-surface-variant">No beneficiaries added yet. Click "Add Beneficiary".</div>';
+        return;
+    }
+
+    const total = beneficiaries.reduce((sum, b) => sum + (parseFloat(b.allocation) || 0), 0);
+    const totalValid = Math.abs(total - 100) < 0.01;
+
+    container.innerHTML = beneficiaries.map((ben, idx) => {
+        const accent = CRYPTO_BEN_ACCENT[idx % CRYPTO_BEN_ACCENT.length];
+        const displayName = ben.is_myself ? (ben.name || 'Myself') : (ben.name || `Beneficiary #${idx + 1}`);
+        const editing = cryptoBenEditing === idx;
+
+        if (editing) {
+            return `
+                <div class="p-5 rounded-lg border border-secondary bg-background relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full ${accent}"></div>
+                    <div class="flex justify-between items-start mb-4 pl-2">
+                        <p class="font-bold text-body-lg text-primary">Edit Beneficiary</p>
+                        ${ben.is_myself ? '' : `<button type="button" onclick="removeBeneficiary(${idx})" class="text-error text-xs font-bold hover:underline">Remove</button>`}
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 pl-2 text-sm">
+                        <div>
+                            <label class="text-on-surface-variant text-xs mb-1 block">Name</label>
+                            <input value="${escapeHtml(ben.name || '')}" oninput="updateBeneficiary(${idx}, 'name', this.value)" class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-low"/>
+                        </div>
+                        <div>
+                            <label class="text-on-surface-variant text-xs mb-1 block">Relationship</label>
+                            <input value="${escapeHtml(ben.relationship || '')}" oninput="updateBeneficiary(${idx}, 'relationship', this.value)" class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-low"/>
+                        </div>
+                        <div>
+                            <label class="text-on-surface-variant text-xs mb-1 block">Email</label>
+                            <input value="${escapeHtml(ben.email || '')}" oninput="updateBeneficiary(${idx}, 'email', this.value)" class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-low"/>
+                        </div>
+                        <div>
+                            <label class="text-on-surface-variant text-xs mb-1 block">Allocation %</label>
+                            <input type="number" min="0" max="100" step="0.01" value="${ben.allocation ?? 0}" oninput="updateBeneficiary(${idx}, 'allocation', this.value)" class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-low"/>
+                        </div>
+                        <div>
+                            <label class="text-on-surface-variant text-xs mb-1 block">Wallet Address</label>
+                            <input value="${escapeHtml(ben.wallet_address || '')}" oninput="updateBeneficiary(${idx}, 'wallet_address', this.value)" class="w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-low font-mono text-xs"/>
+                        </div>
+                        <button type="button" onclick="cryptoBenEditing=null; renderBeneficiaries(beneficiariesState);" class="text-secondary font-label-md text-label-md hover:underline text-left">Done editing</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="p-5 rounded-lg border border-surface-container bg-background relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full ${accent}"></div>
+                <div class="flex justify-between items-start mb-4 pl-2">
+                    <div>
+                        <p class="font-bold text-body-lg text-primary">${escapeHtml(displayName)}</p>
+                        <p class="text-on-surface-variant font-label-md text-label-md">${escapeHtml(ben.email || 'No email')}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-headline-md text-headline-md text-primary">${parseFloat(ben.allocation || 0).toFixed(2)}%</p>
+                        <p class="text-[10px] uppercase font-bold text-secondary">Allocation</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-3 text-sm pl-2">
+                    <div class="flex justify-between border-t border-surface-container-high pt-2">
+                        <span class="text-on-surface-variant">Relationship:</span>
+                        <span class="font-medium">${escapeHtml(ben.relationship || '—')}</span>
+                    </div>
+                    ${ben.wallet_address ? `
+                    <div class="flex flex-col pt-2">
+                        <span class="text-on-surface-variant text-xs mb-1">Wallet Address:</span>
+                        <span class="font-mono text-xs break-all bg-surface p-2 rounded border border-outline-variant">${escapeHtml(ben.wallet_address)}</span>
+                    </div>
+                    ` : ''}
+                    <button type="button" onclick="cryptoBenEditing=${idx}; renderBeneficiaries(beneficiariesState);" class="text-secondary font-label-md text-label-md hover:underline text-left pt-1">Edit details</button>
+                </div>
+            </div>
+        `;
+    }).join('') + `
+        <div class="p-3 ${totalValid ? 'bg-deep-forest/5 border-deep-forest/20' : 'bg-error-container/30 border-error/20'} border rounded-lg flex items-center justify-center gap-2">
+            <p class="font-label-md text-label-md ${totalValid ? 'text-deep-forest' : 'text-error'} font-bold">Total Allocation: <span id="allocationTotal">${total.toFixed(2)}</span>%</p>
+        </div>
+        ${!totalValid ? '<p class="text-xs text-on-surface-variant text-center">Must equal 100% before saving.</p>' : ''}
+    `;
+}
+
 async function editTrustName() {
-    const currentName = document.getElementById('trustName').textContent;
+    const displayName = currentTrust?.trust_name || document.getElementById('trustName').textContent;
+    const storedName = (currentTrust?.trust_name || '').trim();
     try {
-        const newName = await showInputModal('Edit Trust Name', 'Enter a new name for this trust:', currentName, 'Save');
-        if (newName && newName.trim() !== currentName) {
+        const newName = await showInputModal('Edit Trust Name', 'Enter a new name for this trust:', displayName, 'Save');
+        if (newName && newName.trim() !== storedName) {
             await updateTrustName(newName.trim());
         }
     } catch (e) {
@@ -666,8 +971,14 @@ function addBeneficiary() {
         is_myself: false
     });
     hasBeneficiaryChanges = true;
+    if (isCryptoLayout) {
+        cryptoBenEditing = beneficiariesState.length - 1;
+    }
     renderBeneficiaries(beneficiariesState);
-    document.getElementById('beneficiaryCount').textContent = beneficiariesState.length || 0;
+    const benCount = beneficiariesState.length || 0;
+    document.getElementById('beneficiaryCount').textContent = benCount;
+    const cryptoBenCount = document.getElementById('cryptoBeneficiaryCount');
+    if (cryptoBenCount) cryptoBenCount.textContent = benCount;
     updateSaveButtonVisibility();
 }
 
@@ -722,9 +1033,9 @@ async function archiveTrust() {
 
 function updateTrustPermissionsUI(trust) {
     const meta = trust.service_meta || {};
-    const danger = document.getElementById('dangerZoneSection');
-    const notice = document.getElementById('irrevocableNotice');
-    const liqBtn = document.getElementById('liquidateTrustBtn');
+    const danger = document.getElementById(isCryptoLayout ? 'cryptoDangerZoneSection' : 'dangerZoneSection');
+    const notice = document.getElementById(isCryptoLayout ? 'irrevocableNoticeCrypto' : 'irrevocableNotice');
+    const liqBtn = document.getElementById(isCryptoLayout ? 'cryptoLiquidateTrustBtn' : 'liquidateTrustBtn');
     if (meta.is_irrevocable) {
         if (danger) danger.classList.add('hidden');
         if (notice) notice.classList.remove('hidden');
@@ -734,32 +1045,160 @@ function updateTrustPermissionsUI(trust) {
     if (notice) notice.classList.add('hidden');
     if (liqBtn) {
         const fee = parseFloat(meta.liquidation_fee || 0);
-        liqBtn.textContent = fee > 0 ? `Liquidate Trust ($${fee.toFixed(2)} fee)` : 'Liquidate Trust';
+        if (isCryptoLayout) {
+            liqBtn.textContent = fee > 0 ? `Liquidate Trust & Withdraw ($${fee.toFixed(2)} fee)` : 'Liquidate Trust & Withdraw';
+        } else {
+            liqBtn.textContent = fee > 0 ? `Liquidate Trust ($${fee.toFixed(2)} fee)` : 'Liquidate Trust';
+        }
     }
 }
 
-function updatePortfolioMetrics(trust) {
-    const summary = trust.assets_summary || { count: 0, total_estimated_value: 0 };
-    const assetsEl = document.getElementById('portfolioAssets');
+function formatUsd(value) {
+    const v = parseFloat(value) || 0;
+    return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+async function updateTrustMetrics(trust) {
+    const meta = trust.service_meta || {};
+    const portfolioCard = document.getElementById('portfolioAssetsCard');
+    const metricsSection = document.getElementById('trustMetricsSection');
     const valueEl = document.getElementById('totalValue');
-    if (assetsEl) assetsEl.textContent = String(summary.count || 0);
-    if (valueEl) {
-        const v = parseFloat(summary.total_estimated_value || 0);
-        valueEl.textContent = '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-}
 
-function renderCryptoTrustSection(trust) {
-    const list = document.getElementById('entrustedCoinsList');
-    const coins = Array.isArray(trust.entrusted_coins) ? trust.entrusted_coins : (trust.trust_data?.entrusted_coins || []);
-    if (!list) return;
-    if (!coins.length) {
-        list.innerHTML = '<span class="text-sm text-on-surface-variant">No coins selected at onboarding. Deposit any supported asset from your portfolio.</span>';
+    if (meta.is_crypto) {
+        if (portfolioCard) portfolioCard.classList.remove('hidden');
+        if (metricsSection) {
+            metricsSection.classList.remove('lg:grid-cols-3');
+            metricsSection.classList.add('lg:grid-cols-4');
+        }
+        await updateCryptoMetrics(trust, valueEl);
         return;
     }
-    list.innerHTML = coins.map(key => `
-        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 text-secondary text-xs font-bold uppercase tracking-wide">${escapeHtml(String(key).replace(/_/g, ' '))}</span>
-    `).join('');
+
+    if (portfolioCard) portfolioCard.classList.add('hidden');
+    if (metricsSection) {
+        metricsSection.classList.remove('lg:grid-cols-4');
+        metricsSection.classList.add('lg:grid-cols-3');
+    }
+
+    if (meta.supports_assets) {
+        updateCatalogMetrics(trust, valueEl);
+    } else if (valueEl) {
+        valueEl.textContent = formatUsd(0);
+    }
+}
+
+function updateCatalogMetrics(trust, valueEl) {
+    const declared = parseFloat(trust.total_estimated_value ?? trust.trust_data?.total_estimated_value ?? 0) || 0;
+    const catalog = parseFloat(trust.assets_summary?.total_estimated_value ?? 0) || 0;
+    if (valueEl) valueEl.textContent = formatUsd(declared + catalog);
+}
+
+async function updateCryptoMetrics(trust, valueEl) {
+    const assetsEl = document.getElementById(isCryptoLayout ? 'cryptoPortfolioAssets' : 'portfolioAssets');
+    const allocEl = document.getElementById('portfolioAllocation');
+    const cryptoValueEl = document.getElementById('cryptoTotalValue');
+    const entrusted = Array.isArray(trust.entrusted_coins) ? trust.entrusted_coins : [];
+    const entrustedSet = new Set(entrusted.map((k) => String(k).toLowerCase()));
+    const totalSlots = entrusted.length;
+
+    try {
+        const res = await fetch('../../api/user/assets.php');
+        const data = await res.json();
+        const allAssets = data.success && Array.isArray(data.assets) ? data.assets : [];
+        const relevant = totalSlots
+            ? allAssets.filter((a) => entrustedSet.has(String(a.coin_key).toLowerCase()))
+            : allAssets;
+        const funded = relevant.filter((a) => parseFloat(a.balance) > 0);
+        const entrustedUsd = relevant.reduce((sum, a) => sum + (parseFloat(a.value_usd) || 0), 0);
+        const walletUsd = allAssets.reduce((sum, a) => sum + (parseFloat(a.value_usd) || 0), 0);
+        const allocationPct = walletUsd > 0 ? (entrustedUsd / walletUsd) * 100 : 0;
+        const fundedCount = funded.length;
+        const displayCount = isCryptoLayout ? String(fundedCount) : `${fundedCount}/${totalSlots || relevant.length}`;
+
+        if (assetsEl) assetsEl.textContent = displayCount;
+        if (allocEl) allocEl.textContent = `${allocationPct.toFixed(0)}% allocation`;
+        const formatted = formatUsd(entrustedUsd);
+        if (valueEl) valueEl.textContent = formatted;
+        if (cryptoValueEl) cryptoValueEl.textContent = formatted;
+    } catch (error) {
+        console.error('Error loading crypto metrics:', error);
+        if (assetsEl) assetsEl.textContent = isCryptoLayout ? '0' : `0/${totalSlots}`;
+        if (allocEl) allocEl.textContent = '0% allocation';
+        if (valueEl) valueEl.textContent = formatUsd(0);
+        if (cryptoValueEl) cryptoValueEl.textContent = formatUsd(0);
+    }
+}
+
+async function renderCryptoPortfolioTable(trust) {
+    const tbody = document.getElementById('cryptoPortfolioTableBody');
+    if (!tbody) return;
+
+    const entrusted = Array.isArray(trust.entrusted_coins) ? trust.entrusted_coins : (trust.trust_data?.entrusted_coins || []);
+    const entrustedSet = new Set(entrusted.map((k) => String(k).toLowerCase()));
+
+    try {
+        const res = await fetch('../../api/user/assets.php');
+        const data = await res.json();
+        const allAssets = data.success && Array.isArray(data.assets) ? data.assets : [];
+        let rows = entrusted.length
+            ? allAssets.filter((a) => entrustedSet.has(String(a.coin_key).toLowerCase()))
+            : allAssets;
+
+        if (!rows.length && entrusted.length) {
+            rows = entrusted.map((key) => ({
+                coin_key: key,
+                display_name: String(key).replace(/_/g, ' '),
+                symbol: String(key).split('_')[0].toUpperCase(),
+                balance: 0,
+                logo: null,
+                value_usd: 0,
+            }));
+        }
+
+        const totalUsd = rows.reduce((sum, a) => sum + (parseFloat(a.value_usd) || 0), 0);
+
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-on-surface-variant text-sm">No cryptocurrencies selected. Add assets from onboarding or deposit from your wallet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = rows.map((asset) => {
+            const balance = parseFloat(asset.balance) || 0;
+            const symbol = asset.symbol || asset.coin_key?.toUpperCase() || '';
+            const name = asset.display_name || asset.coin_key || 'Unknown';
+            const valueUsd = parseFloat(asset.value_usd) || 0;
+            const allocPct = totalUsd > 0 ? (valueUsd / totalUsd) * 100 : 0;
+            const status = balance > 0 ? 'Active' : 'Pending Setup';
+            const statusClass = balance > 0
+                ? 'bg-deep-forest/10 text-deep-forest'
+                : 'bg-surface-container text-on-surface-variant';
+            const logo = asset.logo
+                ? `<img src="${escapeHtml(asset.logo)}" alt="" class="w-10 h-10 rounded-full object-cover shrink-0">`
+                : `<div class="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center text-secondary font-bold text-xs shrink-0">${escapeHtml(symbol.slice(0, 3))}</div>`;
+
+            return `
+                <tr class="group hover:bg-surface-container-low transition-colors">
+                    <td class="py-5">
+                        <div class="flex items-center gap-3">
+                            ${logo}
+                            <div>
+                                <p class="font-bold text-primary">${escapeHtml(name)}</p>
+                                <p class="text-xs text-on-surface-variant">${escapeHtml(symbol)}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-5 text-right font-medium">${balance.toLocaleString('en-US', { maximumFractionDigits: 8 })} ${escapeHtml(symbol)}</td>
+                    <td class="py-5 text-right">${allocPct.toFixed(0)}%</td>
+                    <td class="py-5 text-right">
+                        <span class="px-2 py-1 ${statusClass} text-[10px] uppercase font-bold rounded">${status}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading crypto portfolio:', error);
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-error text-sm">Failed to load portfolio data.</td></tr>';
+    }
 }
 
 function loadTrustAssetsUI(trust) {
@@ -811,20 +1250,22 @@ function updateBeneficiary(index, field, value) {
 
 function updateSaveButtonVisibility() {
     const saveBtn = document.getElementById('saveChangesBtn');
-    if (saveBtn) {
-        if (hasBeneficiaryChanges) {
-            saveBtn.classList.remove('hidden');
-        } else {
-            saveBtn.classList.add('hidden');
-        }
-    }
+    const cryptoSaveBtn = document.getElementById('cryptoSaveChangesBtn');
+    [saveBtn, cryptoSaveBtn].forEach((btn) => {
+        if (!btn) return;
+        btn.classList.toggle('hidden', !hasBeneficiaryChanges);
+    });
 }
 
 function removeBeneficiary(index) {
     beneficiariesState.splice(index, 1);
     hasBeneficiaryChanges = true;
+    cryptoBenEditing = null;
     renderBeneficiaries(beneficiariesState);
-    document.getElementById('beneficiaryCount').textContent = beneficiariesState.length || 0;
+    const benCount = beneficiariesState.length || 0;
+    document.getElementById('beneficiaryCount').textContent = benCount;
+    const cryptoBenCount = document.getElementById('cryptoBeneficiaryCount');
+    if (cryptoBenCount) cryptoBenCount.textContent = benCount;
     updateSaveButtonVisibility();
 }
 
@@ -852,6 +1293,10 @@ async function saveBeneficiaries() {
             originalBeneficiariesState = JSON.parse(JSON.stringify(beneficiariesState));
             hasBeneficiaryChanges = false;
             renderBeneficiaries(beneficiariesState);
+            const benCount = beneficiariesState.length || 0;
+            document.getElementById('beneficiaryCount').textContent = benCount;
+            const cryptoBenCount = document.getElementById('cryptoBeneficiaryCount');
+            if (cryptoBenCount) cryptoBenCount.textContent = benCount;
             updateSaveButtonVisibility();
             await showAlertModal('Success', 'Beneficiaries saved successfully.', 'success');
         } else {
@@ -874,6 +1319,7 @@ async function updateTrustName(newName) {
         if (data.success && data.trust) {
             document.getElementById('trustName').textContent = data.trust.trust_name || newName;
             currentTrust.trust_name = data.trust.trust_name || newName;
+            if (isCryptoLayout) syncCryptoHeader(currentTrust);
             await showAlertModal('Success', 'Trust name updated successfully.', 'success');
         } else {
             await showAlertModal('Error', data.message || 'Failed to update trust name', 'error');
@@ -929,6 +1375,18 @@ function updateStatusUI(trust) {
     badgeEl.textContent = pretty;
     badgeEl.className = badgeClass;
     dotEl.className = dotClass;
+
+    const cryptoStatusEl = document.getElementById('cryptoTrustStatus');
+    const cryptoBadgeEl = document.getElementById('cryptoStatusBadge');
+    const cryptoDotEl = document.getElementById('cryptoStatusDot');
+    if (cryptoStatusEl) {
+        cryptoStatusEl.textContent = pretty;
+        cryptoStatusEl.className = 'font-headline-lg text-headline-lg ' + (statusRaw === 'active' ? 'text-deep-forest' : statusRaw === 'pending' ? 'text-secondary' : 'text-primary');
+    }
+    if (cryptoBadgeEl) cryptoBadgeEl.textContent = pretty;
+    if (cryptoDotEl) {
+        cryptoDotEl.className = 'w-3 h-3 rounded-full ' + (statusRaw === 'active' ? 'bg-deep-forest animate-pulse' : statusRaw === 'pending' ? 'bg-secondary animate-pulse' : 'bg-outline-variant');
+    }
 }
 
 async function updateTrustStatus(newStatus) {

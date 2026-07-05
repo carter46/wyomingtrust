@@ -622,6 +622,18 @@ function renderPersonalInfoStep() {
                     <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-8 shadow-sm">
                         <form class="space-y-6" onsubmit="event.preventDefault(); savePersonalInfo();">
                             <div class="flex flex-col gap-2">
+                                <label class="text-on-surface-variant text-sm font-semibold leading-normal">Trust Name</label>
+                                <input type="text" id="trustNameInput" value="${escapeHtml(onboardingData.trust_name || '')}" placeholder="Smith Family Living Trust" autocomplete="off" class="form-input flex w-full rounded-lg text-primary border border-outline-variant bg-surface-container-low focus:ring-2 focus:ring-secondary focus:border-secondary h-14 placeholder:text-on-surface-variant p-4 text-base font-normal" required/>
+                                <p class="text-xs text-on-surface-variant">A descriptive name for this trust. You can change it later from your dashboard.</p>
+                            </div>
+                            ${isCatalogTrustSelected() ? `
+                            <div class="flex flex-col gap-2">
+                                <label class="text-on-surface-variant text-sm font-semibold leading-normal">Total Asset Value (USD)</label>
+                                <input type="number" id="totalAssetValueInput" value="${onboardingData.total_estimated_value != null && onboardingData.total_estimated_value !== '' ? escapeHtml(String(onboardingData.total_estimated_value)) : ''}" min="0" step="0.01" placeholder="500000" autocomplete="off" class="form-input flex w-full rounded-lg text-primary border border-outline-variant bg-surface-container-low focus:ring-2 focus:ring-secondary focus:border-secondary h-14 placeholder:text-on-surface-variant p-4 text-base font-normal" required/>
+                                <p class="text-xs text-on-surface-variant">Estimated total value of assets you plan to place in this trust. You can add detailed assets after creation.</p>
+                            </div>
+                            ` : ''}
+                            <div class="flex flex-col gap-2">
                                 <label class="text-on-surface-variant text-sm font-semibold leading-normal">Full Legal Name</label>
                                 <input type="text" id="fullNameInput" value="${escapeHtml(pi.full_name || '')}" placeholder="Johnathan Q. Public" autocomplete="off" class="form-input flex w-full rounded-lg text-primary border border-outline-variant bg-surface-container-low focus:ring-2 focus:ring-secondary focus:border-secondary h-14 placeholder:text-on-surface-variant p-4 text-base font-normal" required/>
                                 <p class="text-xs text-on-surface-variant">As it appears on your government-issued ID.</p>
@@ -730,6 +742,12 @@ function isSmartContractTrustSelected() {
     const service = getSelectedTrustService();
     const key = service?.service_key || onboardingData.trust_type || '';
     return key === 'smart_contract_trust' || key === 'crypto_asset_trust';
+}
+
+function isCatalogTrustSelected() {
+    const service = getSelectedTrustService();
+    const key = service?.service_key || onboardingData.trust_type || '';
+    return key === 'revocable_living_trust' || key === 'irrevocable_trust';
 }
 
 function renderCoinSelectionPanel() {
@@ -947,6 +965,16 @@ function renderReviewStep() {
                             </summary>
                             <div class="px-5 pb-5 pt-0 border-t border-outline-variant/20 mt-2">
                                 <div class="grid grid-cols-2 gap-4 pt-4">
+                                    <div class="col-span-2">
+                                        <p class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Trust Name</p>
+                                        <p class="text-on-background font-medium">${escapeHtml(onboardingData.trust_name || 'Not provided')}</p>
+                                    </div>
+                                    ${isCatalogTrustSelected() ? `
+                                    <div class="col-span-2">
+                                        <p class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Total Asset Value</p>
+                                        <p class="text-on-background font-medium">${onboardingData.total_estimated_value != null && onboardingData.total_estimated_value !== '' ? '$' + Number(onboardingData.total_estimated_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Not provided'}</p>
+                                    </div>
+                                    ` : ''}
                                     <div>
                                         <p class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Full Legal Name</p>
                                         <p class="text-on-background font-medium">${escapeHtml(pi.full_name || 'Not provided')}</p>
@@ -1161,6 +1189,15 @@ function selectTrustType(serviceKey, serviceId) {
 }
 
 function savePersonalInfo() {
+    const trustNameInput = document.getElementById('trustNameInput');
+    if (trustNameInput) {
+        onboardingData.trust_name = trustNameInput.value.trim();
+    }
+    const totalAssetValueInput = document.getElementById('totalAssetValueInput');
+    if (totalAssetValueInput) {
+        onboardingData.total_estimated_value = totalAssetValueInput.value.trim();
+    }
+
     onboardingData.personal_info = {
         full_name: document.getElementById('fullNameInput').value.trim(),
         email: document.getElementById('emailInput').value.trim(),
@@ -1183,6 +1220,21 @@ function savePersonalInfo() {
 async function savePersonalInfoAndContinue() {
     savePersonalInfo();
     saveOnboardingToStorage();
+
+    if (!onboardingData.trust_name) {
+        alert('Please enter a trust name.');
+        return;
+    }
+
+    if (isCatalogTrustSelected()) {
+        const totalValue = parseFloat(onboardingData.total_estimated_value);
+        if (onboardingData.total_estimated_value === '' || Number.isNaN(totalValue) || totalValue < 0) {
+            alert('Please enter a valid total asset value.');
+            return;
+        }
+        onboardingData.total_estimated_value = totalValue;
+        saveOnboardingToStorage();
+    }
     
     // If not logged in, register the user first
     if (!isLoggedIn) {
@@ -2120,6 +2172,21 @@ async function createTrust(options = { redirect: true }) {
     }
     
     // Validate all required data
+    if (!onboardingData.trust_name) {
+        alert('Please enter a trust name.');
+        window.location.href = 'onboarding.php?step=2';
+        return;
+    }
+
+    if (isCatalogTrustSelected()) {
+        const totalValue = parseFloat(onboardingData.total_estimated_value);
+        if (onboardingData.total_estimated_value === '' || Number.isNaN(totalValue) || totalValue < 0) {
+            alert('Please enter a valid total asset value.');
+            window.location.href = 'onboarding.php?step=2';
+            return;
+        }
+    }
+
     if (!onboardingData.personal_info || !onboardingData.personal_info.full_name) {
         alert('Please complete all required information.');
         window.location.href = 'onboarding.php?step=2';
@@ -2161,6 +2228,10 @@ async function createTrust(options = { redirect: true }) {
             trust_service_id: onboardingData.trust_service_id,
             payment_method_id: isFree ? null : onboardingData.payment_method_id,
             trust_data: {
+                trust_name: onboardingData.trust_name || '',
+                ...(isCatalogTrustSelected() ? {
+                    total_estimated_value: parseFloat(onboardingData.total_estimated_value) || 0
+                } : {}),
                 personal_info: onboardingData.personal_info,
                 beneficiaries: onboardingData.beneficiaries,
                 ...(isSmartContractTrustSelected() && onboardingData.entrusted_coins?.length ? {

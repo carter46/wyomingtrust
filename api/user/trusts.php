@@ -46,6 +46,9 @@ function enrich_user_trust_row(array $trust): array {
     }
     $trust['trust_data'] = $trustData;
     $trust['trust_name'] = $trustData['trust_name'] ?? null;
+    $trust['total_estimated_value'] = isset($trustData['total_estimated_value'])
+        ? (float) $trustData['total_estimated_value']
+        : null;
     $trust['trust_type'] = $trustData['trust_type'] ?? ($trust['service_key'] ?? null);
     $trust['beneficiaries'] = $trustData['beneficiaries'] ?? [];
     $trust['assets'] = $trustData['assets'] ?? [];
