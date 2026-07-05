@@ -18,24 +18,30 @@ include __DIR__ . '/includes/layout.php';
 
 <!-- Key Metrics (3 cards) -->
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-<div class="metric-card-gradient p-6 rounded-2xl card-hover flex flex-col justify-between min-h-[7.5rem] text-on-primary shadow-lg">
+<div class="metric-card-gradient p-6 rounded-2xl card-hover flex flex-col justify-between min-h-[7.5rem] text-on-primary shadow-lg dashboard-metric-card">
 <span class="text-xs md:text-sm uppercase tracking-widest text-on-primary/70 font-bold">Active Trusts</span>
-<div>
-<p class="metric-stat-value text-on-primary" id="trustCount">0</p>
+<div class="min-w-0">
+<div class="dashboard-metric-value-wrap">
+<p class="dashboard-metric-value text-on-primary" id="trustCount" data-fit-max="36" data-fit-min="16">0</p>
+</div>
 <p class="text-sm md:text-base text-on-primary/80 mt-1 font-medium">Securely Managed</p>
 </div>
 </div>
-<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
 <span class="text-xs md:text-sm uppercase tracking-widest text-on-surface-variant font-bold">Beneficiaries</span>
-<div>
-<p class="metric-stat-value text-primary" id="beneficiaryCount">0</p>
+<div class="min-w-0">
+<div class="dashboard-metric-value-wrap">
+<p class="dashboard-metric-value text-primary" id="beneficiaryCount" data-fit-max="36" data-fit-min="16">0</p>
+</div>
 <p class="text-sm md:text-base text-on-surface-variant mt-1 font-medium">Assigned protections</p>
 </div>
 </div>
-<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
 <span class="text-xs md:text-sm uppercase tracking-widest text-on-surface-variant font-bold">Last Updated</span>
-<div>
-<p class="metric-stat-value text-primary" id="lastUpdated">—</p>
+<div class="min-w-0">
+<div class="dashboard-metric-value-wrap">
+<p class="dashboard-metric-value text-primary" id="lastUpdated" data-fit-max="28" data-fit-min="12">—</p>
+</div>
 <div class="flex items-center gap-2 text-deep-forest mt-1">
 <span class="w-2 h-2 rounded-full bg-deep-forest animate-pulse"></span>
 <p class="text-sm md:text-base font-medium">System Sync</p>
@@ -100,7 +106,7 @@ function formatCoinAmountDisplay(amount) {
 }
 
 function formatPaymentAmount(payment) {
-    if (payment.record_type === 'crypto_deposit') {
+    if (payment.record_type === 'crypto_deposit' || payment.record_type === 'crypto_liquidation') {
         const sym = payment.coin_symbol || '';
         const coinStr = formatCoinAmountDisplay(payment.coin_amount);
         const usd = parseFloat(payment.amount_usd) || 0;

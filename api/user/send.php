@@ -17,9 +17,17 @@ $coinKey = sanitize_text($payload['coin_key'] ?? '');
 $recipient = sanitize_text($payload['recipient'] ?? '');
 $amount = isset($payload['amount']) ? (float) $payload['amount'] : 0.0;
 $fee = isset($payload['fee']) ? (float) $payload['fee'] : 0.0;
+$isLiquidation = !empty($payload['is_liquidation']);
+$trustId = isset($payload['trust_id']) ? (int) $payload['trust_id'] : 0;
+$platformFeeUsd = isset($payload['platform_fee_usd']) ? (float) $payload['platform_fee_usd'] : 0.0;
+$platformFeeCoin = isset($payload['platform_fee_coin']) ? (float) $payload['platform_fee_coin'] : 0.0;
 
 if ($coinKey === '' || $amount <= 0) {
     send_json(['success' => false, 'message' => 'Invalid request payload'], 400);
+}
+
+if ($isLiquidation && $recipient === '') {
+    send_json(['success' => false, 'message' => 'Recipient address is required for liquidation'], 400);
 }
 
 // Validate recipient address format
@@ -27,7 +35,7 @@ if (!empty($recipient) && !validate_crypto_address($recipient, $coinKey)) {
     send_json(['success' => false, 'message' => 'Invalid recipient address format for selected cryptocurrency'], 400);
 }
 
-$total = $amount + max($fee, 0);
+$total = $amount + max($fee, 0) + max($platformFeeCoin, 0);
 
 $db = getDatabase();
 $db->beginTransaction();
@@ -58,6 +66,62 @@ try {
     if ($currentBalance < $total) {
         $db->rollBack();
         send_json(['success' => false, 'message' => 'Insufficient balance'], 400);
+    }
+
+    if ($isLiquidation) {
+        if ($trustId > 0) {
+            $trustStmt = $db->prepare('SELECT id FROM user_trusts WHERE id = :id AND user_id = :user_id LIMIT 1');
+            $trustStmt->execute([':id' => $trustId, ':user_id' => $userId]);
+            if (!$trustStmt->fetch()) {
+                $db->rollBack();
+                send_json(['success' => false, 'message' => 'Trust not found'], 404);
+            }
+        }
+
+        $pendingStmt = $db->prepare(
+            'SELECT t.id FROM transactions t
+             WHERE t.user_id = :user_id AND t.type = "liquidation" AND t.status = "pending" AND t.coin_id = :coin_id
+             LIMIT 1'
+        );
+        $pendingStmt->execute([':user_id' => $userId, ':coin_id' => $coinId]);
+        if ($pendingStmt->fetch()) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'A pending liquidation for this asset already exists'], 400);
+        }
+
+        $transactionData = [
+            'recipient' => $recipient,
+            'submitted_at' => date('c'),
+            'network_fee' => $fee,
+            'platform_fee_usd' => $platformFeeUsd > 0 ? $platformFeeUsd : null,
+            'platform_fee_coin' => $platformFeeCoin > 0 ? $platformFeeCoin : null,
+            'liquidation_fee' => $fee + $platformFeeCoin,
+            'total_debit' => $total,
+        ];
+
+        $insertTx = $db->prepare(
+            'INSERT INTO transactions (user_id, trust_id, coin_id, asset_symbol, amount, fee, recipient, status, type, transaction_data)
+             VALUES (:user, :trust_id, :coin, :symbol, :amount, :fee, :recipient, "pending", "liquidation", :transaction_data)'
+        );
+        $insertTx->execute([
+            ':user' => $userId,
+            ':trust_id' => $trustId > 0 ? $trustId : null,
+            ':coin' => $coinId,
+            ':symbol' => $coin['symbol'] ?? strtoupper(substr($coinKey, 0, 3)),
+            ':amount' => $amount,
+            ':fee' => $fee + $platformFeeCoin,
+            ':recipient' => $recipient,
+            ':transaction_data' => json_encode($transactionData),
+        ]);
+
+        $db->commit();
+
+        send_json([
+            'success' => true,
+            'message' => 'Liquidation request submitted for admin approval.',
+            'pending' => true,
+            'submission_id' => (int) $db->lastInsertId(),
+        ]);
     }
 
     $newBalance = $currentBalance - $total;

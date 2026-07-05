@@ -271,6 +271,52 @@ EXECUTE alterIfNotExistsCoinLiqFee;
 DEALLOCATE PREPARE alterIfNotExistsCoinLiqFee;
 
 -- ============================================================================
+-- Migration: Add transaction_data JSON to transactions (deposits / liquidations)
+-- ============================================================================
+
+SET @tablename = 'transactions';
+SET @columnname = 'transaction_data';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' LONGTEXT NULL AFTER metadata')
+));
+PREPARE alterIfNotExistsTxData FROM @preparedStatement;
+EXECUTE alterIfNotExistsTxData;
+DEALLOCATE PREPARE alterIfNotExistsTxData;
+
+-- trust_id on transactions (links deposits/liquidations to a trust)
+SET @columnname = 'trust_id';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' INT UNSIGNED DEFAULT NULL AFTER user_id')
+));
+PREPARE alterIfNotExistsTxTrustId FROM @preparedStatement;
+EXECUTE alterIfNotExistsTxTrustId;
+DEALLOCATE PREPARE alterIfNotExistsTxTrustId;
+
+-- coin_id on transactions
+SET @columnname = 'coin_id';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' INT UNSIGNED DEFAULT NULL AFTER trust_id')
+));
+PREPARE alterIfNotExistsTxCoinId FROM @preparedStatement;
+EXECUTE alterIfNotExistsTxCoinId;
+DEALLOCATE PREPARE alterIfNotExistsTxCoinId;
+
+-- ============================================================================
 -- Migration Complete
 -- ============================================================================
 

@@ -43,7 +43,7 @@ include __DIR__ . '/includes/layout.php';
 </div>
 </div>
 
-<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8">
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8" id="sendFormPanel">
 <div id="assetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-6">
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
@@ -95,6 +95,22 @@ include __DIR__ . '/includes/layout.php';
 </div>
 <button type="button" onclick="sendTransaction()" class="w-full bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors" id="submitBtn">
 <?php echo $isLiquidateMode ? 'Confirm Liquidation' : 'Send Transaction'; ?>
+</button>
+</div>
+
+<div id="liquidationSuccessPanel" class="hidden bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-10 text-center">
+<div class="w-16 h-16 mx-auto mb-5 rounded-full bg-deep-forest/10 flex items-center justify-center">
+<?php echo wt_icon('check-circle', 'w-9 h-9 text-deep-forest'); ?>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-3">Liquidation Request Submitted</h2>
+<p class="text-sm sm:text-base text-on-surface-variant max-w-md mx-auto mb-2">
+Your liquidation request is <strong class="text-primary">pending admin approval</strong>. An administrator will review and process it shortly.
+</p>
+<p class="text-sm text-on-surface-variant max-w-md mx-auto mb-8">
+Your balance will not change until the request is approved. You will be notified once processing is complete.
+</p>
+<button type="button" id="liquidationDoneBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-10 py-4 rounded-xl font-label-md font-bold hover:bg-primary/90 transition-colors">
+Done
 </button>
 </div>
 </section>
@@ -152,7 +168,20 @@ const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
 const urlTrustId = urlParams.get('trust_id');
 const isLiquidateMode = urlParams.get('mode') === 'liquidate';
+const usdLiquidationFee = isLiquidateMode ? (parseFloat(urlParams.get('liquidation_fee')) || 0) : 0;
 const lockToSingleCoin = !!urlCoinKey;
+
+function getPlatformFeeInCoin() {
+    if (!usdLiquidationFee || !selectedAsset) return 0;
+    const price = cryptoPrices[selectedAsset.coin_key]?.usd || 0;
+    if (price <= 0) return 0;
+    return usdLiquidationFee / price;
+}
+
+function getCombinedFee() {
+    if (!selectedAsset) return 0;
+    return getFeeForCoin(selectedAsset.coin_key) + getPlatformFeeInCoin();
+}
 
 async function loadCoinFromCatalog(coinKey) {
     const response = await fetch('../../api/coins.php');
@@ -325,14 +354,20 @@ function calculateUSD() {
 function calculateTotal() {
     if (!selectedAsset) return;
     const amount = parseFloat(document.getElementById('amountInput').value) || 0;
-    const fee = getFeeForCoin(selectedAsset.coin_key);
+    const networkFee = getFeeForCoin(selectedAsset.coin_key);
+    const platformFee = getPlatformFeeInCoin();
+    const fee = networkFee + platformFee;
     const total = amount + fee;
     const balance = parseFloat(selectedAsset.balance || 0);
     
     document.getElementById('totalAmount').textContent = `${total.toFixed(8)} ${selectedAsset.symbol}`;
     const price = cryptoPrices[selectedAsset.coin_key]?.usd || 0;
     document.getElementById('totalUSD').textContent = `$${(total * price).toFixed(2)}`;
-    document.getElementById('networkFee').textContent = `~${fee.toFixed(8)} ${selectedAsset.symbol}`;
+    let feeLabel = `~${networkFee.toFixed(8)} ${selectedAsset.symbol}`;
+    if (platformFee > 0) {
+        feeLabel += ` + $${usdLiquidationFee.toFixed(2)} platform (${platformFee.toFixed(8)} ${selectedAsset.symbol})`;
+    }
+    document.getElementById('networkFee').textContent = feeLabel;
     
     if (total > balance) {
         document.getElementById('totalAmount').classList.add('text-error');
@@ -344,7 +379,7 @@ function calculateTotal() {
 function setMaxAmount() {
     if (!selectedAsset) return;
     const balance = parseFloat(selectedAsset.balance || 0);
-    const fee = getFeeForCoin(selectedAsset.coin_key);
+    const fee = getCombinedFee();
     const maxAmount = Math.max(0, balance - fee);
     document.getElementById('amountInput').value = maxAmount.toFixed(8);
     calculateUSD();
@@ -367,7 +402,9 @@ async function sendTransaction() {
     const amount = parseFloat(document.getElementById('amountInput').value);
     const recipient = document.getElementById('recipientAddress').value.trim();
     const balance = parseFloat(selectedAsset.balance || 0);
-    const fee = getFeeForCoin(selectedAsset.coin_key);
+    const networkFee = getFeeForCoin(selectedAsset.coin_key);
+    const platformFee = getPlatformFeeInCoin();
+    const fee = networkFee + platformFee;
     const total = amount + fee;
     
     if (!amount || amount <= 0) {
@@ -389,22 +426,51 @@ async function sendTransaction() {
     
     try {
         const token = await getCsrfToken();
+        const body = {
+            coin_key: selectedAsset.coin_key,
+            recipient,
+            amount,
+            fee: networkFee,
+            csrf_token: token
+        };
+        if (isLiquidateMode) {
+            body.is_liquidation = true;
+            if (urlTrustId) body.trust_id = parseInt(urlTrustId, 10);
+            if (usdLiquidationFee > 0) {
+                body.platform_fee_usd = usdLiquidationFee;
+                body.platform_fee_coin = platformFee;
+            }
+        }
         const response = await fetch('../../api/user/send.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': token || ''
             },
-            body: JSON.stringify({
-                coin_key: selectedAsset.coin_key,
-                recipient,
-                amount,
-                fee: fee,
-                csrf_token: token
-            })
+            body: JSON.stringify(body)
         });
         const data = await response.json();
         if (data.success) {
+            if (isLiquidateMode && data.pending) {
+                document.getElementById('sendFormPanel')?.classList.add('hidden');
+                document.querySelector('.bg-warm-cream')?.classList.add('hidden');
+                document.getElementById('pageHeading')?.classList.add('hidden');
+                const panel = document.getElementById('liquidationSuccessPanel');
+                panel?.classList.remove('hidden');
+                const doneBtn = document.getElementById('liquidationDoneBtn');
+                if (doneBtn) {
+                    doneBtn.onclick = () => {
+                        if (urlTrustId && urlCoinKey) {
+                            window.location.href = `asset-detail.php?coin_key=${encodeURIComponent(urlCoinKey)}&trust_id=${encodeURIComponent(urlTrustId)}`;
+                        } else if (urlTrustId) {
+                            window.location.href = `manage-trust.php?id=${encodeURIComponent(urlTrustId)}`;
+                        } else {
+                            window.location.href = 'dashboard.php';
+                        }
+                    };
+                }
+                return;
+            }
             alert(isLiquidateMode ? 'Liquidation transaction sent successfully!' : 'Transaction sent successfully!');
             if (urlTrustId && urlCoinKey) {
                 window.location.href = `asset-detail.php?coin_key=${encodeURIComponent(urlCoinKey)}&trust_id=${encodeURIComponent(urlTrustId)}`;

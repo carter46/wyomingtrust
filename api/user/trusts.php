@@ -179,6 +179,53 @@ function handleUpdateUserTrust() {
         $updatesMade = true;
     }
 
+    if (isset($payload['add_entrusted_coins'])) {
+        $toAdd = $payload['add_entrusted_coins'];
+        if (!is_array($toAdd) || count($toAdd) === 0) {
+            send_json(['success' => false, 'message' => 'Select at least one coin to add'], 400);
+        }
+
+        $svcStmt = $db->prepare(
+            'SELECT ts.service_key FROM user_trusts ut
+             INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+             WHERE ut.id = :id AND ut.user_id = :user_id LIMIT 1'
+        );
+        $svcStmt->execute([':id' => $trustId, ':user_id' => $userId]);
+        $svc = $svcStmt->fetch();
+        if (!$svc || !is_crypto_trust_type($svc['service_key'] ?? '')) {
+            send_json(['success' => false, 'message' => 'Coins can only be added to crypto trusts'], 400);
+        }
+
+        $existing = isset($trustData['entrusted_coins']) && is_array($trustData['entrusted_coins'])
+            ? $trustData['entrusted_coins']
+            : [];
+        $existingLower = array_map('strtolower', array_map('strval', $existing));
+
+        $validated = [];
+        $coinStmt = $db->prepare('SELECT coin_key FROM coins WHERE coin_key = :key LIMIT 1');
+        foreach ($toAdd as $rawKey) {
+            $key = sanitize_text((string) $rawKey);
+            if ($key === '') {
+                continue;
+            }
+            if (in_array(strtolower($key), $existingLower, true)) {
+                continue;
+            }
+            $coinStmt->execute([':key' => $key]);
+            if ($coinStmt->fetch()) {
+                $validated[] = $key;
+                $existingLower[] = strtolower($key);
+            }
+        }
+
+        if (count($validated) === 0) {
+            send_json(['success' => false, 'message' => 'No new valid coins to add'], 400);
+        }
+
+        $trustData['entrusted_coins'] = array_values(array_merge($existing, $validated));
+        $updatesMade = true;
+    }
+
     if (isset($payload['status'])) {
         $status = sanitize_text($payload['status']);
         $allowedStatuses = ['active', 'inactive', 'pending', 'suspended', 'liquidated'];

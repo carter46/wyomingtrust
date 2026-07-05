@@ -35,6 +35,8 @@ switch ($method) {
         $payload = get_json_input();
         if (!empty($payload['deposit_id'])) {
             handleApproveRejectDeposit($payload);
+        } elseif (!empty($payload['liquidation_id'])) {
+            handleApproveRejectLiquidation($payload);
         } else {
             handleApproveRejectPayment($payload);
         }
@@ -65,6 +67,29 @@ function credit_user_coin_balance(PDO $db, int $userId, int $coinId, float $amou
     } else {
         $insert = $db->prepare('INSERT INTO user_assets (user_id, coin_id, balance) VALUES (:user, :coin, :balance)');
         $insert->execute([':user' => $userId, ':coin' => $coinId, ':balance' => $newBalance]);
+    }
+
+    return $newBalance;
+}
+
+function debit_user_coin_balance(PDO $db, int $userId, int $coinId, float $amount): float {
+    $assetStmt = $db->prepare('SELECT balance FROM user_assets WHERE user_id = :user AND coin_id = :coin LIMIT 1');
+    $assetStmt->execute([':user' => $userId, ':coin' => $coinId]);
+    $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
+
+    $currentBalance = $asset ? (float) $asset['balance'] : 0.0;
+    if ($amount > $currentBalance) {
+        throw new RuntimeException('Insufficient balance');
+    }
+
+    $newBalance = $currentBalance - $amount;
+    $update = $db->prepare(
+        'UPDATE user_assets SET balance = :balance, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user AND coin_id = :coin'
+    );
+    $update->execute([':balance' => $newBalance, ':user' => $userId, ':coin' => $coinId]);
+
+    if ($update->rowCount() === 0) {
+        throw new RuntimeException('User asset record not found');
     }
 
     return $newBalance;
@@ -131,8 +156,30 @@ function handleListPendingPayments() {
         $deposit['amount'] = (float) $deposit['amount'];
         decode_transaction_data_row($deposit);
     }
+
+    $liquidationStmt = $db->prepare(
+        'SELECT t.id, t.user_id, t.trust_id, t.coin_id, t.amount, t.fee, t.recipient, t.status, t.asset_symbol,
+                t.transaction_data, t.created_at, t.updated_at,
+                c.coin_key, c.display_name AS coin_name, c.symbol AS coin_symbol,
+                u.full_name AS user_name, u.email AS user_email,
+                ut.id AS trust_ref_id, ts.service_name AS trust_service_name
+         FROM transactions t
+         INNER JOIN coins c ON c.id = t.coin_id
+         INNER JOIN users u ON u.id = t.user_id
+         LEFT JOIN user_trusts ut ON ut.id = t.trust_id
+         LEFT JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE t.type = "liquidation" AND t.status = "pending"
+         ORDER BY t.created_at DESC'
+    );
+    $liquidationStmt->execute();
+    $liquidations = $liquidationStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($liquidations as &$liq) {
+        $liq['amount'] = (float) $liq['amount'];
+        $liq['fee'] = (float) $liq['fee'];
+        decode_transaction_data_row($liq);
+    }
     
-    send_json(['success' => true, 'payments' => $payments, 'deposits' => $deposits]);
+    send_json(['success' => true, 'payments' => $payments, 'deposits' => $deposits, 'liquidations' => $liquidations]);
 }
 
 function handleApproveRejectPayment($payload = null) {
@@ -314,5 +361,101 @@ function handleApproveRejectDeposit($payload = null) {
         $db->rollBack();
         error_log('Approve/reject deposit failed: ' . $e->getMessage());
         send_json(['success' => false, 'message' => 'Failed to process deposit: ' . $e->getMessage()], 500);
+    }
+}
+
+function handleApproveRejectLiquidation($payload = null) {
+    require_admin_auth();
+    require_csrf_token();
+    if ($payload === null) {
+        $payload = get_json_input();
+    }
+
+    $liquidationId = isset($payload['liquidation_id']) ? (int) $payload['liquidation_id'] : 0;
+    $action = sanitize_text($payload['action'] ?? '');
+    $adminNotes = sanitize_text($payload['admin_notes'] ?? '');
+
+    if ($liquidationId <= 0) {
+        send_json(['success' => false, 'message' => 'Invalid liquidation ID'], 400);
+    }
+    if (!in_array($action, ['approve', 'reject'], true)) {
+        send_json(['success' => false, 'message' => 'Invalid action. Must be "approve" or "reject"'], 400);
+    }
+
+    $db = getDatabase();
+    $db->beginTransaction();
+
+    try {
+        $stmt = $db->prepare(
+            'SELECT t.id, t.user_id, t.trust_id, t.coin_id, t.amount, t.fee, t.recipient, t.status, t.transaction_data, c.symbol
+             FROM transactions t
+             INNER JOIN coins c ON c.id = t.coin_id
+             WHERE t.id = :id AND t.type = "liquidation" AND t.status = "pending"
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $liquidationId]);
+        $liquidation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$liquidation) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Liquidation not found or already processed'], 404);
+        }
+
+        $txData = !empty($liquidation['transaction_data'])
+            ? (json_decode($liquidation['transaction_data'], true) ?? [])
+            : [];
+
+        if ($action === 'approve') {
+            $totalDebit = (float) $liquidation['amount'] + (float) $liquidation['fee'];
+            $newBalance = debit_user_coin_balance(
+                $db,
+                (int) $liquidation['user_id'],
+                (int) $liquidation['coin_id'],
+                $totalDebit
+            );
+            $txData['approved_at'] = date('c');
+            $txData['admin_notes'] = $adminNotes;
+            $txData['balance_after'] = $newBalance;
+
+            $update = $db->prepare(
+                'UPDATE transactions SET status = "completed", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+            );
+            $update->execute([
+                ':id' => $liquidationId,
+                ':data' => json_encode($txData),
+            ]);
+
+            $db->commit();
+            send_json([
+                'success' => true,
+                'message' => 'Liquidation approved. User balance has been debited.',
+                'status' => 'completed',
+            ]);
+        }
+
+        $txData['rejected_at'] = date('c');
+        $txData['admin_notes'] = $adminNotes;
+
+        $update = $db->prepare(
+            'UPDATE transactions SET status = "rejected", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+        );
+        $update->execute([
+            ':id' => $liquidationId,
+            ':data' => json_encode($txData),
+        ]);
+
+        $db->commit();
+        send_json([
+            'success' => true,
+            'message' => 'Liquidation rejected.',
+            'status' => 'rejected',
+        ]);
+    } catch (RuntimeException $e) {
+        $db->rollBack();
+        send_json(['success' => false, 'message' => $e->getMessage()], 400);
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Approve/reject liquidation failed: ' . $e->getMessage());
+        send_json(['success' => false, 'message' => 'Failed to process liquidation: ' . $e->getMessage()], 500);
     }
 }

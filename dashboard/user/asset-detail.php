@@ -37,23 +37,29 @@ include __DIR__ . '/includes/layout.php';
 </section>
 
 <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center min-w-0 dashboard-metric-card">
 <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Live Price</p>
-<div class="text-center md:text-left">
-<div class="text-3xl sm:text-4xl font-bold text-primary mb-2" id="currentPrice">$0.00</div>
+<div class="text-center md:text-left min-w-0">
+<div class="dashboard-metric-value-wrap">
+<div class="dashboard-metric-value text-primary mb-2" id="currentPrice" data-fit-max="36" data-fit-min="14">$0.00</div>
+</div>
 <div class="text-lg font-medium mb-1" id="priceChange">--</div>
 <div class="text-sm text-on-surface-variant" id="marketCap"></div>
 </div>
 </div>
-<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center min-w-0 dashboard-metric-card">
 <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">My Balance</p>
-<div class="text-center md:text-left">
+<div class="text-center md:text-left min-w-0">
 <div class="flex items-center justify-center md:justify-start gap-3 mb-4">
-<img src="" alt="Crypto Logo" class="w-12 h-12 rounded-full" id="balanceLogo" onerror="this.style.display='none'">
+<img src="" alt="Crypto Logo" class="w-12 h-12 rounded-full shrink-0" id="balanceLogo" onerror="this.style.display='none'">
 <div class="text-xl font-bold text-primary" id="balanceSymbol">--</div>
 </div>
-<div class="text-2xl sm:text-3xl font-bold text-primary mb-2" id="balanceAmount">0.00000000</div>
-<div class="text-lg text-on-surface-variant" id="balanceUSD">USD $0.00</div>
+<div class="dashboard-metric-value-wrap">
+<div class="dashboard-metric-value text-primary mb-2" id="balanceAmount" data-fit-max="30" data-fit-min="12">0.00000000</div>
+</div>
+<div class="dashboard-metric-value-wrap">
+<div class="dashboard-metric-value text-on-surface-variant" id="balanceUSD" data-fit-max="22" data-fit-min="11">USD $0.00</div>
+</div>
 </div>
 </div>
 </section>
@@ -244,6 +250,7 @@ function updateBalanceDisplay() {
     const usdValue = assetBalance * currentPrice;
     document.getElementById('balanceUSD').textContent = `USD $${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     updateActionButtons();
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function setupEventListeners() {
@@ -427,6 +434,7 @@ function updatePriceDisplay(price, change, marketCap) {
     if (marketCap) {
         document.getElementById('marketCap').textContent = `Market Cap: $${(marketCap / 1e9).toFixed(2)}B`;
     }
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 async function loadTransactionHistory() {

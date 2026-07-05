@@ -116,13 +116,57 @@ foreach ($depositRows as $row) {
     ];
 }
 
+$liquidationStmt = $db->prepare(
+    'SELECT t.id, t.amount, t.fee, t.status, t.trust_id, t.recipient, t.created_at, t.updated_at, t.transaction_data,
+            c.coin_key, c.display_name, c.symbol
+     FROM transactions t
+     INNER JOIN coins c ON c.id = t.coin_id
+     WHERE t.user_id = :user_id AND t.type = "liquidation"
+     ORDER BY t.created_at DESC'
+);
+$liquidationStmt->execute([':user_id' => $userId]);
+$liquidationRows = $liquidationStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($liquidationRows as $row) {
+    $txData = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+    $coinAmount = (float) $row['amount'];
+    $feeAmount = (float) $row['fee'];
+    $displayName = $row['display_name'] ?? $row['symbol'] ?? 'Cryptocurrency';
+    $platformUsd = isset($txData['platform_fee_usd']) ? (float) $txData['platform_fee_usd'] : 0.0;
+
+    $payments[] = [
+        'record_type' => 'crypto_liquidation',
+        'transaction_id' => (int) $row['id'],
+        'trust_id' => !empty($row['trust_id']) ? (int) $row['trust_id'] : null,
+        'service_name' => 'Crypto Liquidation — ' . $displayName,
+        'service_key' => 'crypto_liquidation',
+        'coin_key' => $row['coin_key'],
+        'coin_symbol' => $row['symbol'],
+        'coin_amount' => $coinAmount,
+        'fee_amount' => $feeAmount,
+        'amount' => $platformUsd > 0 ? $platformUsd : $coinAmount,
+        'amount_usd' => $platformUsd,
+        'is_free' => false,
+        'payment_status' => $row['status'],
+        'trust_status' => null,
+        'payment_method_name' => 'Cryptocurrency',
+        'payment_method_type' => 'crypto',
+        'payment_type' => 'crypto_liquidation',
+        'recipient' => $row['recipient'] ?? ($txData['recipient'] ?? null),
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at'],
+    ];
+}
+
 usort($payments, static function (array $a, array $b): int {
     return strtotime((string) ($b['created_at'] ?? '')) <=> strtotime((string) ($a['created_at'] ?? ''));
 });
 
 $lastPayment = null;
 foreach ($payments as $payment) {
-    if ($payment['record_type'] === 'crypto_deposit' || empty($payment['is_free'])) {
+    if ($payment['record_type'] === 'crypto_deposit' || $payment['record_type'] === 'crypto_liquidation' || empty($payment['is_free'])) {
         $lastPayment = $payment;
         break;
     }

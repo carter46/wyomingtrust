@@ -34,29 +34,35 @@ include __DIR__ . '/includes/layout.php';
 </section>
 
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-<div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="dashboard-metric-card flex min-w-0 flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
 <?php echo wt_icon('wallet', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Total Portfolio Value</p>
 </div>
-<p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight">$<span id="totalPortfolioValue">0.00</span></p>
+<div class="dashboard-metric-value-wrap">
+<p id="totalPortfolioValue" class="dashboard-metric-value text-on-surface tracking-tight leading-tight" data-fit-max="28" data-fit-min="11">$0.00</p>
+</div>
 <p class="text-xs text-on-surface-variant" id="portfolioChange">--</p>
 </div>
-<div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="dashboard-metric-card flex min-w-0 flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
 <?php echo wt_icon('arrow-forward', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">24h Change</p>
 </div>
-<p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight" id="total24hChange">--</p>
+<div class="dashboard-metric-value-wrap">
+<p id="total24hChange" class="dashboard-metric-value text-on-surface tracking-tight leading-tight" data-fit-max="28" data-fit-min="12">--</p>
 </div>
-<div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
+</div>
+<div class="dashboard-metric-card flex min-w-0 flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
 <?php echo wt_icon('wallet', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Total Assets</p>
 </div>
-<p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight" id="totalAssetsCount">0</p>
+<div class="dashboard-metric-value-wrap">
+<p id="totalAssetsCount" class="dashboard-metric-value text-on-surface tracking-tight leading-tight" data-fit-max="28" data-fit-min="14">0</p>
 </div>
-<div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
+</div>
+<div class="dashboard-metric-card flex min-w-0 flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-secondary">
 <?php echo wt_icon('refresh', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Last Updated</p>
@@ -365,10 +371,13 @@ function updatePortfolioSummary() {
     const changeClass = totalChange >= 0 ? 'text-deep-forest' : 'text-error';
     const changeSign = totalChange >= 0 ? '+' : '';
     
-    document.getElementById('totalPortfolioValue').textContent = totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('totalPortfolioValue').textContent = '$' + totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('portfolioChange').innerHTML = `<span class="${changeClass}">${changeSign}$${Math.abs(totalChange).toFixed(2)} (${changeSign}${Math.abs(changePercent).toFixed(2)}%)</span>`;
-    document.getElementById('total24hChange').innerHTML = `<span class="${changeClass}">${changeSign}${Math.abs(changePercent).toFixed(2)}%</span>`;
+    const changeEl = document.getElementById('total24hChange');
+    changeEl.textContent = `${changeSign}${Math.abs(changePercent).toFixed(2)}%`;
+    changeEl.className = 'dashboard-metric-value text-on-surface tracking-tight leading-tight ' + changeClass;
     document.getElementById('totalAssetsCount').textContent = totalAssets;
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function updateLastUpdated() {

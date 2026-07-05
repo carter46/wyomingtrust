@@ -82,19 +82,23 @@ An administrator has not yet configured a deposit wallet address for this asset.
 <div id="depositAddressSection">
 <div id="depositAmountSection" class="mb-6 p-4 sm:p-5 bg-surface-container-low rounded-xl border border-outline-variant">
 <div class="flex flex-wrap items-start justify-between gap-3 mb-4 pb-4 border-b border-outline-variant">
-<div>
+<div class="min-w-0 flex-1">
 <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Live Price</p>
-<p id="depositLivePrice" class="text-xl sm:text-2xl font-bold text-primary">Loading...</p>
+<div class="dashboard-metric-value-wrap max-w-xl">
+<p id="depositLivePrice" class="dashboard-metric-value text-primary" data-fit-max="28" data-fit-min="12">Loading...</p>
+</div>
 </div>
 <p id="depositPriceChange" class="text-sm font-medium text-on-surface-variant shrink-0">--</p>
 </div>
 <div>
 <label for="depositUsdAmount" id="depositAmountLabel" class="block text-sm font-semibold text-primary mb-2">Amount to Deposit (USD)</label>
-<div class="relative max-w-xl">
+<div class="relative max-w-xl dashboard-metric-value-wrap">
 <input type="number" id="depositUsdAmount" min="0" step="0.01" placeholder="0.00" class="w-full px-4 py-3 pr-16 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
 <span id="depositCurrencySuffix" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-on-surface-variant pointer-events-none">USD</span>
 </div>
-<p id="depositCoinQuote" class="text-base sm:text-lg font-bold text-secondary mt-3 min-h-[1.5em]">—</p>
+<div class="dashboard-metric-value-wrap">
+<p id="depositCoinQuote" class="dashboard-metric-value text-secondary mt-3 min-h-[1.5em]" data-fit-max="22" data-fit-min="11">—</p>
+</div>
 <p id="depositRateHint" class="text-xs text-on-surface-variant mt-1">Enter how much you want to deposit in US dollars. We will calculate the crypto amount to send.</p>
 </div>
 </div>
@@ -260,6 +264,7 @@ function updateDepositCoinQuote() {
     const coinAmt = getCoinAmountFromUsd(usdAmount);
     const disp = formatCoinAmount(coinAmt);
     quoteEl.textContent = `You will send: ${disp} ${symbol}`;
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function updatePriceDisplay(price, change24h) {
@@ -285,6 +290,7 @@ function updatePriceDisplay(price, change24h) {
     }
     updateDepositAmountLabels();
     updateDepositCoinQuote();
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function getCachedCoinPrice(coinKey) {

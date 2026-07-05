@@ -23,6 +23,7 @@ function renderTrustPaymentsContent() {
 <div class="flex gap-2 mb-4 border-b border-slate-200 dark:border-slate-700">
     <button type="button" id="tabTrustPayments" onclick="switchTab('trust')" class="px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary">Trust Service Payments</button>
     <button type="button" id="tabCryptoDeposits" onclick="switchTab('deposits')" class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary">Crypto Deposits</button>
+    <button type="button" id="tabCryptoLiquidations" onclick="switchTab('liquidations')" class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary">Crypto Liquidations</button>
 </div>
 
 <div id="messageContainer" class="mb-3 sm:mb-4"></div>
@@ -39,22 +40,30 @@ function renderTrustPaymentsContent() {
     </div>
 </div>
 
+<div id="cryptoLiquidationsPanel" class="hidden bg-white dark:bg-navy-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div id="liquidationsContainer" class="p-4 sm:p-6">
+        <div class="text-center py-8 sm:py-10 text-slate-500 text-sm sm:text-base">Loading crypto liquidations...</div>
+    </div>
+</div>
+
 <script src="includes/modal.js"></script>
 <script>
 let allPayments = [];
 let allDeposits = [];
+let allLiquidations = [];
 let activeTab = 'trust';
 
 function switchTab(tab) {
     activeTab = tab;
-    document.getElementById('tabTrustPayments').className = tab === 'trust'
+    const tabClass = (name) => tab === name
         ? 'px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary'
         : 'px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary';
-    document.getElementById('tabCryptoDeposits').className = tab === 'deposits'
-        ? 'px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary'
-        : 'px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary';
+    document.getElementById('tabTrustPayments').className = tabClass('trust');
+    document.getElementById('tabCryptoDeposits').className = tabClass('deposits');
+    document.getElementById('tabCryptoLiquidations').className = tabClass('liquidations');
     document.getElementById('trustPaymentsPanel').classList.toggle('hidden', tab !== 'trust');
     document.getElementById('cryptoDepositsPanel').classList.toggle('hidden', tab !== 'deposits');
+    document.getElementById('cryptoLiquidationsPanel').classList.toggle('hidden', tab !== 'liquidations');
 }
 
 async function loadPayments() {
@@ -65,16 +74,20 @@ async function loadPayments() {
         if (data.success) {
             allPayments = data.payments || [];
             allDeposits = data.deposits || [];
+            allLiquidations = data.liquidations || [];
             renderPayments(allPayments);
             renderDeposits(allDeposits);
+            renderLiquidations(allLiquidations);
         } else {
             document.getElementById('paymentsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Failed to load payments</div>';
             document.getElementById('depositsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Failed to load deposits</div>';
+            document.getElementById('liquidationsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Failed to load liquidations</div>';
         }
     } catch (error) {
         console.error('Error loading payments:', error);
         document.getElementById('paymentsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Error loading payments</div>';
         document.getElementById('depositsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Error loading deposits</div>';
+        document.getElementById('liquidationsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Error loading liquidations</div>';
     }
 }
 
@@ -212,6 +225,142 @@ async function processDeposit(depositId, action) {
 
 function approveDeposit(id) { processDeposit(id, 'approve'); }
 function rejectDeposit(id) { processDeposit(id, 'reject'); }
+
+function renderLiquidations(liquidations) {
+    const container = document.getElementById('liquidationsContainer');
+    if (!liquidations || liquidations.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 sm:py-10 text-slate-500 text-sm sm:text-base">No pending crypto liquidations</div>';
+        return;
+    }
+
+    const txData = (l) => l.transaction_data || {};
+    const html = `
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-navy-700">
+                    <tr>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">ID</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">User</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Coin</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Amount</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Fee</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Destination</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Trust</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Submitted</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-navy-700">
+                    ${liquidations.map(l => `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-navy-700/50">
+                            <td class="px-4 py-3 text-sm font-mono">#${l.id}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <div class="font-medium">${escapeHtml(l.user_name || 'N/A')}</div>
+                                <div class="text-xs text-slate-500">${escapeHtml(l.user_email || '')}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm">${escapeHtml(l.coin_name || l.coin_key)} <span class="text-xs text-slate-500">${escapeHtml(l.coin_symbol || '')}</span></td>
+                            <td class="px-4 py-3 text-sm font-semibold">${parseFloat(l.amount).toFixed(8)}</td>
+                            <td class="px-4 py-3 text-sm">${parseFloat(txData(l).fee || 0).toFixed(8)}</td>
+                            <td class="px-4 py-3 text-xs font-mono break-all max-w-[140px]">${escapeHtml(txData(l).destination_address || txData(l).recipient || l.recipient || '—')}</td>
+                            <td class="px-4 py-3 text-sm">${l.trust_id ? '#' + l.trust_id : '—'}</td>
+                            <td class="px-4 py-3 text-xs text-slate-500">${new Date(l.created_at).toLocaleString()}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="viewLiquidationDetails(${l.id})" class="text-blue-600 hover:underline text-xs">View</button>
+                                    <button onclick="approveLiquidation(${l.id})" class="text-green-600 hover:underline text-xs font-semibold">Approve</button>
+                                    <button onclick="rejectLiquidation(${l.id})" class="text-red-600 hover:underline text-xs">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div class="md:hidden space-y-4">
+            ${liquidations.map(l => `
+                <div class="bg-slate-50 dark:bg-navy-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold text-sm">#${l.id} · ${escapeHtml(l.coin_symbol || l.coin_key)}</span>
+                        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Pending</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-1">${escapeHtml(l.user_name || '')}</p>
+                    <p class="text-sm font-semibold mb-1">${parseFloat(l.amount).toFixed(8)} ${escapeHtml(l.coin_symbol || '')}</p>
+                    <p class="text-xs font-mono break-all text-slate-600 mb-3">${escapeHtml((l.transaction_data || {}).destination_address || (l.transaction_data || {}).recipient || l.recipient || '')}</p>
+                    <div class="flex gap-2">
+                        <button onclick="viewLiquidationDetails(${l.id})" class="flex-1 py-2 text-xs bg-blue-100 text-blue-700 rounded-lg">View</button>
+                        <button onclick="approveLiquidation(${l.id})" class="flex-1 py-2 text-xs bg-green-100 text-green-700 rounded-lg font-semibold">Approve</button>
+                        <button onclick="rejectLiquidation(${l.id})" class="flex-1 py-2 text-xs bg-red-100 text-red-700 rounded-lg">Reject</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+function viewLiquidationDetails(liquidationId) {
+    const l = allLiquidations.find(p => p.id == liquidationId);
+    if (!l) { showToast('Liquidation not found', 'error'); return; }
+    const td = l.transaction_data || {};
+    const detailsHtml = `
+        <div class="space-y-3 text-sm">
+            <div><span class="text-slate-500">Liquidation ID:</span> <span class="font-mono">#${l.id}</span></div>
+            <div><span class="text-slate-500">User:</span> ${escapeHtml(l.user_name || 'N/A')} (${escapeHtml(l.user_email || '')})</div>
+            <div><span class="text-slate-500">Coin:</span> ${escapeHtml(l.coin_name || l.coin_key)} (${escapeHtml(l.coin_symbol || '')})</div>
+            <div><span class="text-slate-500">Amount:</span> <span class="font-semibold">${parseFloat(l.amount).toFixed(8)}</span></div>
+            <div><span class="text-slate-500">Network Fee:</span> ${parseFloat(td.network_fee ?? td.fee ?? l.fee ?? 0).toFixed(8)}</div>
+            ${td.platform_fee_usd ? `<div><span class="text-slate-500">Platform Fee:</span> $${parseFloat(td.platform_fee_usd).toFixed(2)} (${parseFloat(td.platform_fee_coin || 0).toFixed(8)} ${escapeHtml(l.coin_symbol || '')})</div>` : ''}
+            <div><span class="text-slate-500">Total Fee:</span> ${parseFloat(l.fee || 0).toFixed(8)}</div>
+            <div><span class="text-slate-500">Total Debit:</span> <span class="font-semibold">${(parseFloat(l.amount) + parseFloat(td.fee || 0)).toFixed(8)}</span></div>
+            <div><span class="text-slate-500">Destination:</span> <span class="font-mono text-xs break-all">${escapeHtml(td.destination_address || td.recipient || l.recipient || '—')}</span></div>
+            <div><span class="text-slate-500">Trust:</span> ${l.trust_id ? '#' + l.trust_id + (l.trust_service_name ? ' — ' + escapeHtml(l.trust_service_name) : '') : '—'}</div>
+            <div><span class="text-slate-500">Submitted:</span> ${new Date(l.created_at).toLocaleString()}</div>
+        </div>
+    `;
+    showModal('Crypto Liquidation Details', detailsHtml, [
+        { label: 'Close', onclick: 'closeModal()', class: 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white' }
+    ]);
+}
+
+async function processLiquidation(liquidationId, action) {
+    const l = allLiquidations.find(p => p.id == liquidationId);
+    if (!l) { showToast('Liquidation not found', 'error'); return; }
+    const td = l.transaction_data || {};
+    const total = parseFloat(l.amount) + parseFloat(td.fee || 0);
+    const label = action === 'approve' ? 'Approve Liquidation' : 'Reject Liquidation';
+    const msg = action === 'approve'
+        ? `Approve this liquidation?\n\nUser: ${l.user_name}\nAmount: ${parseFloat(l.amount).toFixed(8)} ${l.coin_symbol || ''}\nFee: ${parseFloat(td.fee || 0).toFixed(8)}\nTotal debit: ${total.toFixed(8)}\n\nThis will debit the user's balance.`
+        : `Reject this liquidation?\n\nUser: ${l.user_name}\nAmount: ${parseFloat(l.amount).toFixed(8)} ${l.coin_symbol || ''}`;
+
+    showConfirmModal(label, msg, async function() {
+        try {
+            const csrfResponse = await fetch('../../api/admin/session.php');
+            const csrfData = await csrfResponse.json();
+            const response = await fetch('../../api/admin/trust-payments.php', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    liquidation_id: liquidationId,
+                    action: action,
+                    csrf_token: csrfData.csrf_token
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast(data.message || (action === 'approve' ? 'Liquidation approved' : 'Liquidation rejected'), 'success');
+                loadPayments();
+            } else {
+                showToast(data.message || 'Failed to process liquidation', 'error');
+            }
+        } catch (error) {
+            console.error('Error processing liquidation:', error);
+            showToast('Error processing liquidation', 'error');
+        }
+    });
+}
+
+function approveLiquidation(id) { processLiquidation(id, 'approve'); }
+function rejectLiquidation(id) { processLiquidation(id, 'reject'); }
 
 function renderPayments(payments) {
     const container = document.getElementById('paymentsContainer');

@@ -52,4 +52,54 @@ function toggleMobileNav() {
         panel.classList.replace('translate-x-0', '-translate-x-full');
     }
 }
+
+(function () {
+    const observed = new WeakSet();
+
+    function fitDashboardAmount(el) {
+        if (!el || !el.classList.contains('dashboard-metric-value')) return;
+        const wrap = el.closest('.dashboard-metric-value-wrap') || el.parentElement;
+        if (!wrap || wrap.clientWidth <= 0) return;
+        const max = parseFloat(el.dataset.fitMax || '28') || 28;
+        const min = parseFloat(el.dataset.fitMin || '10') || 10;
+        el.style.fontSize = max + 'px';
+        let size = max;
+        while (el.scrollWidth > wrap.clientWidth && size > min) {
+            size -= 0.5;
+            el.style.fontSize = size + 'px';
+        }
+    }
+
+    function attachMetricValue(el) {
+        fitDashboardAmount(el);
+        if (observed.has(el)) return;
+        observed.add(el);
+        const mo = new MutationObserver(function () { fitDashboardAmount(el); });
+        mo.observe(el, { childList: true, characterData: true, subtree: true });
+    }
+
+    window.fitDashboardAmounts = function (root) {
+        (root || document).querySelectorAll('.dashboard-metric-value').forEach(attachMetricValue);
+    };
+
+    function initDashboardAmountFit() {
+        window.fitDashboardAmounts();
+        const content = document.querySelector('.dashboard-content');
+        if (content && typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(function () { window.fitDashboardAmounts(); });
+            ro.observe(content);
+        }
+        window.addEventListener('resize', function () { window.fitDashboardAmounts(); });
+        if (content) {
+            new MutationObserver(function () { window.fitDashboardAmounts(); })
+                .observe(content, { childList: true, subtree: true });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDashboardAmountFit);
+    } else {
+        initDashboardAmountFit();
+    }
+})();
 </script>

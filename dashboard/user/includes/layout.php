@@ -109,6 +109,19 @@ tailwind.config = {
 @media (min-width: 768px) {
     .metric-stat-value { font-size: 2.25rem; }
 }
+.dashboard-metric-card { min-width: 0; overflow: hidden; }
+.dashboard-metric-value-wrap { min-width: 0; width: 100%; max-width: 100%; overflow: hidden; }
+.dashboard-metric-value {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    line-height: 1.15;
+    font-weight: 700;
+    white-space: nowrap;
+    font-size: 1.75rem;
+}
+.dashboard-metric-value.font-headline-lg { font-family: "Source Serif 4", serif; }
 .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
 .dashboard-shell { width: 100%; max-width: 100vw; overflow-x: hidden; }
 .dashboard-main {

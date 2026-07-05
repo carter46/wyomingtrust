@@ -19,7 +19,7 @@ function handleListTransactions() {
     // Support coin_key filter
     $coinKey = isset($_GET['coin_key']) ? sanitize_text($_GET['coin_key']) : '';
     
-    $sql = 'SELECT t.id, t.amount, t.fee, t.status, t.type, t.recipient, t.asset_symbol, t.metadata, t.created_at, t.updated_at,
+    $sql = 'SELECT t.id, t.amount, t.fee, t.status, t.type, t.recipient, t.asset_symbol, t.metadata, t.transaction_data, t.created_at, t.updated_at,
                 pm.method_type, pm.method_name,
                 ut.id AS trust_id, ts.service_name,
                 c.coin_key, c.display_name AS coin_name, c.symbol AS coin_symbol, c.logo AS coin_logo

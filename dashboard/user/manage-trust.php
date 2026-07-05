@@ -260,22 +260,28 @@ include __DIR__ . '/includes/layout.php';
 </section>
 
 <section id="trustMetricsSection" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-<div id="portfolioAssetsCard" class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
+<div id="portfolioAssetsCard" class="dashboard-metric-card flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Portfolio Assets</p>
-<div class="flex items-baseline gap-2">
-<p id="portfolioAssets" class="text-primary text-2xl font-black">0/0</p>
-<span id="portfolioAllocation" class="text-xs text-on-surface-variant">0% allocation</span>
+<div class="flex items-baseline gap-2 min-w-0">
+<div class="dashboard-metric-value-wrap min-w-0 flex-1">
+<p id="portfolioAssets" class="dashboard-metric-value text-primary" data-fit-max="24" data-fit-min="12">0/0</p>
+</div>
+<span id="portfolioAllocation" class="text-xs text-on-surface-variant shrink-0">0% allocation</span>
 </div>
 </div>
-<div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="dashboard-metric-card flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Value</p>
-<p id="totalValue" class="text-primary text-2xl font-black tracking-tight">$0.00</p>
+<div class="dashboard-metric-value-wrap">
+<p id="totalValue" class="dashboard-metric-value text-primary tracking-tight" data-fit-max="28" data-fit-min="11">$0.00</p>
 </div>
-<div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
+</div>
+<div class="dashboard-metric-card flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Beneficiaries</p>
-<p id="beneficiaryCount" class="text-primary text-2xl font-black">0</p>
+<div class="dashboard-metric-value-wrap">
+<p id="beneficiaryCount" class="dashboard-metric-value text-primary" data-fit-max="28" data-fit-min="14">0</p>
 </div>
-<div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
+</div>
+<div class="dashboard-metric-card flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Status</p>
 <div class="flex items-center gap-2">
 <?php echo wt_icon('shield', 'text-secondary text-xl'); ?>
@@ -330,7 +336,10 @@ Change Status
 <section class="mb-8" id="cryptoTrustSection" style="display:none;">
 <div class="flex justify-between items-center pb-4">
 <h2 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h2>
+<div class="flex items-center gap-3">
+<a id="addCoinsLinkLegacy" href="#" class="hidden text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1"><?php echo wt_icon('add-circle', 'w-4 h-4'); ?> Add Coins</a>
 <a href="assets.php" class="text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1">View All Assets <?php echo wt_icon('arrow-forward', 'w-4 h-4'); ?></a>
+</div>
 </div>
 <div id="entrustedCoinsList" class="flex flex-wrap gap-2 mb-4"></div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -423,22 +432,28 @@ Liquidate Trust
 </section>
 
 <section id="cryptoMetricsSection" class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
-<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
 <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Portfolio Assets</p>
-<p id="cryptoPortfolioAssets" class="font-headline-lg text-headline-lg text-primary">0</p>
+<div class="dashboard-metric-value-wrap">
+<p id="cryptoPortfolioAssets" class="dashboard-metric-value font-headline-lg text-primary" data-fit-max="28" data-fit-min="14">0</p>
 </div>
-<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+</div>
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
 <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Total Value</p>
-<p id="cryptoTotalValue" class="font-headline-lg text-headline-lg text-primary">$0.00</p>
+<div class="dashboard-metric-value-wrap">
+<p id="cryptoTotalValue" class="dashboard-metric-value font-headline-lg text-primary" data-fit-max="28" data-fit-min="11">$0.00</p>
 </div>
-<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+</div>
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
 <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Beneficiaries</p>
-<div class="flex items-center justify-between">
-<p id="cryptoBeneficiaryCount" class="font-headline-lg text-headline-lg text-primary">0</p>
-<?php echo wt_icon('group', 'text-secondary w-6 h-6'); ?>
+<div class="flex items-center justify-between gap-2 min-w-0">
+<div class="dashboard-metric-value-wrap min-w-0 flex-1">
+<p id="cryptoBeneficiaryCount" class="dashboard-metric-value font-headline-lg text-primary" data-fit-max="28" data-fit-min="14">0</p>
+</div>
+<?php echo wt_icon('group', 'text-secondary w-6 h-6 shrink-0'); ?>
 </div>
 </div>
-<div class="bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
+<div class="dashboard-metric-card bg-surface-container-lowest p-6 rounded-xl card-shadow border border-surface-container-high">
 <p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-2">Status</p>
 <div class="flex items-center gap-2">
 <span id="cryptoStatusDot" class="w-3 h-3 rounded-full bg-deep-forest animate-pulse"></span>
@@ -448,7 +463,10 @@ Liquidate Trust
 </section>
 
 <div id="cryptoPortfolioMobileBlock" class="md:hidden bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container-high crypto-layout-card min-w-0">
-<h3 class="font-headline-md text-headline-md text-primary mb-4">Crypto Portfolio</h3>
+<div class="flex justify-between items-center gap-2 mb-4">
+<h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
+<a id="addCoinsLinkMobile" href="#" class="text-secondary text-xs font-bold hover:underline inline-flex items-center gap-1 shrink-0"><?php echo wt_icon('add-circle', 'w-4 h-4'); ?> Add Coins</a>
+</div>
 <div id="cryptoPortfolioMobileList" class="space-y-3 min-w-0">
 <div class="py-8 text-center text-on-surface-variant text-sm">Loading portfolio...</div>
 </div>
@@ -497,6 +515,7 @@ Liquidate Trust
 <div class="hidden md:block bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden crypto-layout-card min-w-0">
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
 <h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
+<a id="addCoinsLinkDesktop" href="#" class="text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1"><?php echo wt_icon('add-circle', 'w-4 h-4'); ?> Add Coins</a>
 </div>
 <table class="w-full text-left">
 <thead>
@@ -592,6 +611,19 @@ function syncCryptoHeader(trust) {
     Object.entries(els).forEach(([id, text]) => {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
+    });
+    syncAddCoinsLinks(trust);
+}
+
+function syncAddCoinsLinks(trust) {
+    const id = trust?.id || trustId;
+    if (!id) return;
+    const href = `trust-coins.php?trust_id=${encodeURIComponent(id)}`;
+    ['addCoinsLinkLegacy', 'addCoinsLinkMobile', 'addCoinsLinkDesktop'].forEach((linkId) => {
+        const el = document.getElementById(linkId);
+        if (!el) return;
+        el.href = href;
+        el.classList.remove('hidden');
     });
 }
 
@@ -771,6 +803,7 @@ async function loadTrustData() {
             } else if (trust.service_meta?.is_crypto) {
                 document.getElementById('trustAssetsSection').style.display = 'none';
                 document.getElementById('cryptoTrustSection').style.display = 'none';
+                syncAddCoinsLinks(trust);
                 await renderCryptoPortfolioTable(trust);
             } else {
                 document.getElementById('trustAssetsSection').style.display = 'none';
@@ -1095,6 +1128,7 @@ function updateCatalogMetrics(trust, valueEl) {
     const declared = parseFloat(trust.total_estimated_value ?? trust.trust_data?.total_estimated_value ?? 0) || 0;
     const catalog = parseFloat(trust.assets_summary?.total_estimated_value ?? 0) || 0;
     if (valueEl) valueEl.textContent = formatUsd(declared + catalog);
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 async function updateCryptoMetrics(trust, valueEl) {
@@ -1131,6 +1165,7 @@ async function updateCryptoMetrics(trust, valueEl) {
         if (valueEl) valueEl.textContent = formatUsd(0);
         if (cryptoValueEl) cryptoValueEl.textContent = formatUsd(0);
     }
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 async function renderCryptoPortfolioTable(trust) {
@@ -1250,6 +1285,7 @@ async function renderCryptoPortfolioTable(trust) {
         tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-error text-sm">Failed to load portfolio data.</td></tr>';
         if (mobileList) mobileList.innerHTML = '<div class="py-8 text-center text-error text-sm">Failed to load portfolio data.</div>';
     }
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function loadTrustAssetsUI(trust) {

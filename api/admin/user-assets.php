@@ -22,23 +22,93 @@ function handleListUserAssets() {
         send_json(['success' => false, 'message' => 'User id is required'], 400);
     }
 
+    $trustId = isset($_GET['trust_id']) ? (int) $_GET['trust_id'] : 0;
     $db = getDatabase();
-    $stmt = $db->prepare(
-        'SELECT ua.id, ua.balance, ua.coin_id, c.display_name, c.symbol, c.coin_key
-         FROM user_assets ua
-         INNER JOIN coins c ON c.id = ua.coin_id
-         WHERE ua.user_id = :user
-         ORDER BY c.display_name'
+
+    $trustsStmt = $db->prepare(
+        'SELECT ut.id, ut.trust_data, ts.service_key, ts.service_name
+         FROM user_trusts ut
+         INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE ut.user_id = :user
+         ORDER BY ut.created_at DESC'
     );
-    $stmt->execute([':user' => $userId]);
+    $trustsStmt->execute([':user' => $userId]);
+    $trustRows = $trustsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $cryptoTrusts = [];
+    foreach ($trustRows as $row) {
+        if (!is_crypto_trust_type($row['service_key'] ?? '')) {
+            continue;
+        }
+        $trustData = !empty($row['trust_data']) ? (json_decode($row['trust_data'], true) ?? []) : [];
+        $cryptoTrusts[] = [
+            'id' => (int) $row['id'],
+            'trust_name' => $trustData['trust_name'] ?? ($row['service_name'] ?? 'Trust'),
+            'entrusted_coins' => $trustData['entrusted_coins'] ?? [],
+        ];
+    }
+
+    $entrustedKeys = null;
+    if ($trustId > 0) {
+        $found = false;
+        foreach ($cryptoTrusts as $t) {
+            if ((int) $t['id'] === $trustId) {
+                $entrustedKeys = array_values(array_filter(array_map('strval', $t['entrusted_coins'] ?? [])));
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            send_json(['success' => false, 'message' => 'Trust not found for this user'], 404);
+        }
+    }
+
+    if ($entrustedKeys !== null && count($entrustedKeys) === 0) {
+        send_json([
+            'success' => true,
+            'assets' => [],
+            'trusts' => $cryptoTrusts,
+            'entrusted_coins' => [],
+            'trust_id' => $trustId,
+        ]);
+    }
+
+    if ($entrustedKeys !== null) {
+        $placeholders = implode(',', array_fill(0, count($entrustedKeys), '?'));
+        $sql = "SELECT c.id AS coin_id, c.display_name, c.symbol, c.coin_key,
+                       COALESCE(ua.id, 0) AS id, COALESCE(ua.balance, 0) AS balance
+                FROM coins c
+                LEFT JOIN user_assets ua ON ua.coin_id = c.id AND ua.user_id = ?
+                WHERE c.coin_key IN ($placeholders)
+                ORDER BY c.display_name";
+        $stmt = $db->prepare($sql);
+        $params = array_merge([$userId], $entrustedKeys);
+        $stmt->execute($params);
+    } else {
+        $stmt = $db->prepare(
+            'SELECT ua.id, ua.balance, ua.coin_id, c.display_name, c.symbol, c.coin_key
+             FROM user_assets ua
+             INNER JOIN coins c ON c.id = ua.coin_id
+             WHERE ua.user_id = :user
+             ORDER BY c.display_name'
+        );
+        $stmt->execute([':user' => $userId]);
+    }
+
     $assets = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Convert DECIMAL to float for JSON
     foreach ($assets as &$asset) {
         $asset['balance'] = (float) $asset['balance'];
+        $asset['coin_id'] = (int) $asset['coin_id'];
     }
     
-    send_json(['success' => true, 'assets' => $assets]);
+    send_json([
+        'success' => true,
+        'assets' => $assets,
+        'trusts' => $cryptoTrusts,
+        'entrusted_coins' => $entrustedKeys ?? [],
+        'trust_id' => $trustId > 0 ? $trustId : null,
+    ]);
 }
 
 function handleAdjustAsset() {

@@ -16,12 +16,14 @@ include __DIR__ . '/includes/layout.php';
 </section>
 
 <section id="lastPaymentSection" class="hidden">
-<div class="metric-card-gradient p-8 md:p-10 rounded-2xl text-on-primary shadow-lg">
+<div class="metric-card-gradient p-8 md:p-10 rounded-2xl text-on-primary shadow-lg dashboard-metric-card">
 <p class="text-sm md:text-base uppercase tracking-widest text-on-primary/70 font-bold mb-3">Last Payment</p>
-<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-<div>
-<p class="text-4xl md:text-5xl font-headline-lg font-bold leading-tight" id="lastPaymentAmount">—</p>
-<p class="text-lg md:text-xl text-on-primary/80 mt-2" id="lastPaymentService">—</p>
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 min-w-0">
+<div class="min-w-0 flex-1">
+<div class="dashboard-metric-value-wrap">
+<p class="dashboard-metric-value text-on-primary leading-tight" id="lastPaymentAmount" data-fit-max="48" data-fit-min="14">—</p>
+</div>
+<p class="text-lg md:text-xl text-on-primary/80 mt-2 break-words" id="lastPaymentService">—</p>
 </div>
 <div class="text-left md:text-right">
 <p class="text-base text-on-primary/70" id="lastPaymentDate">—</p>
@@ -73,7 +75,7 @@ function formatCoinAmountDisplay(amount) {
 }
 
 function formatPaymentAmount(payment) {
-    if (payment.record_type === 'crypto_deposit') {
+    if (payment.record_type === 'crypto_deposit' || payment.record_type === 'crypto_liquidation') {
         const sym = payment.coin_symbol || '';
         const coinStr = formatCoinAmountDisplay(payment.coin_amount);
         const usd = parseFloat(payment.amount_usd) || 0;
@@ -114,18 +116,19 @@ function renderLastPayment(payment) {
     const status = statusLabel(payment.payment_status);
     document.getElementById('lastPaymentStatus').textContent = status.text;
     document.getElementById('lastPaymentStatus').className = 'text-sm font-medium mt-1 ' + status.class;
-    const methodText = payment.record_type === 'crypto_deposit'
+    const methodText = (payment.record_type === 'crypto_deposit' || payment.record_type === 'crypto_liquidation')
         ? 'Paid via Cryptocurrency'
         : (payment.payment_method_name
             ? 'Paid via ' + payment.payment_method_name
             : (payment.is_free ? 'No payment required' : 'Payment method not recorded'));
     document.getElementById('lastPaymentMethod').textContent = methodText;
+    if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
 function renderBillingHistory(payments) {
     const container = document.getElementById('billingContainer');
     if (!payments.length) {
-        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No billing records yet. Trust service payments and crypto deposits appear here.</div>';
+        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No billing records yet. Trust payments, crypto deposits, and liquidations appear here.</div>';
         return;
     }
 
@@ -145,7 +148,7 @@ function renderBillingHistory(payments) {
                 <tbody class="divide-y divide-outline-variant/30">
                     ${payments.map(payment => {
                         const status = statusLabel(payment.payment_status);
-                        const method = payment.record_type === 'crypto_deposit'
+                        const method = (payment.record_type === 'crypto_deposit' || payment.record_type === 'crypto_liquidation')
                             ? 'Cryptocurrency'
                             : (payment.payment_method_name || (payment.is_free ? '—' : 'Not recorded'));
                         return `

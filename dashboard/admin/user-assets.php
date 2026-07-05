@@ -26,11 +26,20 @@ function renderUserAssetsContent() {
     <!-- User Selection -->
     <div class="bg-white dark:bg-navy-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
         <h2 class="text-lg font-bold text-navy-900 dark:text-white mb-4">Select User</h2>
-        <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">User</label>
-            <select id="selectedUser" onchange="loadUserAssets()" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-700 text-slate-900 dark:text-white">
-                <option value="">-- Select User --</option>
-            </select>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">User</label>
+                <select id="selectedUser" onchange="onUserChanged()" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-700 text-slate-900 dark:text-white">
+                    <option value="">-- Select User --</option>
+                </select>
+            </div>
+            <div id="trustSelectWrap" class="hidden">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Trust (entrusted coins)</label>
+                <select id="selectedTrust" onchange="loadUserAssets()" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-700 text-slate-900 dark:text-white">
+                    <option value="">-- All user assets --</option>
+                </select>
+                <p class="text-xs text-slate-500 mt-1">Select a trust to show only coins chosen during onboarding.</p>
+            </div>
         </div>
     </div>
     
@@ -71,6 +80,12 @@ function renderUserAssetsContent() {
 <script>
 let allUsers = [];
 let userAssets = [];
+let userTrusts = [];
+
+function onUserChanged() {
+    document.getElementById('selectedTrust').value = '';
+    loadUserAssets();
+}
 
 async function loadUsers() {
     try {
@@ -91,29 +106,50 @@ async function loadUsers() {
 
 async function loadUserAssets() {
     const userId = document.getElementById('selectedUser').value;
+    const trustId = document.getElementById('selectedTrust').value;
     if (!userId) {
         document.getElementById('userAssetsSection').classList.add('hidden');
+        document.getElementById('trustSelectWrap').classList.add('hidden');
         document.getElementById('selectedCoin').innerHTML = '<option value="">-- Select User First --</option>';
         return;
     }
     
     try {
-        const response = await fetch(`../../api/admin/user-assets.php?user_id=${userId}`);
+        let url = `../../api/admin/user-assets.php?user_id=${userId}`;
+        if (trustId) url += `&trust_id=${trustId}`;
+        const response = await fetch(url);
         const data = await response.json();
         
-        if (data.success && data.assets) {
-            userAssets = data.assets;
-            renderUserAssets(data.assets);
+        if (data.success) {
+            userTrusts = data.trusts || [];
+            const trustWrap = document.getElementById('trustSelectWrap');
+            const trustSelect = document.getElementById('selectedTrust');
+            if (userTrusts.length > 0) {
+                trustWrap.classList.remove('hidden');
+                const currentTrust = trustId || '';
+                trustSelect.innerHTML = '<option value="">-- All user assets --</option>' +
+                    userTrusts.map(t => `<option value="${t.id}" ${String(t.id) === String(currentTrust) ? 'selected' : ''}>${escapeHtml(t.trust_name || 'Trust')} (#${t.id}) — ${(t.entrusted_coins || []).length} coins</option>`).join('');
+            } else {
+                trustWrap.classList.add('hidden');
+            }
+
+            userAssets = data.assets || [];
+            renderUserAssets(userAssets, trustId);
             
-            // Update coin selector
             const coinSelect = document.getElementById('selectedCoin');
-            coinSelect.innerHTML = '<option value="">-- Select Coin --</option>' + 
-                data.assets.map(asset => `<option value="${asset.coin_id}">${escapeHtml(asset.display_name)} (${escapeHtml(asset.symbol)}) - Balance: ${parseFloat(asset.balance).toFixed(8)}</option>`).join('');
+            if (userAssets.length === 0) {
+                coinSelect.innerHTML = trustId
+                    ? '<option value="">-- No entrusted coins for this trust --</option>'
+                    : '<option value="">-- No assets found --</option>';
+            } else {
+                coinSelect.innerHTML = '<option value="">-- Select Coin --</option>' + 
+                    userAssets.map(asset => `<option value="${asset.coin_id}">${escapeHtml(asset.display_name)} (${escapeHtml(asset.symbol)}) - Balance: ${parseFloat(asset.balance).toFixed(8)}</option>`).join('');
+            }
             
             document.getElementById('userAssetsSection').classList.remove('hidden');
         } else {
             document.getElementById('userAssetsSection').classList.remove('hidden');
-            document.getElementById('userAssetsContainer').innerHTML = '<div class="text-center py-8 text-slate-500">No assets found for this user</div>';
+            document.getElementById('userAssetsContainer').innerHTML = `<div class="text-center py-8 text-red-500">${escapeHtml(data.message || 'Failed to load assets')}</div>`;
         }
     } catch (error) {
         console.error('Error loading user assets:', error);
@@ -121,11 +157,17 @@ async function loadUserAssets() {
     }
 }
 
-function renderUserAssets(assets) {
+function renderUserAssets(assets, trustId) {
     const container = document.getElementById('userAssetsContainer');
+    const heading = document.querySelector('#userAssetsSection h2');
+    if (heading) {
+        heading.textContent = trustId ? 'Entrusted Coins (Trust Portfolio)' : 'User Assets';
+    }
     
     if (!assets || assets.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-slate-500">No assets found</div>';
+        container.innerHTML = trustId
+            ? '<div class="text-center py-8 text-slate-500">No entrusted coins configured for this trust</div>'
+            : '<div class="text-center py-8 text-slate-500">No assets found for this user</div>';
         return;
     }
     
