@@ -19,14 +19,12 @@ $mobileNavClass = function ($key) use ($active_nav) {
 </button>
 </div>
 <nav class="flex-1 space-y-2 overflow-y-auto">
-<a class="<?php echo $mobileNavClass('assets'); ?>" href="assets.php"><span class="material-symbols-outlined">account_balance_wallet</span>Assets</a>
-<a class="<?php echo $mobileNavClass('transactions'); ?>" href="transactions.php"><span class="material-symbols-outlined">receipt_long</span>Transactions</a>
-<a class="<?php echo $mobileNavClass('send'); ?>" href="send.php"><span class="material-symbols-outlined">send</span>Send</a>
-<a class="<?php echo $mobileNavClass('receive'); ?>" href="receive.php"><span class="material-symbols-outlined">call_received</span>Receive</a>
-<a class="<?php echo $mobileNavClass('swap'); ?>" href="swap.php"><span class="material-symbols-outlined">swap_horiz</span>Swap</a>
-<a class="<?php echo $mobileNavClass('link-wallet'); ?>" href="link-wallet.php"><span class="material-symbols-outlined">link</span>Link Wallet</a>
-<a class="<?php echo $mobileNavClass('trusts'); ?>" href="manage-trust.php"><span class="material-symbols-outlined">gavel</span>Trusts</a>
-<a class="<?php echo $mobileNavClass('profile'); ?>" href="profile.php"><span class="material-symbols-outlined">person</span>Profile</a>
+<a class="<?php echo $mobileNavClass('dashboard'); ?>" href="dashboard.php"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+<a class="<?php echo $mobileNavClass('trusts'); ?>" href="manage-trust.php"><span class="material-symbols-outlined">gavel</span>My Trusts</a>
+<a class="<?php echo $mobileNavClass('create-trust'); ?>" href="../../onboarding/onboarding.php"><span class="material-symbols-outlined">add_circle</span>Create Trust</a>
+<a class="<?php echo $mobileNavClass('beneficiaries'); ?>" href="beneficiaries.php"><span class="material-symbols-outlined">group</span>Beneficiaries</a>
+<a class="<?php echo $mobileNavClass('profile'); ?>" href="profile.php"><span class="material-symbols-outlined">person</span>My Profile</a>
+<a class="<?php echo $mobileNavClass('billing'); ?>" href="billing.php"><span class="material-symbols-outlined">receipt_long</span>Billing</a>
 <a class="flex items-center gap-4 px-4 py-3 rounded-lg text-error hover:bg-error-container/20" href="../../api/logout.php"><span class="material-symbols-outlined">logout</span>Logout</a>
 </nav>
 </div>

@@ -1,7 +1,7 @@
 <?php
 /**
  * User dashboard shell — Heritage Modern layout.
- * Expects: $page_title, $userName; optional: $active_nav (assets|transactions|send|receive|swap|link-wallet|trusts|profile)
+ * Expects: $page_title, $userName; optional: $active_nav (dashboard|trusts|create-trust|beneficiaries|profile|billing)
  */
 $active_nav = $active_nav ?? '';
 $userName = $userName ?? ($_SESSION['user_name'] ?? 'User');
@@ -98,6 +98,13 @@ tailwind.config = {
     transform: translateY(-4px);
     box-shadow: 0 20px 25px -5px rgba(4, 22, 39, 0.1), 0 10px 10px -5px rgba(4, 22, 39, 0.04);
 }
+.metric-card-gradient {
+    background: linear-gradient(135deg, #041627 0%, #0a2540 45%, #115cb9 100%);
+}
+.metric-stat-value { font-size: 2.75rem; line-height: 1.1; font-weight: 700; }
+@media (min-width: 768px) {
+    .metric-stat-value { font-size: 3.25rem; }
+}
 .material-symbols-outlined {
     font-family: 'Material Symbols Outlined';
     font-weight: normal;
@@ -116,7 +123,13 @@ tailwind.config = {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d9dadb; border-radius: 10px; }
+<?php if (!empty($extra_styles)): ?>
+<?php echo $extra_styles; ?>
+<?php endif; ?>
 </style>
+<?php if (!empty($extra_head)): ?>
+<?php echo $extra_head; ?>
+<?php endif; ?>
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased overflow-x-hidden">
 <div class="flex min-h-screen">
@@ -131,40 +144,29 @@ tailwind.config = {
 <a href="dashboard.php" class="font-headline-md text-headline-md font-bold text-primary tracking-tight">WyomingTrust</a>
 </div>
 <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-<a class="<?php echo $navClass('assets'); ?>" href="assets.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('assets'); ?>>account_balance_wallet</span>
-<span class="font-label-md text-label-md">Assets</span>
-</a>
-<a class="<?php echo $navClass('transactions'); ?>" href="transactions.php">
-<span class="material-symbols-outlined">receipt_long</span>
-<span class="font-label-md text-label-md">Transactions</span>
-</a>
-<a class="<?php echo $navClass('send'); ?>" href="send.php">
-<span class="material-symbols-outlined">send</span>
-<span class="font-label-md text-label-md">Send</span>
-</a>
-<a class="<?php echo $navClass('receive'); ?>" href="receive.php">
-<span class="material-symbols-outlined">call_received</span>
-<span class="font-label-md text-label-md">Receive</span>
-</a>
-<a class="<?php echo $navClass('swap'); ?>" href="swap.php">
-<span class="material-symbols-outlined">swap_horiz</span>
-<span class="font-label-md text-label-md">Swap</span>
-</a>
-<div class="pt-6 pb-2 px-4">
-<span class="font-label-sm text-label-sm uppercase tracking-widest text-outline">Estate Tools</span>
-</div>
-<a class="<?php echo $navClass('link-wallet'); ?>" href="link-wallet.php">
-<span class="material-symbols-outlined">link</span>
-<span class="font-label-md text-label-md">Link Wallet</span>
+<a class="<?php echo $navClass('dashboard'); ?>" href="dashboard.php">
+<span class="material-symbols-outlined"<?php echo $navIconFill('dashboard'); ?>>dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
 </a>
 <a class="<?php echo $navClass('trusts'); ?>" href="manage-trust.php">
-<span class="material-symbols-outlined">gavel</span>
-<span class="font-label-md text-label-md">Trusts</span>
+<span class="material-symbols-outlined"<?php echo $navIconFill('trusts'); ?>>gavel</span>
+<span class="font-label-md text-label-md">My Trusts</span>
+</a>
+<a class="<?php echo $navClass('create-trust'); ?>" href="../../onboarding/onboarding.php">
+<span class="material-symbols-outlined"<?php echo $navIconFill('create-trust'); ?>>add_circle</span>
+<span class="font-label-md text-label-md">Create Trust</span>
+</a>
+<a class="<?php echo $navClass('beneficiaries'); ?>" href="beneficiaries.php">
+<span class="material-symbols-outlined"<?php echo $navIconFill('beneficiaries'); ?>>group</span>
+<span class="font-label-md text-label-md">Beneficiaries</span>
 </a>
 <a class="<?php echo $navClass('profile'); ?>" href="profile.php">
-<span class="material-symbols-outlined">person</span>
-<span class="font-label-md text-label-md">Profile</span>
+<span class="material-symbols-outlined"<?php echo $navIconFill('profile'); ?>>person</span>
+<span class="font-label-md text-label-md">My Profile</span>
+</a>
+<a class="<?php echo $navClass('billing'); ?>" href="billing.php">
+<span class="material-symbols-outlined"<?php echo $navIconFill('billing'); ?>>receipt_long</span>
+<span class="font-label-md text-label-md">Billing</span>
 </a>
 </nav>
 <div class="p-6 border-t border-outline-variant">
@@ -189,7 +191,7 @@ Logout
 </button>
 <div class="relative w-full max-w-md hidden sm:block">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
-<input class="w-full pl-11 pr-4 py-2 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-secondary/50 font-body-md text-sm" placeholder="Search assets, trusts, or transactions..." type="search"/>
+<input class="w-full pl-11 pr-4 py-2 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-secondary/50 font-body-md text-sm" placeholder="Search trusts or beneficiaries..." type="search"/>
 </div>
 </div>
 <div class="flex items-center gap-2 md:gap-6">

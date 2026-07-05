@@ -1,183 +1,74 @@
 <?php
 require_once __DIR__ . '/../../api/helpers.php';
 
-// Check user authentication (and ensure account still exists)
 require_user_page_auth('../../login.php');
 
-$page_title = 'Receive Crypto - WyomingTrust';
+$userName = $_SESSION['user_name'] ?? 'User';
+$page_title = 'Receive Crypto | WyomingTrust';
+$active_nav = '';
+$extra_head = '<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>';
+
+include __DIR__ . '/includes/layout.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title><?php echo htmlspecialchars($page_title); ?></title>
-<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script>
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                    colors: {
-                        "primary": "#F59E0B",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#111721",
-                    },
-                fontFamily: {
-                    "display": ["Inter"]
-                },
-            },
-        },
-    }
-</script>
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-</style>
-</head>
-<body class="bg-background-light dark:bg-background-dark font-display min-h-screen text-[#0e131b] dark:text-white">
-<div class="min-h-screen flex flex-col">
-<header class="flex items-center justify-between border-b border-[#d0d9e7] dark:border-slate-700 px-4 sm:px-6 lg:px-10 py-3 bg-white dark:bg-slate-900 sticky top-0 z-50">
-<div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-<a href="dashboard.php" class="flex items-center gap-2 sm:gap-4 text-primary flex-shrink-0">
-<div class="size-6 sm:size-8"><svg fill="none" viewbox="0 0 48 48"><path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path></svg></div>
-<h2 class="text-lg sm:text-xl font-black">WyomingTrust</h2>
-</a>
-</div>
-<div class="flex flex-1 justify-end gap-4 sm:gap-6 items-center">
-<div class="hidden sm:flex gap-2">
-<button onclick="window.history.back()" class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-</div>
-<button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="sm:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 ml-auto">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<a href="../../api/logout.php" class="hidden sm:flex text-xs sm:text-sm text-red-600 dark:text-red-400 hover:text-red-700 px-2 sm:px-0">Logout</a>
-</div>
-</header>
-<!-- Mobile Navigation Menu -->
-<div id="mobileMenu" class="hidden sm:hidden pb-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-<div class="flex flex-col gap-1 px-4 pt-4">
-<a href="dashboard.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">dashboard</span>
-<span>Dashboard</span>
-</a>
-<a href="assets.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">account_balance_wallet</span>
-<span>Assets</span>
-</a>
-<a href="transactions.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">history</span>
-<span>Transactions</span>
-</a>
-<a href="send.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">send</span>
-<span>Send</span>
-</a>
-<a href="receive.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 bg-primary/10 text-primary">
-<span class="material-symbols-outlined">call_received</span>
-<span>Receive</span>
-</a>
-<a href="swap.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">swap_horiz</span>
-<span>Swap</span>
-</a>
-<a href="link-wallet.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">link</span>
-<span>Link Wallet</span>
-</a>
-<a href="manage-trust.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">account_balance</span>
-<span>Manage Trusts</span>
-</a>
-<a href="profile.php" class="px-4 py-3 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3">
-<span class="material-symbols-outlined">person</span>
-<span>Profile</span>
-</a>
-<a href="../../api/logout.php" class="px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-3 border-t border-slate-200 dark:border-slate-700 mt-2 pt-4">
-<span class="material-symbols-outlined">logout</span>
-<span>Logout</span>
-</a>
-</div>
-</div>
-<main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-2xl mx-auto w-full">
-<h1 class="text-2xl sm:text-3xl font-black mb-4 sm:mb-6">Receive Cryptocurrency</h1>
 
-<!-- Security Notice -->
-<div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-6 mb-6">
-    <div class="flex items-start gap-3">
-        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 flex-shrink-0">info</span>
-        <div class="text-sm text-blue-800 dark:text-blue-300">
-            <p class="font-semibold mb-2">Security Information:</p>
-            <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
-                <li>Your wallet addresses are encrypted and stored securely</li>
-                <li>We do not store your private keys or seed phrases</li>
-                <li>QR codes and addresses are generated securely for your account</li>
-                <li>Only send the selected cryptocurrency to this address</li>
-            </ul>
-        </div>
-    </div>
+<section class="max-w-2xl">
+<h1 class="font-headline-lg text-headline-lg text-primary mb-4">Receive Cryptocurrency</h1>
+
+<div class="bg-surface-container-low border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary flex-shrink-0">info</span>
+<div class="text-sm text-on-surface">
+<p class="font-semibold mb-2">Security Information:</p>
+<ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-on-surface-variant">
+<li>Your wallet addresses are encrypted and stored securely</li>
+<li>We do not store your private keys or seed phrases</li>
+<li>QR codes and addresses are generated securely for your account</li>
+<li>Only send the selected cryptocurrency to this address</li>
+</ul>
+</div>
+</div>
 </div>
 
-<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8">
-<div id="assetSelector" class="flex items-center gap-3 p-4 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 mb-6">
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8">
+<div id="assetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-6">
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
-<span id="selectedAssetName" class="font-bold">Select Asset</span>
-<span class="material-symbols-outlined ml-auto">expand_more</span>
+<span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
+<span class="material-symbols-outlined ml-auto text-on-surface-variant">expand_more</span>
 </div>
-<div class="text-center mb-6 p-6 bg-slate-50 dark:bg-slate-800 rounded-lg">
-<div id="qrCode" class="inline-block p-4 bg-white rounded-lg mb-4">
+<div class="text-center mb-6 p-6 bg-surface-container-low rounded-lg">
+<div id="qrCode" class="inline-block p-4 bg-surface-container-lowest rounded-lg mb-4">
 <canvas id="qrCodeCanvas" class="w-48 h-48"></canvas>
 </div>
-<p class="text-xs text-slate-500 mb-4">Scan this QR code to send crypto</p>
-<div class="flex items-center gap-2 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-<input type="text" id="receiveAddress" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono break-all">
-<button onclick="copyAddress()" class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-xs font-semibold">
+<p class="text-xs text-on-surface-variant mb-4">Scan this QR code to send crypto</p>
+<div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-lg border border-outline-variant">
+<input type="text" id="receiveAddress" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono break-all text-on-surface">
+<button onclick="copyAddress()" class="px-3 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary/90 text-xs font-semibold">
 <span class="material-symbols-outlined text-base align-middle">content_copy</span>
 </button>
 </div>
-<p class="text-xs text-slate-500 mt-2">Send only <span id="selectedAssetSymbol">--</span> to this address</p>
+<p class="text-xs text-on-surface-variant mt-2">Send only <span id="selectedAssetSymbol">--</span> to this address</p>
 </div>
 </div>
-</main>
-</div>
+</section>
+
 <div id="assetModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-<div class="bg-white dark:bg-slate-900 rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-<div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-<h3 class="font-bold text-lg">Select Asset</h3>
-<button onclick="closeAssetModal()" class="text-slate-500 hover:text-slate-700">
+<div class="bg-surface-container-lowest rounded-2xl max-w-md w-full max-h-[80vh] overflow-y-auto border border-outline-variant">
+<div class="p-6 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-bold text-lg text-primary">Select Asset</h3>
+<button onclick="closeAssetModal()" class="text-on-surface-variant hover:text-on-surface">
 <span class="material-symbols-outlined">close</span>
 </button>
 </div>
 <div id="assetList" class="p-4"></div>
 </div>
 </div>
-<script>
-function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    const btn = document.getElementById('mobileMenuBtn');
-    if (menu && btn) {
-        if (menu.classList.contains('hidden')) {
-            menu.classList.remove('hidden');
-            btn.innerHTML = '<span class="material-symbols-outlined">close</span>';
-        } else {
-            menu.classList.add('hidden');
-            btn.innerHTML = '<span class="material-symbols-outlined">menu</span>';
-        }
-    }
-}
 
+<script>
 let userAssets = [];
 let selectedAsset = null;
 let adminAddresses = {};
 let currentUserId = null;
 
-// Get coin_key from URL
 const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
 
@@ -215,7 +106,6 @@ async function loadAssets() {
         if (data.success && data.assets) {
             userAssets = data.assets;
             
-            // Pre-select coin from URL if provided
             if (urlCoinKey) {
                 const asset = userAssets.find(a => a.coin_key === urlCoinKey);
                 if (asset) {
@@ -223,7 +113,6 @@ async function loadAssets() {
                 }
             }
             
-            // Default to first asset if nothing selected
             if (!selectedAsset && userAssets.length > 0) {
                 selectedAsset = userAssets[0];
             }
@@ -252,11 +141,9 @@ function generateReceiveAddress() {
     
     let address = '';
     
-    // Check if admin has set an address for this coin
     if (adminAddresses[selectedAsset.coin_key]) {
         address = adminAddresses[selectedAsset.coin_key];
     } else {
-        // Generate fallback address based on coin type and user ID
         address = generateFallbackAddress(selectedAsset.coin_key, currentUserId);
     }
     
@@ -330,25 +217,23 @@ async function generateQRCode(address) {
     if (!canvas || !address) return;
     
     try {
-        // Use QRCode.js if available
         if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
             await QRCode.toCanvas(canvas, address, {
                 width: 200,
                 height: 200,
                 margin: 1,
                 color: {
-                    dark: '#000000',
+                    dark: '#041627',
                     light: '#FFFFFF'
                 }
             });
         } else {
-            // Fallback: render text
             const ctx = canvas.getContext('2d');
             canvas.width = 200;
             canvas.height = 200;
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, 200, 200);
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#041627';
             ctx.font = '14px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -357,13 +242,12 @@ async function generateQRCode(address) {
         }
     } catch (error) {
         console.error('Error generating QR code:', error);
-        // Render fallback
         const ctx = canvas.getContext('2d');
         canvas.width = 200;
         canvas.height = 200;
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, 200, 200);
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#041627';
         ctx.font = '14px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -375,11 +259,11 @@ async function generateQRCode(address) {
 function renderAssetModal() {
     const list = document.getElementById('assetList');
     list.innerHTML = userAssets.map(asset => `
-        <div onclick="selectAsset('${asset.coin_key}')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+        <div onclick="selectAsset('${asset.coin_key}')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low cursor-pointer">
             <img src="${asset.logo || ''}" alt="${asset.display_name}" class="w-10 h-10 rounded-full" onerror="this.style.display='none'">
             <div class="flex-1">
-                <p class="font-semibold">${asset.display_name}</p>
-                <p class="text-xs text-slate-500">${asset.symbol}</p>
+                <p class="font-semibold text-on-surface">${asset.display_name}</p>
+                <p class="text-xs text-on-surface-variant">${asset.symbol}</p>
             </div>
         </div>
     `).join('');
@@ -415,5 +299,4 @@ async function copyAddress() {
 
 document.addEventListener('DOMContentLoaded', loadAssets);
 </script>
-</body>
-</html>
+<?php include __DIR__ . '/includes/layout-footer.php'; ?>
