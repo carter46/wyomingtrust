@@ -7,13 +7,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $db = getDatabase();
+$hasAssetTypes = trust_services_has_asset_types_column($db);
+$assetCol = $hasAssetTypes ? ', asset_types' : '';
 
 // Get all active trust services
 $stmt = $db->query(
-    'SELECT id, service_key, service_name, description, price, is_free, is_active, created_at, updated_at
+    "SELECT id, service_key, service_name, description{$assetCol}, price, is_free, is_active, created_at, updated_at
      FROM trust_services
      WHERE is_active = 1
-     ORDER BY is_free DESC, price ASC'
+     ORDER BY is_free DESC, price ASC"
 );
 $services = $stmt->fetchAll();
 
@@ -43,11 +45,14 @@ foreach ($services as $service) {
         'id' => $service['id'],
         'plan_name' => $service['service_name'],
         'service_key' => $service['service_key'],
+        'trust_type' => $service['service_key'],
         'description' => $desc,
         'price' => $price,
         'is_free' => (bool)$service['is_free'],
         'features' => $features,
         'is_active' => (bool)$service['is_active'],
+        'asset_types' => $hasAssetTypes ? decode_asset_types($service['asset_types'] ?? null) : [],
+        'is_crypto' => is_crypto_trust_type($service['service_key'] ?? ''),
     ];
 }
 

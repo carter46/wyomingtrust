@@ -183,7 +183,15 @@ function handleFormSubmit(event) {
     
     // Convert FormData to object
     for (let [key, value] of formData.entries()) {
-        data[key] = value;
+        if (key.endsWith('[]')) {
+            const baseKey = key.slice(0, -2);
+            if (!Array.isArray(data[baseKey])) {
+                data[baseKey] = [];
+            }
+            data[baseKey].push(value);
+        } else {
+            data[key] = value;
+        }
     }
     
     // Also check for checkboxes and radio buttons
@@ -193,10 +201,15 @@ function handleFormSubmit(event) {
             data[input.name] = input.checked;
         } else if (input.type === 'radio' && input.checked) {
             data[input.name] = input.value;
-        } else if (!data[input.name] && input.value) {
+        } else if (!data[input.name] && input.value && !input.name.endsWith('[]')) {
             data[input.name] = input.value;
         }
     });
+
+    // Normalize dynamic array fields (e.g. asset_types[])
+    if (Array.isArray(data.asset_types)) {
+        data.asset_types = data.asset_types.map(v => String(v || '').trim()).filter(Boolean);
+    }
     
     closeModal();
     if (modalContainer._onSubmit) {

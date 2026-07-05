@@ -52,10 +52,40 @@ function wt_icon_paths(): array {
     ];
 }
 
+function wt_icon_normalize_class(string $class): string {
+    $class = trim($class);
+    if (preg_match('/\b(w-\[|w-[0-9]|h-\[|h-[0-9]|size-)/', $class)) {
+        return $class;
+    }
+    if (preg_match('/text-\[(\d+(?:\.\d+)?)(px|rem)\]/', $class, $m)) {
+        $unit = $m[2];
+        $val = $m[1];
+        return trim($class . " w-[{$val}{$unit}] h-[{$val}{$unit}]");
+    }
+    $sizeMap = [
+        'text-xs' => 'w-3 h-3',
+        'text-sm' => 'w-4 h-4',
+        'text-base' => 'w-5 h-5',
+        'text-lg' => 'w-6 h-6',
+        'text-xl' => 'w-6 h-6',
+        'text-2xl' => 'w-8 h-8',
+        'text-3xl' => 'w-10 h-10',
+        'text-4xl' => 'w-12 h-12',
+        'text-5xl' => 'w-14 h-14',
+        'text-6xl' => 'w-16 h-16',
+    ];
+    foreach ($sizeMap as $textClass => $sizeClass) {
+        if (preg_match('/\b' . preg_quote($textClass, '/') . '\b/', $class)) {
+            return trim($class . ' ' . $sizeClass);
+        }
+    }
+    return trim($class . ' w-5 h-5');
+}
+
 function wt_icon(string $name, string $class = 'w-5 h-5', string $stroke = 'currentColor'): string {
     $paths = wt_icon_paths();
     $inner = $paths[$name] ?? $paths['info'];
-    $classAttr = escape_html(trim('wt-icon ' . $class));
+    $classAttr = escape_html(trim('wt-icon ' . wt_icon_normalize_class($class)));
     $strokeAttr = escape_html($stroke);
     return '<svg class="' . $classAttr . '" viewBox="0 0 24 24" fill="none" stroke="' . $strokeAttr . '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $inner . '</svg>';
 }

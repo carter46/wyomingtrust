@@ -18,27 +18,27 @@ include __DIR__ . '/includes/layout.php';
 
 <!-- Key Metrics (3 cards) -->
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-<div class="metric-card-gradient p-8 rounded-2xl card-hover flex flex-col justify-between min-h-[10rem] text-on-primary shadow-lg">
-<span class="text-sm md:text-base uppercase tracking-widest text-on-primary/70 font-bold">Active Trusts</span>
+<div class="metric-card-gradient p-6 rounded-2xl card-hover flex flex-col justify-between min-h-[7.5rem] text-on-primary shadow-lg">
+<span class="text-xs md:text-sm uppercase tracking-widest text-on-primary/70 font-bold">Active Trusts</span>
 <div>
-<p class="metric-stat-value font-headline-lg text-on-primary" id="trustCount">0</p>
-<p class="text-base md:text-lg text-on-primary/80 mt-2 font-medium">Securely Managed</p>
+<p class="metric-stat-value text-on-primary" id="trustCount">0</p>
+<p class="text-sm md:text-base text-on-primary/80 mt-1 font-medium">Securely Managed</p>
 </div>
 </div>
-<div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[10rem]">
-<span class="text-sm md:text-base uppercase tracking-widest text-on-surface-variant font-bold">Beneficiaries</span>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
+<span class="text-xs md:text-sm uppercase tracking-widest text-on-surface-variant font-bold">Beneficiaries</span>
 <div>
-<p class="metric-stat-value font-headline-lg text-primary" id="beneficiaryCount">0</p>
-<p class="text-base md:text-lg text-on-surface-variant mt-2 font-medium">Assigned protections</p>
+<p class="metric-stat-value text-primary" id="beneficiaryCount">0</p>
+<p class="text-sm md:text-base text-on-surface-variant mt-1 font-medium">Assigned protections</p>
 </div>
 </div>
-<div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[10rem]">
-<span class="text-sm md:text-base uppercase tracking-widest text-on-surface-variant font-bold">Last Updated</span>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[7.5rem]">
+<span class="text-xs md:text-sm uppercase tracking-widest text-on-surface-variant font-bold">Last Updated</span>
 <div>
-<p class="metric-stat-value font-headline-lg text-primary" id="lastUpdated">—</p>
-<div class="flex items-center gap-2 text-deep-forest mt-2">
-<span class="w-2.5 h-2.5 rounded-full bg-deep-forest animate-pulse"></span>
-<p class="text-base md:text-lg font-medium">System Sync</p>
+<p class="metric-stat-value text-primary" id="lastUpdated">—</p>
+<div class="flex items-center gap-2 text-deep-forest mt-1">
+<span class="w-2 h-2 rounded-full bg-deep-forest animate-pulse"></span>
+<p class="text-sm md:text-base font-medium">System Sync</p>
 </div>
 </div>
 </div>

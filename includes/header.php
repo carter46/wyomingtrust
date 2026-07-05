@@ -124,7 +124,7 @@ $nav_active = function ($page) use ($current_page) {
         };
     </script>
 <style>
-        .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+        .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
         .glass-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);

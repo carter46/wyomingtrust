@@ -95,10 +95,41 @@
         chevron_right: 'chevron-right',
     };
 
+    function normalizeIconClass(className) {
+        const cls = String(className || '').trim();
+        if (/\b(w-\[|w-[0-9]|h-\[|h-[0-9]|size-)/.test(cls)) {
+            return cls;
+        }
+        const arbitrary = cls.match(/text-\[(\d+(?:\.\d+)?)(px|rem)\]/);
+        if (arbitrary) {
+            const size = `${arbitrary[1]}${arbitrary[2]}`;
+            return `${cls} w-[${size}] h-[${size}]`;
+        }
+        const sizeMap = [
+            ['text-xs', 'w-3 h-3'],
+            ['text-sm', 'w-4 h-4'],
+            ['text-base', 'w-5 h-5'],
+            ['text-lg', 'w-6 h-6'],
+            ['text-xl', 'w-6 h-6'],
+            ['text-2xl', 'w-8 h-8'],
+            ['text-3xl', 'w-10 h-10'],
+            ['text-4xl', 'w-12 h-12'],
+            ['text-5xl', 'w-14 h-14'],
+            ['text-6xl', 'w-16 h-16'],
+        ];
+        for (const [textClass, sizeClass] of sizeMap) {
+            if (new RegExp(`\\b${textClass}\\b`).test(cls)) {
+                return `${cls} ${sizeClass}`;
+            }
+        }
+        return `${cls} w-5 h-5`.trim();
+    }
+
     function wtIcon(name, className = 'w-5 h-5', stroke = 'currentColor') {
         const resolved = ALIASES[name] || name;
         const inner = PATHS[resolved] || PATHS.info;
-        return `<svg class="wt-icon ${className}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+        const cls = normalizeIconClass(className);
+        return `<svg class="wt-icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
     }
 
     function setModalIcon(name, className) {

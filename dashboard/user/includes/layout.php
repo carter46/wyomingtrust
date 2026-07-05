@@ -105,11 +105,11 @@ tailwind.config = {
 .metric-card-gradient {
     background: linear-gradient(135deg, #041627 0%, #0a2540 45%, #115cb9 100%);
 }
-.metric-stat-value { font-size: 2.75rem; line-height: 1.1; font-weight: 700; }
+.metric-stat-value { font-size: 1.875rem; line-height: 1.2; font-weight: 700; }
 @media (min-width: 768px) {
-    .metric-stat-value { font-size: 3.25rem; }
+    .metric-stat-value { font-size: 2.25rem; }
 }
-.wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d9dadb; border-radius: 10px; }

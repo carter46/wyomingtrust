@@ -148,6 +148,7 @@ $page_title = 'Create Trust - WyomingTrust';
         };
     </script>
 <style>
+        .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
         .payment-method-card {
             cursor: pointer;
             transition: all 0.2s;

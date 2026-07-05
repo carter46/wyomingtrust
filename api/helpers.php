@@ -760,4 +760,106 @@ function check_rate_limit($key, $max_requests = 5, $window = 300) {
     }
 }
 
+/**
+ * Predefined trust type catalog (service_key = trust type id).
+ */
+function get_trust_type_options(): array {
+    return [
+        'crypto_asset_trust' => 'Crypto Asset Trust Service',
+        'irrevocable_trust' => 'Irrevocable Trust Service',
+        'revocable_living_trust' => 'Revocable Living Trust',
+        'smart_contract_trust' => 'Smart Contract Trust Service',
+    ];
+}
+
+function is_valid_trust_type_key(string $key): bool {
+    return array_key_exists($key, get_trust_type_options());
+}
+
+function is_crypto_trust_type(string $key): bool {
+    return $key === 'crypto_asset_trust';
+}
+
+function get_suggested_asset_types(): array {
+    return [
+        'Real Estate',
+        'House',
+        'Apartment',
+        'Land',
+        'Rental Property',
+        'Bank Accounts',
+        'Investments',
+        'Stocks',
+        'Bonds',
+        'Business Interests',
+        'Vehicles',
+        'Car',
+        'Boat',
+        'Motorcycle',
+        'Jewelry',
+        'Art',
+    ];
+}
+
+/**
+ * Normalize asset_types from JSON string or array input.
+ *
+ * @param mixed $input
+ * @return array<int, string>
+ */
+function normalize_asset_types($input): array {
+    if ($input === null || $input === '') {
+        return [];
+    }
+    if (is_string($input)) {
+        $decoded = json_decode($input, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            $input = $decoded;
+        } else {
+            $input = array_map('trim', explode(',', $input));
+        }
+    }
+    if (!is_array($input)) {
+        return [];
+    }
+    $out = [];
+    foreach ($input as $item) {
+        $name = is_array($item) ? ($item['name'] ?? '') : (string) $item;
+        $name = trim(sanitize_text($name));
+        if ($name !== '' && !in_array($name, $out, true)) {
+            $out[] = $name;
+        }
+    }
+    return $out;
+}
+
+function encode_asset_types_json(array $types): ?string {
+    if (empty($types)) {
+        return null;
+    }
+    return json_encode(array_values($types), JSON_UNESCAPED_UNICODE);
+}
+
+function decode_asset_types(?string $json): array {
+    if ($json === null || $json === '') {
+        return [];
+    }
+    $decoded = json_decode($json, true);
+    return is_array($decoded) ? normalize_asset_types($decoded) : [];
+}
+
+function trust_services_has_asset_types_column(PDO $db): bool {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    try {
+        $stmt = $db->query("SHOW COLUMNS FROM trust_services LIKE 'asset_types'");
+        $cache = (bool) $stmt->fetch();
+    } catch (Exception $e) {
+        $cache = false;
+    }
+    return $cache;
+}
+
 require_once __DIR__ . '/../includes/icons.php';
