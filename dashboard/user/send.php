@@ -13,7 +13,7 @@ $active_nav = $trustIdParam > 0 ? 'trusts' : '';
 include __DIR__ . '/includes/layout.php';
 ?>
 
-<section class="max-w-2xl">
+<section class="w-full min-w-0">
 <?php if ($trustIdParam > 0 && $coinKeyParam !== ''): ?>
 <a href="asset-detail.php?coin_key=<?php echo escape_html($coinKeyParam); ?>&trust_id=<?php echo $trustIdParam; ?>" class="inline-flex items-center gap-1 text-secondary font-label-md text-label-md hover:underline mb-4">
 <?php echo wt_icon('arrow-back', 'w-4 h-4'); ?> Back to Asset

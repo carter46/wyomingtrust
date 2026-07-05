@@ -17,10 +17,14 @@ try {
 
     $addresses = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Format as map for easy lookup by coin_key
+    // Format as map for easy lookup by coin_key (only non-empty addresses)
     $addressMap = [];
     foreach ($addresses as $addr) {
-        $addressMap[$addr['coin_key']] = $addr['address'];
+        $key = $addr['coin_key'] ?? '';
+        $value = trim((string) ($addr['address'] ?? ''));
+        if ($key !== '' && $value !== '') {
+            $addressMap[$key] = $value;
+        }
     }
 
     echo json_encode([

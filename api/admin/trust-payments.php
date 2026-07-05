@@ -32,10 +32,42 @@ switch ($method) {
         break;
     case 'PUT':
     case 'PATCH':
-        handleApproveRejectPayment();
+        $payload = get_json_input();
+        if (!empty($payload['deposit_id'])) {
+            handleApproveRejectDeposit($payload);
+        } else {
+            handleApproveRejectPayment($payload);
+        }
         break;
     default:
         send_json(['success' => false, 'message' => 'Method not allowed'], 405);
+}
+
+function decode_transaction_data_row(array &$row): void {
+    $row['transaction_data'] = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+}
+
+function credit_user_coin_balance(PDO $db, int $userId, int $coinId, float $amount): float {
+    $assetStmt = $db->prepare('SELECT balance FROM user_assets WHERE user_id = :user AND coin_id = :coin LIMIT 1');
+    $assetStmt->execute([':user' => $userId, ':coin' => $coinId]);
+    $asset = $assetStmt->fetch(PDO::FETCH_ASSOC);
+
+    $currentBalance = $asset ? (float) $asset['balance'] : 0.0;
+    $newBalance = $currentBalance + $amount;
+
+    if ($asset) {
+        $update = $db->prepare(
+            'UPDATE user_assets SET balance = :balance, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user AND coin_id = :coin'
+        );
+        $update->execute([':balance' => $newBalance, ':user' => $userId, ':coin' => $coinId]);
+    } else {
+        $insert = $db->prepare('INSERT INTO user_assets (user_id, coin_id, balance) VALUES (:user, :coin, :balance)');
+        $insert->execute([':user' => $userId, ':coin' => $coinId, ':balance' => $newBalance]);
+    }
+
+    return $newBalance;
 }
 
 function handleListPendingPayments() {
@@ -78,14 +110,37 @@ function handleListPendingPayments() {
             $payment['trust_data'] = [];
         }
     }
+
+    $depositStmt = $db->prepare(
+        'SELECT t.id, t.user_id, t.trust_id, t.coin_id, t.amount, t.status, t.asset_symbol,
+                t.transaction_data, t.created_at, t.updated_at,
+                c.coin_key, c.display_name AS coin_name, c.symbol AS coin_symbol,
+                u.full_name AS user_name, u.email AS user_email,
+                ut.id AS trust_ref_id, ts.service_name AS trust_service_name
+         FROM transactions t
+         INNER JOIN coins c ON c.id = t.coin_id
+         INNER JOIN users u ON u.id = t.user_id
+         LEFT JOIN user_trusts ut ON ut.id = t.trust_id
+         LEFT JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE t.type = "deposit" AND t.status = "pending"
+         ORDER BY t.created_at DESC'
+    );
+    $depositStmt->execute();
+    $deposits = $depositStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($deposits as &$deposit) {
+        $deposit['amount'] = (float) $deposit['amount'];
+        decode_transaction_data_row($deposit);
+    }
     
-    send_json(['success' => true, 'payments' => $payments]);
+    send_json(['success' => true, 'payments' => $payments, 'deposits' => $deposits]);
 }
 
-function handleApproveRejectPayment() {
+function handleApproveRejectPayment($payload = null) {
     require_admin_auth();
     require_csrf_token();
-    $payload = get_json_input();
+    if ($payload === null) {
+        $payload = get_json_input();
+    }
     
     $trustId = isset($payload['trust_id']) ? (int) $payload['trust_id'] : 0;
     $action = sanitize_text($payload['action'] ?? ''); // 'approve' or 'reject'
@@ -167,5 +222,97 @@ function handleApproveRejectPayment() {
         $db->rollBack();
         error_log('Approve/reject payment failed: ' . $e->getMessage());
         send_json(['success' => false, 'message' => 'Failed to process payment: ' . $e->getMessage()], 500);
+    }
+}
+
+function handleApproveRejectDeposit($payload = null) {
+    require_admin_auth();
+    require_csrf_token();
+    if ($payload === null) {
+        $payload = get_json_input();
+    }
+
+    $depositId = isset($payload['deposit_id']) ? (int) $payload['deposit_id'] : 0;
+    $action = sanitize_text($payload['action'] ?? '');
+    $adminNotes = sanitize_text($payload['admin_notes'] ?? '');
+
+    if ($depositId <= 0) {
+        send_json(['success' => false, 'message' => 'Invalid deposit ID'], 400);
+    }
+    if (!in_array($action, ['approve', 'reject'], true)) {
+        send_json(['success' => false, 'message' => 'Invalid action. Must be "approve" or "reject"'], 400);
+    }
+
+    $db = getDatabase();
+    $db->beginTransaction();
+
+    try {
+        $stmt = $db->prepare(
+            'SELECT t.id, t.user_id, t.trust_id, t.coin_id, t.amount, t.status, t.transaction_data, c.symbol
+             FROM transactions t
+             INNER JOIN coins c ON c.id = t.coin_id
+             WHERE t.id = :id AND t.type = "deposit" AND t.status = "pending"
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $depositId]);
+        $deposit = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$deposit) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Deposit not found or already processed'], 404);
+        }
+
+        $txData = !empty($deposit['transaction_data'])
+            ? (json_decode($deposit['transaction_data'], true) ?? [])
+            : [];
+
+        if ($action === 'approve') {
+            $newBalance = credit_user_coin_balance(
+                $db,
+                (int) $deposit['user_id'],
+                (int) $deposit['coin_id'],
+                (float) $deposit['amount']
+            );
+            $txData['approved_at'] = date('c');
+            $txData['admin_notes'] = $adminNotes;
+            $txData['balance_after'] = $newBalance;
+
+            $update = $db->prepare(
+                'UPDATE transactions SET status = "completed", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+            );
+            $update->execute([
+                ':id' => $depositId,
+                ':data' => json_encode($txData),
+            ]);
+
+            $db->commit();
+            send_json([
+                'success' => true,
+                'message' => 'Deposit approved. User balance has been credited.',
+                'status' => 'completed',
+            ]);
+        }
+
+        $txData['rejected_at'] = date('c');
+        $txData['admin_notes'] = $adminNotes;
+
+        $update = $db->prepare(
+            'UPDATE transactions SET status = "rejected", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+        );
+        $update->execute([
+            ':id' => $depositId,
+            ':data' => json_encode($txData),
+        ]);
+
+        $db->commit();
+        send_json([
+            'success' => true,
+            'message' => 'Deposit rejected.',
+            'status' => 'rejected',
+        ]);
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Approve/reject deposit failed: ' . $e->getMessage());
+        send_json(['success' => false, 'message' => 'Failed to process deposit: ' . $e->getMessage()], 500);
     }
 }

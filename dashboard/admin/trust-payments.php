@@ -16,38 +16,202 @@ function renderTrustPaymentsContent() {
 ?>
 
 <div class="mb-4 sm:mb-6 lg:mb-8">
-    <h1 class="text-2xl sm:text-3xl font-bold text-navy-900 dark:text-white">Trust Payment Approvals</h1>
-    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2">Review and approve/reject pending trust service payments</p>
+    <h1 class="text-2xl sm:text-3xl font-bold text-navy-900 dark:text-white">Payment Approvals</h1>
+    <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2">Review trust service payments and crypto deposit submissions</p>
+</div>
+
+<div class="flex gap-2 mb-4 border-b border-slate-200 dark:border-slate-700">
+    <button type="button" id="tabTrustPayments" onclick="switchTab('trust')" class="px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary">Trust Service Payments</button>
+    <button type="button" id="tabCryptoDeposits" onclick="switchTab('deposits')" class="px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary">Crypto Deposits</button>
 </div>
 
 <div id="messageContainer" class="mb-3 sm:mb-4"></div>
 
-<div class="bg-white dark:bg-navy-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+<div id="trustPaymentsPanel" class="bg-white dark:bg-navy-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
     <div id="paymentsContainer" class="p-4 sm:p-6">
         <div class="text-center py-8 sm:py-10 text-slate-500 text-sm sm:text-base">Loading pending payments...</div>
+    </div>
+</div>
+
+<div id="cryptoDepositsPanel" class="hidden bg-white dark:bg-navy-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div id="depositsContainer" class="p-4 sm:p-6">
+        <div class="text-center py-8 sm:py-10 text-slate-500 text-sm sm:text-base">Loading crypto deposits...</div>
     </div>
 </div>
 
 <script src="includes/modal.js"></script>
 <script>
 let allPayments = [];
+let allDeposits = [];
+let activeTab = 'trust';
+
+function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tabTrustPayments').className = tab === 'trust'
+        ? 'px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary'
+        : 'px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary';
+    document.getElementById('tabCryptoDeposits').className = tab === 'deposits'
+        ? 'px-4 py-2 text-sm font-semibold border-b-2 border-primary text-primary'
+        : 'px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-primary';
+    document.getElementById('trustPaymentsPanel').classList.toggle('hidden', tab !== 'trust');
+    document.getElementById('cryptoDepositsPanel').classList.toggle('hidden', tab !== 'deposits');
+}
 
 async function loadPayments() {
     try {
         const response = await fetch('../../api/admin/trust-payments.php');
         const data = await response.json();
         
-        if (data.success && data.payments) {
-            allPayments = data.payments;
-            renderPayments(data.payments);
+        if (data.success) {
+            allPayments = data.payments || [];
+            allDeposits = data.deposits || [];
+            renderPayments(allPayments);
+            renderDeposits(allDeposits);
         } else {
             document.getElementById('paymentsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Failed to load payments</div>';
+            document.getElementById('depositsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Failed to load deposits</div>';
         }
     } catch (error) {
         console.error('Error loading payments:', error);
         document.getElementById('paymentsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Error loading payments</div>';
+        document.getElementById('depositsContainer').innerHTML = '<div class="text-center py-10 text-red-500">Error loading deposits</div>';
     }
 }
+
+function renderDeposits(deposits) {
+    const container = document.getElementById('depositsContainer');
+    if (!deposits || deposits.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 sm:py-10 text-slate-500 text-sm sm:text-base">No pending crypto deposits</div>';
+        return;
+    }
+
+    const txData = (d) => d.transaction_data || {};
+    const html = `
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-navy-700">
+                    <tr>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">ID</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">User</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Coin</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Amount</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">TX Hash</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Trust</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Submitted</th>
+                        <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-navy-700">
+                    ${deposits.map(d => `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-navy-700/50">
+                            <td class="px-4 py-3 text-sm font-mono">#${d.id}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <div class="font-medium">${escapeHtml(d.user_name || 'N/A')}</div>
+                                <div class="text-xs text-slate-500">${escapeHtml(d.user_email || '')}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm">${escapeHtml(d.coin_name || d.coin_key)} <span class="text-xs text-slate-500">${escapeHtml(d.coin_symbol || '')}</span></td>
+                            <td class="px-4 py-3 text-sm font-semibold">${parseFloat(d.amount).toFixed(8)}</td>
+                            <td class="px-4 py-3 text-xs font-mono break-all max-w-[140px]">${escapeHtml(txData(d).tx_hash || '—')}</td>
+                            <td class="px-4 py-3 text-sm">${d.trust_id ? '#' + d.trust_id : '—'}</td>
+                            <td class="px-4 py-3 text-xs text-slate-500">${new Date(d.created_at).toLocaleString()}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="viewDepositDetails(${d.id})" class="text-blue-600 hover:underline text-xs">View</button>
+                                    <button onclick="approveDeposit(${d.id})" class="text-green-600 hover:underline text-xs font-semibold">Approve</button>
+                                    <button onclick="rejectDeposit(${d.id})" class="text-red-600 hover:underline text-xs">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div class="md:hidden space-y-4">
+            ${deposits.map(d => `
+                <div class="bg-slate-50 dark:bg-navy-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold text-sm">#${d.id} · ${escapeHtml(d.coin_symbol || d.coin_key)}</span>
+                        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Pending</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-1">${escapeHtml(d.user_name || '')}</p>
+                    <p class="text-sm font-semibold mb-1">${parseFloat(d.amount).toFixed(8)} ${escapeHtml(d.coin_symbol || '')}</p>
+                    <p class="text-xs font-mono break-all text-slate-600 mb-3">${escapeHtml(txData(d).tx_hash || '')}</p>
+                    <div class="flex gap-2">
+                        <button onclick="viewDepositDetails(${d.id})" class="flex-1 py-2 text-xs bg-blue-100 text-blue-700 rounded-lg">View</button>
+                        <button onclick="approveDeposit(${d.id})" class="flex-1 py-2 text-xs bg-green-100 text-green-700 rounded-lg font-semibold">Approve</button>
+                        <button onclick="rejectDeposit(${d.id})" class="flex-1 py-2 text-xs bg-red-100 text-red-700 rounded-lg">Reject</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+function viewDepositDetails(depositId) {
+    const d = allDeposits.find(p => p.id == depositId);
+    if (!d) { showToast('Deposit not found', 'error'); return; }
+    const td = d.transaction_data || {};
+    const proofLink = td.proof_path
+        ? `<a href="../../${escapeHtml(td.proof_path)}" target="_blank" class="text-primary hover:underline">View payment proof</a>`
+        : '<span class="text-slate-500">No proof uploaded</span>';
+
+    const detailsHtml = `
+        <div class="space-y-3 text-sm">
+            <div><span class="text-slate-500">Deposit ID:</span> <span class="font-mono">#${d.id}</span></div>
+            <div><span class="text-slate-500">User:</span> ${escapeHtml(d.user_name || 'N/A')} (${escapeHtml(d.user_email || '')})</div>
+            <div><span class="text-slate-500">Coin:</span> ${escapeHtml(d.coin_name || d.coin_key)} (${escapeHtml(d.coin_symbol || '')})</div>
+            <div><span class="text-slate-500">Amount:</span> <span class="font-semibold">${parseFloat(d.amount).toFixed(8)}</span></div>
+            <div><span class="text-slate-500">TX Hash:</span> <span class="font-mono text-xs break-all">${escapeHtml(td.tx_hash || '—')}</span></div>
+            <div><span class="text-slate-500">Deposit Address:</span> <span class="font-mono text-xs break-all">${escapeHtml(td.deposit_address || '—')}</span></div>
+            <div><span class="text-slate-500">Trust:</span> ${d.trust_id ? '#' + d.trust_id + (d.trust_service_name ? ' — ' + escapeHtml(d.trust_service_name) : '') : '—'}</div>
+            <div><span class="text-slate-500">Submitted:</span> ${new Date(d.created_at).toLocaleString()}</div>
+            <div><span class="text-slate-500">Proof:</span> ${proofLink}</div>
+        </div>
+    `;
+    showModal('Crypto Deposit Details', detailsHtml, [
+        { label: 'Close', onclick: 'closeModal()', class: 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white' }
+    ]);
+}
+
+async function processDeposit(depositId, action) {
+    const d = allDeposits.find(p => p.id == depositId);
+    if (!d) { showToast('Deposit not found', 'error'); return; }
+
+    const label = action === 'approve' ? 'Approve Deposit' : 'Reject Deposit';
+    const msg = action === 'approve'
+        ? `Approve this deposit?\n\nUser: ${d.user_name}\nAmount: ${parseFloat(d.amount).toFixed(8)} ${d.coin_symbol || ''}\n\nThis will credit the user's balance.`
+        : `Reject this deposit?\n\nUser: ${d.user_name}\nAmount: ${parseFloat(d.amount).toFixed(8)} ${d.coin_symbol || ''}`;
+
+    showConfirmModal(label, msg, async function() {
+        try {
+            const csrfResponse = await fetch('../../api/admin/session.php');
+            const csrfData = await csrfResponse.json();
+            const response = await fetch('../../api/admin/trust-payments.php', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deposit_id: depositId,
+                    action: action,
+                    csrf_token: csrfData.csrf_token
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showToast(data.message || (action === 'approve' ? 'Deposit approved' : 'Deposit rejected'), 'success');
+                loadPayments();
+            } else {
+                showToast(data.message || 'Failed to process deposit', 'error');
+            }
+        } catch (error) {
+            console.error('Error processing deposit:', error);
+            showToast('Error processing deposit', 'error');
+        }
+    });
+}
+
+function approveDeposit(id) { processDeposit(id, 'approve'); }
+function rejectDeposit(id) { processDeposit(id, 'reject'); }
 
 function renderPayments(payments) {
     const container = document.getElementById('paymentsContainer');

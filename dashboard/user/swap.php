@@ -10,7 +10,7 @@ $active_nav = '';
 include __DIR__ . '/includes/layout.php';
 ?>
 
-<section class="max-w-2xl">
+<section class="w-full min-w-0">
 <h1 class="font-headline-lg text-headline-lg text-primary mb-4">Swap Cryptocurrency</h1>
 
 <div class="bg-warm-cream border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">

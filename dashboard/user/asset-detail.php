@@ -27,17 +27,34 @@ include __DIR__ . '/includes/layout.php';
 <button type="button" id="depositBtn" class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity">
 <?php echo wt_icon('receive', 'w-5 h-5'); ?> Deposit
 </button>
-<button type="button" id="liquidateBtn" class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity">
+<button type="button" id="liquidateBtn" class="hidden inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity">
 <?php echo wt_icon('send', 'w-5 h-5'); ?> Liquidate
 </button>
+<a id="linkWalletBtn" href="link-wallet.php" class="inline-flex items-center gap-2 bg-surface-container-lowest border border-outline-variant text-primary px-6 py-3 rounded-xl font-label-md font-bold hover:bg-surface-container transition-colors">
+<?php echo wt_icon('link', 'w-5 h-5'); ?> Link Wallet
+</a>
 </div>
 </section>
 
-<section class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow mb-6">
-<div class="text-center">
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center">
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Live Price</p>
+<div class="text-center md:text-left">
 <div class="text-3xl sm:text-4xl font-bold text-primary mb-2" id="currentPrice">$0.00</div>
 <div class="text-lg font-medium mb-1" id="priceChange">--</div>
 <div class="text-sm text-on-surface-variant" id="marketCap"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow flex flex-col justify-center">
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">My Balance</p>
+<div class="text-center md:text-left">
+<div class="flex items-center justify-center md:justify-start gap-3 mb-4">
+<img src="" alt="Crypto Logo" class="w-12 h-12 rounded-full" id="balanceLogo" onerror="this.style.display='none'">
+<div class="text-xl font-bold text-primary" id="balanceSymbol">--</div>
+</div>
+<div class="text-2xl sm:text-3xl font-bold text-primary mb-2" id="balanceAmount">0.00000000</div>
+<div class="text-lg text-on-surface-variant" id="balanceUSD">USD $0.00</div>
+</div>
 </div>
 </section>
 
@@ -61,21 +78,10 @@ include __DIR__ . '/includes/layout.php';
 <button type="button" class="coin-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-on-surface-variant hover:text-on-surface" data-tab="history">History</button>
 <button type="button" class="coin-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-on-surface-variant hover:text-on-surface" data-tab="about">About</button>
 </div>
-<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant mb-4 card-shadow">
-<div class="text-center mb-4">
-<h3 class="font-headline-md text-headline-md text-primary mb-4">My Balance</h3>
-<div class="flex items-center justify-center gap-3 mb-4">
-<img src="" alt="Crypto Logo" class="w-12 h-12 rounded-full" id="balanceLogo" onerror="this.style.display='none'">
-<div class="text-xl font-bold text-primary" id="balanceSymbol">--</div>
-</div>
-<div class="text-2xl sm:text-3xl font-bold text-primary mb-2" id="balanceAmount">0.00000000</div>
-<div class="text-lg text-on-surface-variant" id="balanceUSD">USD $0.00</div>
-</div>
-</div>
 <div id="tabContent">
 <div id="holdingsTab" class="tab-content">
-<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant">
-<p class="text-on-surface-variant text-center">Balance information displayed above</p>
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow">
+<p class="text-on-surface-variant text-center text-sm">Your balance and live price are shown above. Use Deposit to add funds or Link Wallet to connect an external wallet.</p>
 </div>
 </div>
 <div id="historyTab" class="tab-content hidden">
@@ -105,6 +111,20 @@ let currentPrice = 0;
 const urlParams = new URLSearchParams(window.location.search);
 const coinKey = urlParams.get('coin_key') || 'bitcoin';
 const trustId = <?php echo $trustIdParam; ?>;
+
+(function initLinkWalletHref() {
+    const link = document.getElementById('linkWalletBtn');
+    if (!link) return;
+    const params = new URLSearchParams({ coin_key: coinKey });
+    if (trustId > 0) params.set('trust_id', String(trustId));
+    link.href = `link-wallet.php?${params.toString()}`;
+})();
+
+function updateActionButtons() {
+    const liquidateBtn = document.getElementById('liquidateBtn');
+    if (!liquidateBtn) return;
+    liquidateBtn.classList.toggle('hidden', assetBalance <= 0);
+}
 
 function closeModal() {
     const modal = document.getElementById('customModal');
@@ -223,6 +243,7 @@ function updateBalanceDisplay() {
     document.getElementById('balanceAmount').textContent = `${assetBalance.toFixed(8)} ${currentAsset.symbol}`;
     const usdValue = assetBalance * currentPrice;
     document.getElementById('balanceUSD').textContent = `USD $${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    updateActionButtons();
 }
 
 function setupEventListeners() {

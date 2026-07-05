@@ -110,6 +110,25 @@ tailwind.config = {
     .metric-stat-value { font-size: 2.25rem; }
 }
 .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; width: 1.25rem; height: 1.25rem; }
+.dashboard-shell { width: 100%; max-width: 100vw; overflow-x: hidden; }
+.dashboard-main {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+@media (min-width: 768px) {
+    .dashboard-main {
+        margin-left: 18rem;
+        width: calc(100% - 18rem);
+        max-width: calc(100vw - 18rem);
+    }
+}
+.dashboard-content {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d9dadb; border-radius: 10px; }
@@ -122,7 +141,7 @@ tailwind.config = {
 <?php endif; ?>
 </head>
 <body class="bg-surface font-body-md text-on-surface antialiased overflow-x-hidden">
-<div class="flex min-h-screen">
+<div class="dashboard-shell flex min-h-screen">
 <aside class="hidden md:flex flex-col w-72 fixed h-full bg-surface-container-lowest border-r border-outline-variant z-50">
 <div class="p-gutter h-20 flex items-center gap-2.5">
 <span class="flex-shrink-0 w-9 h-9 rounded-lg bg-[#16a34a] flex items-center justify-center shadow-sm" aria-hidden="true">
@@ -175,8 +194,8 @@ Logout
 </div>
 </div>
 </aside>
-<main class="flex-1 md:ml-72 min-h-screen flex flex-col">
-<header class="h-20 glass-effect sticky top-0 z-40 flex items-center justify-between px-gutter md:px-12 border-b border-outline-variant/30">
+<main class="dashboard-main min-h-screen flex flex-col">
+<header class="h-20 glass-effect sticky top-0 z-40 flex items-center justify-between px-gutter md:px-12 border-b border-outline-variant/30 min-w-0 shrink-0">
 <div class="flex items-center flex-1 max-w-xl">
 <button type="button" class="md:hidden mr-4 p-2 hover:bg-surface-container rounded-full" onclick="toggleMobileNav()" aria-label="Open menu">
 <?php echo wt_icon('menu', 'w-6 h-6'); ?>
@@ -203,4 +222,4 @@ Logout
 </div>
 </div>
 </header>
-<div class="p-gutter md:p-12 space-y-10 max-w-container-max mx-auto w-full flex-1">
+<div class="dashboard-content p-gutter md:p-12 space-y-10 max-w-container-max mx-auto w-full flex-1">
