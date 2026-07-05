@@ -4,14 +4,28 @@ require_once __DIR__ . '/../../api/helpers.php';
 require_user_page_auth('../../login.php');
 
 $userName = $_SESSION['user_name'] ?? 'User';
-$page_title = 'Send Crypto | WyomingTrust';
-$active_nav = '';
+$trustIdParam = isset($_GET['trust_id']) ? (int) $_GET['trust_id'] : 0;
+$coinKeyParam = isset($_GET['coin_key']) ? sanitize_text($_GET['coin_key']) : '';
+$isLiquidateMode = isset($_GET['mode']) && $_GET['mode'] === 'liquidate';
+$page_title = $isLiquidateMode ? 'Liquidate Asset | WyomingTrust' : 'Send Crypto | WyomingTrust';
+$active_nav = $trustIdParam > 0 ? 'trusts' : '';
 
 include __DIR__ . '/includes/layout.php';
 ?>
 
 <section class="max-w-2xl">
-<h1 class="font-headline-lg text-headline-lg text-primary mb-4">Send Cryptocurrency</h1>
+<?php if ($trustIdParam > 0 && $coinKeyParam !== ''): ?>
+<a href="asset-detail.php?coin_key=<?php echo escape_html($coinKeyParam); ?>&trust_id=<?php echo $trustIdParam; ?>" class="inline-flex items-center gap-1 text-secondary font-label-md text-label-md hover:underline mb-4">
+<?php echo wt_icon('arrow-back', 'w-4 h-4'); ?> Back to Asset
+</a>
+<?php endif; ?>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-4" id="pageHeading"><?php echo $isLiquidateMode ? 'Liquidate Asset' : 'Send Cryptocurrency'; ?></h1>
+
+<?php if ($isLiquidateMode && isset($_GET['liquidation_fee']) && (float) $_GET['liquidation_fee'] > 0): ?>
+<div class="bg-error-container/30 border border-error/20 rounded-xl p-4 mb-6 text-sm text-on-error-container">
+<strong>Liquidation fee:</strong> $<?php echo number_format((float) $_GET['liquidation_fee'], 2); ?> will apply to this transaction.
+</div>
+<?php endif; ?>
 
 <div class="bg-warm-cream border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
 <div class="flex items-start gap-3">
@@ -34,6 +48,13 @@ include __DIR__ . '/includes/layout.php';
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
 <?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
+</div>
+<div id="lockedAssetDisplay" class="hidden flex items-center gap-3 p-4 border border-outline-variant rounded-lg bg-surface-container-low mb-6">
+<img id="lockedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
+<div>
+<p id="lockedAssetName" class="font-bold text-on-surface">--</p>
+<p id="lockedAssetSymbol" class="text-xs text-on-surface-variant">--</p>
+</div>
 </div>
 <div class="mb-6">
 <label class="block text-sm font-semibold mb-2 text-on-surface">Recipient Address</label>
@@ -72,8 +93,8 @@ include __DIR__ . '/includes/layout.php';
 <span id="totalUSD">--</span>
 </div>
 </div>
-<button onclick="sendTransaction()" class="w-full bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors">
-Send Transaction
+<button type="button" onclick="sendTransaction()" class="w-full bg-primary text-on-primary py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors" id="submitBtn">
+<?php echo $isLiquidateMode ? 'Confirm Liquidation' : 'Send Transaction'; ?>
 </button>
 </div>
 </section>
@@ -129,34 +150,84 @@ function getFeeForCoin(coinKey) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
+const urlTrustId = urlParams.get('trust_id');
+const isLiquidateMode = urlParams.get('mode') === 'liquidate';
+const lockToSingleCoin = !!urlCoinKey;
+
+async function loadCoinFromCatalog(coinKey) {
+    const response = await fetch('../../api/coins.php');
+    const data = await response.json();
+    if (!data.success || !data.coins) return null;
+    return data.coins.find(c => c.coin_key === coinKey) || null;
+}
 
 async function loadAssets() {
     try {
         const response = await fetch('../../api/user/assets.php');
         const data = await response.json();
-        if (data.success && data.assets) {
-            userAssets = data.assets.filter(a => parseFloat(a.balance || 0) > 0);
-            
-            if (urlCoinKey) {
-                const asset = userAssets.find(a => a.coin_key === urlCoinKey);
-                if (asset) {
-                    selectedAsset = asset;
+        const allAssets = data.success && data.assets ? data.assets : [];
+
+        if (lockToSingleCoin) {
+            let asset = allAssets.find(a => a.coin_key === urlCoinKey);
+            if (!asset) {
+                const coin = await loadCoinFromCatalog(urlCoinKey);
+                if (coin) {
+                    asset = {
+                        coin_key: coin.coin_key,
+                        display_name: coin.display_name,
+                        symbol: coin.symbol,
+                        logo: coin.logo,
+                        balance: 0,
+                    };
                 }
             }
-            
-            if (!selectedAsset && userAssets.length > 0) {
-                selectedAsset = userAssets[0];
-            }
-            
-            if (selectedAsset) {
+            if (asset) {
+                selectedAsset = asset;
+                userAssets = [asset];
                 updateSelectedAsset();
+                updateLockedAssetDisplay(asset);
+                document.getElementById('assetSelector').classList.add('hidden');
+                document.getElementById('lockedAssetDisplay').classList.remove('hidden');
+                await fetchCryptoPrices();
+            } else {
+                document.getElementById('assetSelector').classList.add('hidden');
+                document.getElementById('lockedAssetDisplay').classList.remove('hidden');
+                document.getElementById('lockedAssetName').textContent = 'Asset not found';
+                document.getElementById('lockedAssetSymbol').textContent = urlCoinKey;
             }
-            renderAssetModal();
-            await fetchCryptoPrices();
+            return;
         }
+
+        userAssets = allAssets.filter(a => parseFloat(a.balance || 0) > 0);
+
+        if (urlCoinKey) {
+            const asset = userAssets.find(a => a.coin_key === urlCoinKey);
+            if (asset) selectedAsset = asset;
+        }
+
+        if (!selectedAsset && userAssets.length > 0) {
+            selectedAsset = userAssets[0];
+        }
+
+        if (selectedAsset) {
+            updateSelectedAsset();
+        }
+        renderAssetModal();
+        await fetchCryptoPrices();
     } catch (error) {
         console.error('Error loading assets:', error);
     }
+}
+
+function updateLockedAssetDisplay(asset) {
+    if (!asset) return;
+    const logo = document.getElementById('lockedAssetLogo');
+    if (asset.logo) {
+        logo.src = asset.logo;
+        logo.classList.remove('hidden');
+    }
+    document.getElementById('lockedAssetName').textContent = asset.display_name || asset.symbol || asset.coin_key;
+    document.getElementById('lockedAssetSymbol').textContent = asset.symbol || asset.coin_key;
 }
 
 async function fetchCryptoPrices() {
@@ -211,6 +282,7 @@ function renderAssetModal() {
 }
 
 document.getElementById('assetSelector')?.addEventListener('click', () => {
+    if (lockToSingleCoin) return;
     document.getElementById('assetModal').classList.remove('hidden');
     document.getElementById('assetModal').classList.add('flex');
 });
@@ -311,7 +383,7 @@ async function sendTransaction() {
         return;
     }
     
-    if (!confirm(`Send ${amount.toFixed(8)} ${selectedAsset.symbol} to ${recipient.substring(0, 10)}...?\nFee: ${fee.toFixed(8)} ${selectedAsset.symbol}\nTotal: ${total.toFixed(8)} ${selectedAsset.symbol}`)) {
+    if (!confirm(`${isLiquidateMode ? 'Liquidate' : 'Send'} ${amount.toFixed(8)} ${selectedAsset.symbol} to ${recipient.substring(0, 10)}...?\nFee: ${fee.toFixed(8)} ${selectedAsset.symbol}\nTotal: ${total.toFixed(8)} ${selectedAsset.symbol}`)) {
         return;
     }
     
@@ -333,8 +405,14 @@ async function sendTransaction() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Transaction sent successfully!');
-            window.location.href = 'dashboard.php';
+            alert(isLiquidateMode ? 'Liquidation transaction sent successfully!' : 'Transaction sent successfully!');
+            if (urlTrustId && urlCoinKey) {
+                window.location.href = `asset-detail.php?coin_key=${encodeURIComponent(urlCoinKey)}&trust_id=${encodeURIComponent(urlTrustId)}`;
+            } else if (urlTrustId) {
+                window.location.href = `manage-trust.php?id=${encodeURIComponent(urlTrustId)}`;
+            } else {
+                window.location.href = 'dashboard.php';
+            }
         } else {
             alert(data.message || 'Failed to send transaction');
         }

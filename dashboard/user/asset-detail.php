@@ -4,19 +4,36 @@ require_once __DIR__ . '/../../api/helpers.php';
 require_user_page_auth('../../login.php');
 
 $userName = $_SESSION['user_name'] ?? 'User';
+$trustIdParam = isset($_GET['trust_id']) ? (int) $_GET['trust_id'] : 0;
 $page_title = 'Asset Details | WyomingTrust';
-$active_nav = '';
+$active_nav = 'trusts';
 $extra_head = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>';
+$extra_styles = '.card-shadow { box-shadow: 0 4px 20px rgba(4, 22, 39, 0.05); }';
 
 include __DIR__ . '/includes/layout.php';
 ?>
 
-<section class="text-center">
-<h1 class="font-headline-lg text-headline-lg text-primary mb-2" id="coinSymbol">Loading...</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant" id="coinName">Loading...</p>
+<section class="flex flex-wrap items-center justify-between gap-4 mb-6">
+<div>
+<?php if ($trustIdParam > 0): ?>
+<a href="manage-trust.php?id=<?php echo $trustIdParam; ?>" class="inline-flex items-center gap-1 text-secondary font-label-md text-label-md hover:underline mb-3">
+<?php echo wt_icon('arrow-back', 'w-4 h-4'); ?> Back to Trust
+</a>
+<?php endif; ?>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-1" id="coinSymbol">Loading...</h1>
+<p class="font-body-md text-body-md text-on-surface-variant" id="coinName">Loading...</p>
+</div>
+<div class="flex flex-wrap gap-3 no-print">
+<button type="button" id="depositBtn" class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity">
+<?php echo wt_icon('receive', 'w-5 h-5'); ?> Deposit
+</button>
+<button type="button" id="liquidateBtn" class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-label-md font-bold hover:opacity-90 transition-opacity">
+<?php echo wt_icon('send', 'w-5 h-5'); ?> Liquidate
+</button>
+</div>
 </section>
 
-<section class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant">
+<section class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant card-shadow mb-6">
 <div class="text-center">
 <div class="text-3xl sm:text-4xl font-bold text-primary mb-2" id="currentPrice">$0.00</div>
 <div class="text-lg font-medium mb-1" id="priceChange">--</div>
@@ -33,14 +50,8 @@ include __DIR__ . '/includes/layout.php';
 <button type="button" class="time-filter px-4 py-2 rounded-lg text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container" data-days="365">1Y</button>
 <button type="button" class="time-filter px-4 py-2 rounded-lg text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container" data-days="max">All</button>
 </div>
-<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant mb-4" style="height: 300px;">
+<div class="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant mb-4 card-shadow" style="height: 300px;">
 <canvas id="priceChart"></canvas>
-</div>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-<button type="button" id="sendBtn" class="px-4 py-3 rounded-lg bg-surface-container-low text-on-surface font-medium hover:bg-surface-container transition-colors">Send</button>
-<button type="button" id="receiveBtn" class="px-4 py-3 rounded-lg bg-surface-container-low text-on-surface font-medium hover:bg-surface-container transition-colors">Receive</button>
-<button type="button" onclick="window.location.href='swap.php'" class="px-4 py-3 rounded-lg bg-surface-container-low text-on-surface font-medium hover:bg-surface-container transition-colors">Swap</button>
-<button type="button" onclick="window.location.href='assets.php'" class="px-4 py-3 rounded-lg bg-secondary text-on-secondary font-medium hover:bg-secondary/90 transition-colors">All Assets</button>
 </div>
 </section>
 
@@ -50,7 +61,7 @@ include __DIR__ . '/includes/layout.php';
 <button type="button" class="coin-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-on-surface-variant hover:text-on-surface" data-tab="history">History</button>
 <button type="button" class="coin-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-on-surface-variant hover:text-on-surface" data-tab="about">About</button>
 </div>
-<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant mb-4">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant mb-4 card-shadow">
 <div class="text-center mb-4">
 <h3 class="font-headline-md text-headline-md text-primary mb-4">My Balance</h3>
 <div class="flex items-center justify-center gap-3 mb-4">
@@ -82,6 +93,8 @@ include __DIR__ . '/includes/layout.php';
 </div>
 </section>
 
+<?php include __DIR__ . '/includes/modal.php'; ?>
+
 <script>
 let priceChart = null;
 let currentDays = '1';
@@ -91,6 +104,79 @@ let currentPrice = 0;
 
 const urlParams = new URLSearchParams(window.location.search);
 const coinKey = urlParams.get('coin_key') || 'bitcoin';
+const trustId = <?php echo $trustIdParam; ?>;
+
+function closeModal() {
+    const modal = document.getElementById('customModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 'Cancel', type = 'warning') {
+    return new Promise((resolve, reject) => {
+        const modal = document.getElementById('customModal');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
+        const titleEl = document.getElementById('modalTitle');
+        const messageEl = document.getElementById('modalMessage');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        const cancelBtn = document.getElementById('modalCancelBtn');
+        const inputDiv = document.getElementById('modalInput');
+        inputDiv.classList.add('hidden');
+        cancelBtn.classList.remove('hidden');
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        confirmBtn.textContent = confirmText;
+        cancelBtn.textContent = cancelText;
+        if (type === 'danger') {
+            setModalIcon('warning', 'text-error text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
+            confirmBtn.className = 'w-full inline-flex justify-center rounded-lg px-4 py-2 bg-error text-on-primary font-bold sm:ml-3 sm:w-auto sm:text-sm';
+        } else {
+            setModalIcon('help', 'text-secondary text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
+            confirmBtn.className = 'w-full inline-flex justify-center rounded-lg px-4 py-2 bg-primary text-on-primary font-bold sm:ml-3 sm:w-auto sm:text-sm';
+        }
+        confirmBtn.onclick = () => { modal.classList.add('hidden'); resolve(true); };
+        cancelBtn.onclick = () => { modal.classList.add('hidden'); reject(false); };
+        modal.classList.remove('hidden');
+    });
+}
+
+async function handleDeposit() {
+    let url = `receive.php?coin_key=${encodeURIComponent(coinKey)}`;
+    if (trustId > 0) url += `&trust_id=${trustId}`;
+    window.location.href = url;
+}
+
+async function handleLiquidate() {
+    try {
+        const params = new URLSearchParams({ coin_key: coinKey });
+        if (trustId > 0) params.set('trust_id', String(trustId));
+        const res = await fetch(`../../api/user/asset-liquidation-fee.php?${params.toString()}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        const sendParams = new URLSearchParams({ coin_key: coinKey });
+        if (trustId > 0) sendParams.set('trust_id', String(trustId));
+        sendParams.set('mode', 'liquidate');
+
+        if (data.success && data.has_fee) {
+            const confirmed = await showConfirmModal(
+                'Liquidation Fee',
+                `A liquidation fee of $${parseFloat(data.fee).toFixed(2)} applies to this asset. Continue to liquidate?`,
+                'Continue',
+                'Cancel',
+                'danger'
+            );
+            if (!confirmed) return;
+            sendParams.set('liquidation_fee', String(data.fee));
+        }
+
+        window.location.href = `send.php?${sendParams.toString()}`;
+    } catch (error) {
+        console.error('Liquidation fee check failed:', error);
+        const fallback = new URLSearchParams({ coin_key: coinKey, mode: 'liquidate' });
+        if (trustId > 0) fallback.set('trust_id', String(trustId));
+        window.location.href = `send.php?${fallback.toString()}`;
+    }
+}
 
 async function initializePage() {
     try {
@@ -168,12 +254,8 @@ function setupEventListeners() {
         });
     });
 
-    document.getElementById('sendBtn').addEventListener('click', () => {
-        window.location.href = `send.php?coin_key=${currentAsset.id}`;
-    });
-    document.getElementById('receiveBtn').addEventListener('click', () => {
-        window.location.href = `receive.php?coin_key=${currentAsset.id}`;
-    });
+    document.getElementById('depositBtn').addEventListener('click', handleDeposit);
+    document.getElementById('liquidateBtn').addEventListener('click', handleLiquidate);
 }
 
 function getCachedAssetPrice(coinId) {

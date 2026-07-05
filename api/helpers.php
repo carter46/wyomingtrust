@@ -823,6 +823,20 @@ function trust_services_has_liquidation_fee_column(PDO $db): bool {
     return $cache;
 }
 
+function coins_has_liquidation_fee_column(PDO $db): bool {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    try {
+        $stmt = $db->query("SHOW COLUMNS FROM coins LIKE 'liquidation_fee'");
+        $cache = (bool) $stmt->fetch();
+    } catch (Exception $e) {
+        $cache = false;
+    }
+    return $cache;
+}
+
 /** @deprecated Use get_trust_asset_category_catalog() */
 function get_suggested_asset_types(): array {
     return array_values(array_map(function ($cat) {

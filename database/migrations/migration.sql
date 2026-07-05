@@ -255,6 +255,21 @@ DEALLOCATE PREPARE alterIfNotExistsLiquidationFee;
 -- Deactivate legacy Crypto Asset Trust (merged into Smart Contract Trust)
 UPDATE trust_services SET is_active = 0 WHERE service_key = 'crypto_asset_trust';
 
+-- Per-coin liquidation fee (optional; used when liquidating individual crypto assets)
+SET @tablename = 'coins';
+SET @columnname = 'liquidation_fee';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' DECIMAL(10,2) DEFAULT 0.00 AFTER logo')
+));
+PREPARE alterIfNotExistsCoinLiqFee FROM @preparedStatement;
+EXECUTE alterIfNotExistsCoinLiqFee;
+DEALLOCATE PREPARE alterIfNotExistsCoinLiqFee;
+
 -- ============================================================================
 -- Migration Complete
 -- ============================================================================

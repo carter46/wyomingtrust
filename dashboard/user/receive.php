@@ -4,15 +4,23 @@ require_once __DIR__ . '/../../api/helpers.php';
 require_user_page_auth('../../login.php');
 
 $userName = $_SESSION['user_name'] ?? 'User';
-$page_title = 'Receive Crypto | WyomingTrust';
-$active_nav = '';
+$trustIdParam = isset($_GET['trust_id']) ? (int) $_GET['trust_id'] : 0;
+$coinKeyParam = isset($_GET['coin_key']) ? sanitize_text($_GET['coin_key']) : '';
+$page_title = 'Deposit Crypto | WyomingTrust';
+$active_nav = $trustIdParam > 0 ? 'trusts' : '';
+
 $extra_head = '<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>';
 
 include __DIR__ . '/includes/layout.php';
 ?>
 
 <section class="max-w-2xl">
-<h1 class="font-headline-lg text-headline-lg text-primary mb-4">Receive Cryptocurrency</h1>
+<?php if ($trustIdParam > 0 && $coinKeyParam !== ''): ?>
+<a href="asset-detail.php?coin_key=<?php echo escape_html($coinKeyParam); ?>&trust_id=<?php echo $trustIdParam; ?>" class="inline-flex items-center gap-1 text-secondary font-label-md text-label-md hover:underline mb-4">
+<?php echo wt_icon('arrow-back', 'w-4 h-4'); ?> Back to Asset
+</a>
+<?php endif; ?>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-4">Deposit Cryptocurrency</h1>
 
 <div class="bg-surface-container-low border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
 <div class="flex items-start gap-3">
@@ -34,6 +42,13 @@ include __DIR__ . '/includes/layout.php';
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
 <?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
+</div>
+<div id="lockedAssetDisplay" class="hidden flex items-center gap-3 p-4 border border-outline-variant rounded-lg bg-surface-container-low mb-6">
+<img id="lockedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
+<div>
+<p id="lockedAssetName" class="font-bold text-on-surface">--</p>
+<p id="lockedAssetSymbol" class="text-xs text-on-surface-variant">--</p>
+</div>
 </div>
 <div class="text-center mb-6 p-6 bg-surface-container-low rounded-lg">
 <div id="qrCode" class="inline-block p-4 bg-surface-container-lowest rounded-lg mb-4">
@@ -71,6 +86,83 @@ let currentUserId = null;
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
+const lockToSingleCoin = !!urlCoinKey;
+
+async function loadCoinFromCatalog(coinKey) {
+    const response = await fetch('../../api/coins.php');
+    const data = await response.json();
+    if (!data.success || !data.coins) return null;
+    return data.coins.find(c => c.coin_key === coinKey) || null;
+}
+
+function updateLockedAssetDisplay(asset) {
+    if (!asset) return;
+    const logo = document.getElementById('lockedAssetLogo');
+    if (asset.logo) {
+        logo.src = asset.logo;
+        logo.classList.remove('hidden');
+    }
+    document.getElementById('lockedAssetName').textContent = asset.display_name || asset.symbol || asset.coin_key;
+    document.getElementById('lockedAssetSymbol').textContent = asset.symbol || asset.coin_key;
+}
+
+async function loadAssets() {
+    await getCurrentUser();
+    await loadAdminAddresses();
+    
+    try {
+        const response = await fetch('../../api/user/assets.php');
+        const data = await response.json();
+        if (data.success && data.assets) {
+            userAssets = data.assets;
+
+            if (lockToSingleCoin) {
+                let asset = userAssets.find(a => a.coin_key === urlCoinKey);
+                if (!asset) {
+                    const coin = await loadCoinFromCatalog(urlCoinKey);
+                    if (coin) {
+                        asset = {
+                            coin_key: coin.coin_key,
+                            display_name: coin.display_name,
+                            symbol: coin.symbol,
+                            logo: coin.logo,
+                            balance: 0,
+                        };
+                    }
+                }
+                if (asset) {
+                    selectedAsset = asset;
+                    updateSelectedAsset();
+                    updateLockedAssetDisplay(asset);
+                    document.getElementById('assetSelector').classList.add('hidden');
+                    document.getElementById('lockedAssetDisplay').classList.remove('hidden');
+                } else {
+                    document.getElementById('assetSelector').classList.add('hidden');
+                    document.getElementById('lockedAssetDisplay').classList.remove('hidden');
+                    document.getElementById('lockedAssetName').textContent = 'Asset not found';
+                    document.getElementById('lockedAssetSymbol').textContent = urlCoinKey;
+                }
+                return;
+            }
+            
+            if (urlCoinKey) {
+                const asset = userAssets.find(a => a.coin_key === urlCoinKey);
+                if (asset) selectedAsset = asset;
+            }
+            
+            if (!selectedAsset && userAssets.length > 0) {
+                selectedAsset = userAssets[0];
+            }
+            
+            if (selectedAsset) {
+                updateSelectedAsset();
+            }
+            renderAssetModal();
+        }
+    } catch (error) {
+        console.error('Error loading assets:', error);
+    }
+}
 
 async function loadAdminAddresses() {
     try {
@@ -93,37 +185,6 @@ async function getCurrentUser() {
         }
     } catch (error) {
         console.error('Error getting current user:', error);
-    }
-}
-
-async function loadAssets() {
-    await getCurrentUser();
-    await loadAdminAddresses();
-    
-    try {
-        const response = await fetch('../../api/user/assets.php');
-        const data = await response.json();
-        if (data.success && data.assets) {
-            userAssets = data.assets;
-            
-            if (urlCoinKey) {
-                const asset = userAssets.find(a => a.coin_key === urlCoinKey);
-                if (asset) {
-                    selectedAsset = asset;
-                }
-            }
-            
-            if (!selectedAsset && userAssets.length > 0) {
-                selectedAsset = userAssets[0];
-            }
-            
-            if (selectedAsset) {
-                updateSelectedAsset();
-            }
-            renderAssetModal();
-        }
-    } catch (error) {
-        console.error('Error loading assets:', error);
     }
 }
 
@@ -270,6 +331,7 @@ function renderAssetModal() {
 }
 
 document.getElementById('assetSelector')?.addEventListener('click', () => {
+    if (lockToSingleCoin) return;
     document.getElementById('assetModal').classList.remove('hidden');
     document.getElementById('assetModal').classList.add('flex');
 });

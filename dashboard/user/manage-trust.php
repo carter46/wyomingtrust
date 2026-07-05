@@ -485,14 +485,6 @@ Liquidate Trust
 <div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden">
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
 <h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
-<div class="flex flex-wrap gap-stack-gap no-print">
-<a href="receive.php" class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
-<?php echo wt_icon('add-circle', 'w-[18px] h-[18px]'); ?> Receive Crypto
-</a>
-<a href="send.php" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
-<?php echo wt_icon('send', 'w-[18px] h-[18px]'); ?> Send Crypto
-</a>
-</div>
 </div>
 <div class="overflow-x-auto">
 <table class="w-full text-left">
@@ -1176,8 +1168,25 @@ async function renderCryptoPortfolioTable(trust) {
                 ? `<img src="${escapeHtml(asset.logo)}" alt="" class="w-10 h-10 rounded-full object-cover shrink-0">`
                 : `<div class="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center text-secondary font-bold text-xs shrink-0">${escapeHtml(symbol.slice(0, 3))}</div>`;
 
-            return `
+            const coinKey = asset.coin_key || '';
+            if (!coinKey) {
+                return `
                 <tr class="group hover:bg-surface-container-low transition-colors">
+                    <td class="py-5" colspan="4">
+                        <div class="flex items-center gap-3">
+                            ${logo}
+                            <div>
+                                <p class="font-bold text-primary">${escapeHtml(name)}</p>
+                                <p class="text-xs text-on-surface-variant">${escapeHtml(symbol)}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            }
+            const detailUrl = `asset-detail.php?coin_key=${encodeURIComponent(coinKey)}&trust_id=${trustId}`;
+
+            return `
+                <tr class="group hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.location.href='${detailUrl}'" role="link" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.location.href='${detailUrl}'}">
                     <td class="py-5">
                         <div class="flex items-center gap-3">
                             ${logo}

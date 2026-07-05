@@ -308,7 +308,7 @@ function renderAssets() {
                         const changeSign = change24h >= 0 ? '+' : '';
                         
                         return `
-                            <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.location.href='asset-detail.php?coin_key=${escapeHtml(asset.coin_key)}'">
+                            <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.location.href='asset-detail.php?coin_key=${encodeURIComponent(asset.coin_key || '')}'">
                                 <td class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
                                     <div class="flex items-center gap-1.5 sm:gap-2 md:gap-3">
                                         <img src="${asset.logo || ''}" alt="${asset.display_name}" class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
