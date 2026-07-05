@@ -12,8 +12,8 @@ include __DIR__ . '/includes/layout.php';
 
 <!-- Welcome -->
 <section>
-<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Welcome Back, <span id="userName"><?php echo escape_html($userName); ?></span>.</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your trusts, beneficiaries, and estate planning from one secure dashboard.</p>
+<h1 class="text-xl sm:text-2xl font-semibold text-primary mb-1.5 font-headline-md">Welcome Back, <span id="userName"><?php echo escape_html($userName); ?></span>.</h1>
+<p class="text-sm sm:text-base text-on-surface-variant">Manage your trusts, beneficiaries, and estate planning from one secure dashboard.</p>
 </section>
 
 <!-- Key Metrics (3 cards) -->

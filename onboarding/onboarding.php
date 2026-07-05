@@ -541,19 +541,19 @@ function renderTrustTypeStep() {
             const description = escapeHtml(service.description || 'Select this trust service to continue.');
             const icon = getTrustServiceIcon(service.service_key);
             return `
-                <label class="relative border-2 ${isSelected ? 'border-secondary' : 'border-outline-variant/30'} rounded-2xl p-6 cursor-pointer hover:border-secondary transition-all group h-full flex flex-col">
+                <label class="relative border-2 ${isSelected ? 'border-secondary' : 'border-outline-variant/30'} rounded-xl p-4 sm:p-5 cursor-pointer hover:border-secondary transition-all group flex gap-3 sm:gap-4 items-start">
                     <input class="peer sr-only" name="trust_type" type="radio" value="${escapeHtml(service.service_key)}" ${isSelected ? 'checked' : ''} onchange="selectTrustType('${escapeHtml(service.service_key)}', ${service.id})"/>
-                    <div class="absolute top-6 right-6 w-6 h-6 rounded-full border-2 ${isSelected ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors"></div>
-                    <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-on-secondary">
-                        ${wtIcon(icon, 'text-2xl')}
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 bg-secondary rounded-lg flex items-center justify-center text-on-secondary shrink-0">
+                        ${wtIcon(icon, 'text-lg sm:text-xl')}
                     </div>
-                    <h3 class="text-xl font-bold text-primary mb-3 mt-4">${title}</h3>
-                    <p class="text-on-surface-variant leading-relaxed mb-6 flex-grow text-sm">${description}</p>
-                    <div class="flex items-center font-bold text-sm ${isFree ? 'text-green-600 dark:text-green-400' : 'text-secondary'}">
-                        ${wtIcon(isFree ? 'check-circle' : 'payments', 'text-lg mr-1.5')}
-                        ${label}
+                    <div class="flex-1 min-w-0 pr-8">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 class="text-base sm:text-lg font-bold text-primary">${title}</h3>
+                            <span class="text-xs font-bold ${isFree ? 'text-green-600' : 'text-secondary'}">${label}</span>
+                        </div>
+                        <p class="text-on-surface-variant text-xs sm:text-sm leading-relaxed line-clamp-2 sm:line-clamp-none">${description}</p>
                     </div>
-                    <div class="absolute inset-0 rounded-2xl border-2 border-transparent ${isSelected ? 'border-secondary' : ''} pointer-events-none"></div>
+                    <div class="absolute top-4 right-4 w-5 h-5 rounded-full border-2 ${isSelected ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors shrink-0"></div>
                 </label>
             `;
         }).join('')
@@ -564,15 +564,13 @@ function renderTrustTypeStep() {
             </div>
         `;
 
-    const gridCols = trustServices.length > 2 ? 'md:grid-cols-2 lg:grid-cols-2' : 'md:grid-cols-2';
-
     return `
-        <div class="max-w-container-max mx-auto">
-            <div class="text-center mb-10">
-                <h1 class="text-3xl font-bold text-primary mb-3">Choose Your Trust Type</h1>
-                <p class="text-on-surface-variant text-lg">Select the type of trust that best fits your needs</p>
+        <div class="max-w-2xl mx-auto w-full px-1">
+            <div class="text-center mb-6 sm:mb-8">
+                <h1 class="text-xl sm:text-2xl font-bold text-primary mb-2">Choose Your Trust Type</h1>
+                <p class="text-on-surface-variant text-sm sm:text-base">Select the type of trust that best fits your needs</p>
             </div>
-            <div class="grid grid-cols-1 ${gridCols} gap-6 mb-10">
+            <div class="flex flex-col gap-3 sm:gap-4 mb-8">
                 ${serviceCards}
             </div>
             ${renderCoinSelectionPanel()}

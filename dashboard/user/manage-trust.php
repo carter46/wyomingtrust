@@ -229,6 +229,11 @@ $extra_styles = '
 .text-on-error-container { color: #93000a; }
 .border-surface-container-high { border-color: #e7e8e9; }
 .bg-background { background-color: #f8f9fa; }
+.crypto-action-btn { white-space: nowrap; }
+@media (max-width: 639px) {
+    .crypto-layout-card { padding: 1rem !important; }
+    .crypto-beneficiary-card { padding: 1rem !important; min-width: 0; overflow: visible; }
+}
 ';
 include __DIR__ . '/includes/layout.php';
 ?>
@@ -405,13 +410,13 @@ Liquidate Trust
 <p id="cryptoTrustName" class="font-headline-lg text-headline-lg text-primary leading-tight">Loading...</p>
 <p id="cryptoTrustId" class="text-on-surface-variant text-sm font-mono font-medium">ID: Loading...</p>
 </div>
-<div class="flex gap-2 items-center no-print">
-<button type="button" onclick="window.location.href='../../onboarding/onboarding.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-on-primary text-sm font-bold gap-2 hover:bg-primary/90 transition-all">
-<?php echo wt_icon('add', 'text-sm'); ?>
-<span>Create New Trust</span>
+<div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center no-print w-full sm:w-auto">
+<button type="button" onclick="window.location.href='link-wallet.php?trust_id=<?php echo (int) $trustId; ?>'" class="crypto-action-btn flex items-center justify-center rounded-lg h-10 px-3 sm:px-4 bg-primary text-on-primary text-xs sm:text-sm font-bold gap-1.5 hover:bg-primary/90 transition-all">
+<?php echo wt_icon('link', 'text-sm shrink-0'); ?>
+<span>Link Wallet</span>
 </button>
-<button type="button" onclick="window.location.href='manage-trust.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-surface-container-lowest border border-outline-variant text-primary text-sm font-bold gap-2 hover:bg-surface-container transition-all">
-<?php echo wt_icon('arrow-back', 'text-sm'); ?>
+<button type="button" onclick="window.location.href='manage-trust.php'" class="crypto-action-btn flex items-center justify-center rounded-lg h-10 px-3 sm:px-4 bg-surface-container-lowest border border-outline-variant text-primary text-xs sm:text-sm font-bold gap-1.5 hover:bg-surface-container transition-all">
+<?php echo wt_icon('arrow-back', 'text-sm shrink-0'); ?>
 <span>Back to Trusts</span>
 </button>
 </div>
@@ -442,51 +447,51 @@ Liquidate Trust
 </div>
 </section>
 
-<section class="bg-primary-fixed p-4 rounded-xl flex flex-wrap items-center gap-gutter no-print">
-<span class="font-label-md text-label-md text-on-primary-fixed-variant ml-2">Quick Actions:</span>
-<div class="flex flex-wrap gap-stack-gap">
-<button type="button" onclick="exportTrustReport()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
-<?php echo wt_icon('share', 'w-[18px] h-[18px]'); ?> Export Report
+<section class="bg-primary-fixed p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-gutter no-print">
+<span class="font-label-md text-label-md text-on-primary-fixed-variant text-xs sm:text-sm sm:ml-2">Quick Actions:</span>
+<div class="flex flex-wrap gap-2">
+<button type="button" onclick="exportTrustReport()" class="crypto-action-btn bg-surface-container-lowest text-primary px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('share', 'w-4 h-4 shrink-0'); ?> <span>Export</span>
 </button>
-<button type="button" onclick="printTrustDetails()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
-<?php echo wt_icon('print', 'w-[18px] h-[18px]'); ?> Print Details
+<button type="button" onclick="printTrustDetails()" class="crypto-action-btn bg-surface-container-lowest text-primary px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('print', 'w-4 h-4 shrink-0'); ?> <span>Print</span>
 </button>
-<button type="button" onclick="shareWithAdvisor()" class="bg-surface-container-lowest text-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container transition-colors border border-outline-variant">
-<?php echo wt_icon('share', 'w-[18px] h-[18px]'); ?> Share with Advisor
+<button type="button" onclick="shareWithAdvisor()" class="crypto-action-btn bg-surface-container-lowest text-primary px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-surface-container transition-colors border border-outline-variant">
+<?php echo wt_icon('share', 'w-4 h-4 shrink-0'); ?> <span>Share</span>
 </button>
 </div>
 </section>
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
-<div class="lg:col-span-7 space-y-10">
-<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter min-w-0">
+<div class="lg:col-span-7 space-y-6 sm:space-y-10 min-w-0">
+<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high crypto-layout-card min-w-0">
 <div class="flex justify-between items-center mb-6">
 <h3 class="font-headline-md text-headline-md text-primary">Trust Settings</h3>
 <?php echo wt_icon('settings', 'text-outline w-6 h-6'); ?>
 </div>
 <div class="space-y-4">
-<div class="flex items-center justify-between p-4 bg-background rounded-lg border border-surface-container">
-<div>
-<p class="font-label-md text-label-md text-on-surface-variant">Trust Name</p>
-<p id="cryptoTrustNameDisplay" class="font-body-lg text-body-lg font-bold text-primary">Loading...</p>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 sm:p-4 bg-background rounded-lg border border-surface-container">
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface-variant text-xs sm:text-sm">Trust Name</p>
+<p id="cryptoTrustNameDisplay" class="font-body-lg text-body-lg font-bold text-primary break-words">Loading...</p>
 </div>
-<button type="button" onclick="editTrustName()" class="text-secondary font-label-md text-label-md hover:underline">Edit Trust Name</button>
+<button type="button" onclick="editTrustName()" class="text-secondary font-label-md text-label-md hover:underline text-sm shrink-0 self-start sm:self-center">Edit</button>
 </div>
-<div class="flex items-center justify-between p-4 bg-background rounded-lg border border-surface-container">
-<div>
-<p class="font-label-md text-label-md text-on-surface-variant">Trust Status</p>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 sm:p-4 bg-background rounded-lg border border-surface-container">
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-on-surface-variant text-xs sm:text-sm">Trust Status</p>
 <p id="cryptoStatusBadge" class="font-body-lg text-body-lg font-bold text-primary">Loading...</p>
 </div>
-<button type="button" onclick="changeStatus()" class="text-secondary font-label-md text-label-md hover:underline">Change Status</button>
+<button type="button" onclick="changeStatus()" class="text-secondary font-label-md text-label-md hover:underline text-sm shrink-0 self-start sm:self-center">Change</button>
 </div>
 </div>
 </div>
 
-<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden">
-<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden crypto-layout-card min-w-0">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
 <h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
 </div>
-<div class="overflow-x-auto">
+<div class="hidden md:block">
 <table class="w-full text-left">
 <thead>
 <tr class="border-b border-surface-container text-on-surface-variant font-label-md text-label-md">
@@ -501,26 +506,29 @@ Liquidate Trust
 </tbody>
 </table>
 </div>
+<div id="cryptoPortfolioMobileList" class="md:hidden space-y-3 min-w-0">
+<div class="py-8 text-center text-on-surface-variant text-sm">Loading portfolio...</div>
+</div>
 </div>
 </div>
 
-<div class="lg:col-span-5 space-y-10">
-<div class="bg-surface-container-lowest p-8 rounded-xl card-shadow border border-surface-container-high h-fit">
-<div class="flex justify-between items-center mb-6">
+<div class="lg:col-span-5 space-y-6 sm:space-y-10 min-w-0">
+<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high h-fit crypto-layout-card min-w-0 overflow-visible">
+<div class="flex flex-col gap-3 mb-6">
 <h3 class="font-headline-md text-headline-md text-primary">Manage Beneficiaries</h3>
-<div class="flex items-center gap-3">
-<button type="button" id="cryptoSaveChangesBtn" onclick="saveBeneficiaries()" class="hidden text-deep-forest font-label-md text-label-md hover:underline">Save Changes</button>
-<button type="button" onclick="addBeneficiary()" class="text-secondary flex items-center gap-1 font-label-md text-label-md hover:underline no-print">
-<?php echo wt_icon('add-circle', 'w-[18px] h-[18px]'); ?> Add Beneficiary
+<div class="flex flex-col gap-2 w-full">
+<button type="button" id="cryptoSaveChangesBtn" onclick="saveBeneficiaries()" class="hidden w-full sm:w-auto text-center sm:text-left text-deep-forest font-label-md text-label-md hover:underline py-2">Save Changes</button>
+<button type="button" onclick="addBeneficiary()" class="w-full sm:w-auto text-secondary flex items-center justify-center sm:justify-start gap-1 font-label-md text-label-md hover:underline no-print py-2 px-3 rounded-lg border border-outline-variant sm:border-transparent">
+<?php echo wt_icon('add-circle', 'w-[18px] h-[18px] shrink-0'); ?> Add Beneficiary
 </button>
 </div>
 </div>
-<div id="cryptoBeneficiariesContainer" class="space-y-6">
+<div id="cryptoBeneficiariesContainer" class="space-y-6 min-w-0">
 <div class="text-center py-10 text-on-surface-variant">Loading beneficiaries...</div>
 </div>
 </div>
 
-<section class="bg-error-container/20 p-8 rounded-xl border border-error/20 space-y-6 no-print" id="cryptoDangerZoneSection">
+<section class="bg-error-container/20 p-4 sm:p-8 rounded-xl border border-error/20 space-y-4 sm:space-y-6 no-print crypto-layout-card" id="cryptoDangerZoneSection">
 <div class="flex items-center gap-3">
 <?php echo wt_icon('warning', 'w-6 h-6 text-error'); ?>
 <h3 class="font-headline-md text-headline-md text-error">Danger Zone</h3>
@@ -529,11 +537,11 @@ Liquidate Trust
 Warning: The following actions are irreversible and may require additional legal authorization under Wyoming Digital Asset statutes. Please proceed with extreme caution.
 </p>
 <div class="flex flex-col gap-3">
-<button type="button" onclick="suspendTrust()" class="w-full py-3 px-4 rounded-lg border-2 border-error text-error font-bold font-label-md text-label-md hover:bg-error hover:text-on-primary transition-colors text-center">
-Suspend Trust Access
+<button type="button" onclick="suspendTrust()" class="w-full py-3 px-4 rounded-lg border-2 border-error text-error font-bold text-xs sm:text-sm hover:bg-error hover:text-on-primary transition-colors text-center whitespace-nowrap">
+Suspend Trust
 </button>
-<button type="button" onclick="archiveTrust()" id="cryptoLiquidateTrustBtn" class="w-full py-3 px-4 rounded-lg bg-error text-on-primary font-bold font-label-md text-label-md hover:opacity-90 transition-opacity text-center shadow-md">
-Liquidate Trust &amp; Withdraw
+<button type="button" onclick="archiveTrust()" id="cryptoLiquidateTrustBtn" class="w-full py-3 px-4 rounded-lg bg-error text-on-primary font-bold text-xs sm:text-sm hover:opacity-90 transition-opacity text-center shadow-md whitespace-nowrap">
+Liquidate Trust
 </button>
 </div>
 </section>
@@ -857,7 +865,7 @@ function renderCryptoBeneficiaries(beneficiaries) {
 
         if (editing) {
             return `
-                <div class="p-5 rounded-lg border border-secondary bg-background relative overflow-hidden">
+                <div class="crypto-beneficiary-card p-4 sm:p-5 rounded-lg border border-secondary bg-background relative min-w-0">
                     <div class="absolute top-0 left-0 w-1 h-full ${accent}"></div>
                     <div class="flex justify-between items-start mb-4 pl-2">
                         <p class="font-bold text-body-lg text-primary">Edit Beneficiary</p>
@@ -891,7 +899,7 @@ function renderCryptoBeneficiaries(beneficiaries) {
         }
 
         return `
-            <div class="p-5 rounded-lg border border-surface-container bg-background relative overflow-hidden">
+            <div class="crypto-beneficiary-card p-4 sm:p-5 rounded-lg border border-surface-container bg-background relative min-w-0">
                 <div class="absolute top-0 left-0 w-1 h-full ${accent}"></div>
                 <div class="flex justify-between items-start mb-4 pl-2">
                     <div>
@@ -1123,10 +1131,13 @@ async function updateCryptoMetrics(trust, valueEl) {
 
 async function renderCryptoPortfolioTable(trust) {
     const tbody = document.getElementById('cryptoPortfolioTableBody');
+    const mobileList = document.getElementById('cryptoPortfolioMobileList');
     if (!tbody) return;
 
     const entrusted = Array.isArray(trust.entrusted_coins) ? trust.entrusted_coins : (trust.trust_data?.entrusted_coins || []);
     const entrustedSet = new Set(entrusted.map((k) => String(k).toLowerCase()));
+
+    const emptyMsg = '<div class="py-8 text-center text-on-surface-variant text-sm">No cryptocurrencies selected. Add assets from onboarding or deposit from your wallet.</div>';
 
     try {
         const res = await fetch('../../api/user/assets.php');
@@ -1151,8 +1162,11 @@ async function renderCryptoPortfolioTable(trust) {
 
         if (!rows.length) {
             tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-on-surface-variant text-sm">No cryptocurrencies selected. Add assets from onboarding or deposit from your wallet.</td></tr>';
+            if (mobileList) mobileList.innerHTML = emptyMsg;
             return;
         }
+
+        const mobileCards = [];
 
         tbody.innerHTML = rows.map((asset) => {
             const balance = parseFloat(asset.balance) || 0;
@@ -1185,6 +1199,27 @@ async function renderCryptoPortfolioTable(trust) {
             }
             const detailUrl = `asset-detail.php?coin_key=${encodeURIComponent(coinKey)}&trust_id=${trustId}`;
 
+            mobileCards.push(`
+                <div class="p-4 rounded-xl border border-surface-container-high bg-background cursor-pointer active:bg-surface-container-low transition-colors" onclick="window.location.href='${detailUrl}'" role="link" tabindex="0">
+                    <div class="flex items-start gap-3">
+                        ${logo}
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-primary text-sm truncate">${escapeHtml(name)}</p>
+                            <p class="text-xs text-on-surface-variant mb-1">${escapeHtml(symbol)}</p>
+                            <span class="inline-block px-2 py-0.5 ${statusClass} text-[9px] uppercase font-bold rounded">${status}</span>
+                            <div class="mt-3 flex justify-between text-xs gap-2">
+                                <span class="text-on-surface-variant shrink-0">Balance</span>
+                                <span class="font-medium text-primary text-right break-all">${balance.toLocaleString('en-US', { maximumFractionDigits: 8 })} ${escapeHtml(symbol)}</span>
+                            </div>
+                            <div class="mt-1 flex justify-between text-xs">
+                                <span class="text-on-surface-variant">Allocation</span>
+                                <span class="font-medium">${allocPct.toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+
             return `
                 <tr class="group hover:bg-surface-container-low transition-colors cursor-pointer" onclick="window.location.href='${detailUrl}'" role="link" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.location.href='${detailUrl}'}">
                     <td class="py-5">
@@ -1204,9 +1239,12 @@ async function renderCryptoPortfolioTable(trust) {
                 </tr>
             `;
         }).join('');
+
+        if (mobileList) mobileList.innerHTML = mobileCards.join('');
     } catch (error) {
         console.error('Error loading crypto portfolio:', error);
         tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-error text-sm">Failed to load portfolio data.</td></tr>';
+        if (mobileList) mobileList.innerHTML = '<div class="py-8 text-center text-error text-sm">Failed to load portfolio data.</div>';
     }
 }
 

@@ -79,6 +79,7 @@ An administrator has not yet configured a deposit wallet address for this asset.
 </div>
 
 <div id="depositAvailablePanel" class="hidden">
+<div id="depositAddressSection">
 <div class="text-center p-6 sm:p-8 bg-surface-container-low rounded-xl">
 <div id="qrCode" class="inline-block p-4 bg-surface-container-lowest rounded-xl mb-4 border border-outline-variant">
 <canvas id="qrCodeCanvas" width="200" height="200" class="w-48 h-48"></canvas>
@@ -92,16 +93,24 @@ An administrator has not yet configured a deposit wallet address for this asset.
 </div>
 <p class="text-xs text-on-surface-variant mt-3">Send only <span id="selectedAssetSymbol" class="font-semibold text-primary">--</span> to this address</p>
 </div>
-
-<div id="depositPendingNotice" class="hidden mt-8 p-4 rounded-xl border border-secondary/30 bg-secondary/10 text-sm text-on-surface">
-<?php echo wt_icon('info', 'inline w-4 h-4 text-secondary mr-1'); ?>
-<strong>Deposit pending review.</strong> You already submitted a payment for this asset. An administrator will verify it shortly.
+<div class="mt-8 text-center">
+<button type="button" id="madePaymentBtn" onclick="showConfirmPaymentForm()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-xl font-label-md font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+<?php echo wt_icon('check-circle', 'w-5 h-5'); ?> I Have Made This Payment
+</button>
+</div>
 </div>
 
-<div id="depositConfirmSection" class="mt-8 pt-8 border-t border-outline-variant">
+<div id="depositPendingNotice" class="hidden mt-8 p-4 rounded-xl border border-secondary/30 bg-secondary/10 text-sm text-on-surface text-center">
+<?php echo wt_icon('info', 'inline w-4 h-4 text-secondary mr-1'); ?>
+<strong>Deposit pending review.</strong> You already submitted a payment for this asset. An administrator will verify it shortly.
+<a href="dashboard.php" class="block mt-3 text-secondary font-semibold hover:underline">Back to Dashboard</a>
+</div>
+
+<div id="depositConfirmSection" class="hidden mt-2">
 <h2 class="font-headline-md text-headline-md text-primary mb-2">Confirm Your Payment</h2>
-<p class="text-sm text-on-surface-variant mb-6">After sending crypto to the address above, enter your transaction details below.</p>
+<p class="text-sm text-on-surface-variant mb-6">Enter your transaction details to complete your deposit submission.</p>
 <form id="depositConfirmForm" class="space-y-5 max-w-xl">
+<input type="hidden" id="depositAddressHidden" value="">
 <div>
 <label for="depositAmount" class="block text-sm font-semibold text-primary mb-2">Amount Deposited</label>
 <input type="number" id="depositAmount" name="amount" min="0" step="any" required placeholder="0.00" class="w-full px-4 py-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
@@ -115,9 +124,14 @@ An administrator has not yet configured a deposit wallet address for this asset.
 <input type="file" id="depositProof" name="proof" accept=".pdf,.jpg,.jpeg,.png,.webp" class="w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-secondary file:text-on-secondary file:font-semibold hover:file:opacity-90"/>
 <p class="text-xs text-on-surface-variant mt-1">Upload a screenshot or receipt (PDF, JPG, PNG — max 10MB)</p>
 </div>
-<button type="submit" id="depositSubmitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-xl font-label-md font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-<?php echo wt_icon('check-circle', 'w-5 h-5'); ?> I Have Made This Payment
+<div class="flex flex-col sm:flex-row gap-3">
+<button type="button" onclick="hideConfirmPaymentForm()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-outline-variant text-primary px-6 py-3 rounded-xl font-label-md font-bold hover:bg-surface-container-low transition-colors">
+<?php echo wt_icon('arrow-back', 'w-4 h-4'); ?> Back
 </button>
+<button type="submit" id="depositSubmitBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-8 py-4 rounded-xl font-label-md font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+<?php echo wt_icon('check-circle', 'w-5 h-5'); ?> Complete Transaction
+</button>
+</div>
 </form>
 </div>
 </div>
@@ -142,6 +156,30 @@ let userAssets = [];
 let selectedAsset = null;
 let adminAddresses = {};
 let hasPendingDeposit = false;
+let confirmFormOpen = false;
+
+function showConfirmPaymentForm() {
+    if (hasPendingDeposit || !selectedAsset) return;
+    const address = document.getElementById('receiveAddress')?.value?.trim() || '';
+    const hidden = document.getElementById('depositAddressHidden');
+    if (hidden) hidden.value = address;
+    confirmFormOpen = true;
+    document.getElementById('depositAddressSection')?.classList.add('hidden');
+    document.getElementById('depositConfirmSection')?.classList.remove('hidden');
+    document.getElementById('depositAmount')?.focus();
+}
+
+function hideConfirmPaymentForm() {
+    confirmFormOpen = false;
+    document.getElementById('depositConfirmSection')?.classList.add('hidden');
+    document.getElementById('depositAddressSection')?.classList.remove('hidden');
+}
+
+function resetDepositView() {
+    confirmFormOpen = false;
+    document.getElementById('depositConfirmSection')?.classList.add('hidden');
+    document.getElementById('depositAddressSection')?.classList.remove('hidden');
+}
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
@@ -275,6 +313,7 @@ function renderDepositState() {
     }
 
     showPanel('depositAvailablePanel');
+    resetDepositView();
     document.getElementById('receiveAddress').value = address;
     generateQRCode(address);
     checkPendingDeposit();
@@ -282,9 +321,10 @@ function renderDepositState() {
 
 async function checkPendingDeposit() {
     const notice = document.getElementById('depositPendingNotice');
+    const addressSection = document.getElementById('depositAddressSection');
     const formSection = document.getElementById('depositConfirmSection');
-    const submitBtn = document.getElementById('depositSubmitBtn');
-    if (!selectedAsset || !notice || !formSection) return;
+    const madeBtn = document.getElementById('madePaymentBtn');
+    if (!selectedAsset) return;
 
     try {
         const params = new URLSearchParams({ coin_key: selectedAsset.coin_key });
@@ -295,9 +335,10 @@ async function checkPendingDeposit() {
             ? data.submissions.find(s => s.status === 'pending')
             : null;
         hasPendingDeposit = !!pending;
-        notice.classList.toggle('hidden', !hasPendingDeposit);
-        formSection.classList.toggle('hidden', hasPendingDeposit);
-        if (submitBtn) submitBtn.disabled = hasPendingDeposit;
+        if (notice) notice.classList.toggle('hidden', !hasPendingDeposit);
+        if (addressSection) addressSection.classList.toggle('hidden', hasPendingDeposit || confirmFormOpen);
+        if (formSection) formSection.classList.toggle('hidden', hasPendingDeposit || !confirmFormOpen);
+        if (madeBtn) madeBtn.disabled = hasPendingDeposit;
     } catch (e) {
         console.error('Error checking pending deposit:', e);
     }
@@ -343,7 +384,8 @@ async function submitDepositConfirmation(event) {
     const amount = parseFloat(document.getElementById('depositAmount').value);
     const txHash = document.getElementById('depositTxHash').value.trim();
     const proofFile = document.getElementById('depositProof').files[0];
-    const address = document.getElementById('receiveAddress').value.trim();
+    const address = document.getElementById('depositAddressHidden').value.trim()
+        || document.getElementById('receiveAddress').value.trim();
 
     if (!amount || amount <= 0) {
         await showAlertModal('Invalid Amount', 'Please enter the amount you deposited.', 'error');
@@ -383,19 +425,17 @@ async function submitDepositConfirmation(event) {
         const data = await res.json();
 
         if (data.success) {
-            document.getElementById('depositConfirmForm').reset();
-            await showAlertModal('Deposit Submitted', data.message || 'Your deposit has been submitted for admin review.', 'success');
-            await checkPendingDeposit();
-        } else {
-            await showAlertModal('Submission Failed', data.message || 'Could not submit deposit.', 'error');
+            window.location.href = 'dashboard.php';
+            return;
         }
+        await showAlertModal('Submission Failed', data.message || 'Could not submit deposit.', 'error');
     } catch (error) {
         console.error('Deposit submission error:', error);
         await showAlertModal('Error', 'An error occurred while submitting your deposit.', 'error');
     } finally {
-        if (submitBtn) {
-            submitBtn.disabled = hasPendingDeposit;
-            submitBtn.textContent = 'I Have Made This Payment';
+        if (submitBtn && !hasPendingDeposit) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Complete Transaction';
         }
     }
 }
