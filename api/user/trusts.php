@@ -26,6 +26,35 @@ switch ($method) {
         send_json(['success' => false, 'message' => 'Method not allowed'], 405);
 }
 
+function user_trust_service_extra_select(PDO $db): string {
+    $extra = '';
+    if (trust_services_has_asset_category_config_column($db)) {
+        $extra .= ', ts.asset_category_config';
+    } elseif (trust_services_has_asset_types_column($db)) {
+        $extra .= ', ts.asset_types';
+    }
+    if (trust_services_has_liquidation_fee_column($db)) {
+        $extra .= ', ts.liquidation_fee';
+    }
+    return $extra;
+}
+
+function enrich_user_trust_row(array $trust): array {
+    $trustData = is_array($trust['trust_data'] ?? null) ? $trust['trust_data'] : [];
+    if (!is_array($trust['trust_data'] ?? null) && !empty($trust['trust_data'])) {
+        $trustData = json_decode($trust['trust_data'], true) ?? [];
+    }
+    $trust['trust_data'] = $trustData;
+    $trust['trust_name'] = $trustData['trust_name'] ?? null;
+    $trust['trust_type'] = $trustData['trust_type'] ?? ($trust['service_key'] ?? null);
+    $trust['beneficiaries'] = $trustData['beneficiaries'] ?? [];
+    $trust['assets'] = $trustData['assets'] ?? [];
+    $trust['entrusted_coins'] = $trustData['entrusted_coins'] ?? [];
+    $trust['service_meta'] = build_trust_service_meta($trust);
+    $trust['assets_summary'] = compute_trust_assets_summary($trust['assets']);
+    return $trust;
+}
+
 function user_trusts_has_payment_method_id_column($db) {
     static $cached = null;
     if ($cached !== null) return $cached;
@@ -149,11 +178,37 @@ function handleUpdateUserTrust() {
 
     if (isset($payload['status'])) {
         $status = sanitize_text($payload['status']);
-        $allowedStatuses = ['active', 'inactive', 'pending', 'suspended'];
+        $allowedStatuses = ['active', 'inactive', 'pending', 'suspended', 'liquidated'];
         if (!in_array(strtolower($status), $allowedStatuses)) {
             send_json(['success' => false, 'message' => 'Invalid status. Allowed: ' . implode(', ', $allowedStatuses)], 400);
         }
         $statusUpdate = strtolower($status);
+        $updatesMade = true;
+    }
+
+    if (!empty($payload['liquidate'])) {
+        $db = getDatabase();
+        $svcStmt = $db->prepare(
+            'SELECT ts.service_key' . (trust_services_has_liquidation_fee_column($db) ? ', ts.liquidation_fee' : '') . '
+             FROM user_trusts ut INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+             WHERE ut.id = :id AND ut.user_id = :user_id LIMIT 1'
+        );
+        $svcStmt->execute([':id' => $trustId, ':user_id' => $userId]);
+        $svc = $svcStmt->fetch();
+        if (!$svc) {
+            send_json(['success' => false, 'message' => 'Trust not found'], 404);
+        }
+        $trustType = $svc['service_key'] ?? '';
+        if (!trust_allows_liquidation($trustType)) {
+            send_json(['success' => false, 'message' => 'Irrevocable trusts cannot be liquidated'], 403);
+        }
+        $fee = isset($svc['liquidation_fee']) ? (float) $svc['liquidation_fee'] : 0.0;
+        $trustData['liquidation'] = [
+            'requested_at' => date('c'),
+            'fee' => $fee,
+            'status' => 'pending',
+        ];
+        $statusUpdate = 'liquidated';
         $updatesMade = true;
     }
 
@@ -200,13 +255,20 @@ function handleDeleteUserTrust() {
     
     $db = getDatabase();
     
-    // Verify trust belongs to user
-    $stmt = $db->prepare('SELECT id FROM user_trusts WHERE id = :id AND user_id = :user_id LIMIT 1');
-    $stmt->execute([':id' => $trustId, ':user_id' => $userId]);
-    $trust = $stmt->fetch();
+    $svcStmt = $db->prepare(
+        'SELECT ts.service_key FROM user_trusts ut
+         INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE ut.id = :id AND ut.user_id = :user_id LIMIT 1'
+    );
+    $svcStmt->execute([':id' => $trustId, ':user_id' => $userId]);
+    $svc = $svcStmt->fetch();
     
-    if (!$trust) {
+    if (!$svc) {
         send_json(['success' => false, 'message' => 'Trust not found'], 404);
+    }
+
+    if (is_irrevocable_trust_type($svc['service_key'] ?? '')) {
+        send_json(['success' => false, 'message' => 'Irrevocable trusts cannot be deleted or liquidated'], 403);
     }
     
     try {
@@ -230,22 +292,23 @@ function handleGetUserTrust() {
 
     $db = getDatabase();
     $hasPm = user_trusts_has_payment_method_id_column($db);
+    $svcExtra = user_trust_service_extra_select($db);
     $sql = $hasPm
-        ? 'SELECT ut.id, ut.user_id, ut.trust_service_id, ut.payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
-                  ts.service_key, ts.service_name, ts.price, ts.is_free,
+        ? "SELECT ut.id, ut.user_id, ut.trust_service_id, ut.payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
+                  ts.service_key, ts.service_name, ts.price, ts.is_free{$svcExtra},
                   pm.method_type AS payment_method_type, pm.method_name AS payment_method_name
            FROM user_trusts ut
            INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
            LEFT JOIN payment_methods pm ON pm.id = ut.payment_method_id
            WHERE ut.user_id = :user_id AND ut.id = :id
-           LIMIT 1'
-        : 'SELECT ut.id, ut.user_id, ut.trust_service_id, NULL AS payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
-                  ts.service_key, ts.service_name, ts.price, ts.is_free,
+           LIMIT 1"
+        : "SELECT ut.id, ut.user_id, ut.trust_service_id, NULL AS payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
+                  ts.service_key, ts.service_name, ts.price, ts.is_free{$svcExtra},
                   NULL AS payment_method_type, NULL AS payment_method_name
            FROM user_trusts ut
            INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
            WHERE ut.user_id = :user_id AND ut.id = :id
-           LIMIT 1';
+           LIMIT 1";
     $stmt = $db->prepare($sql);
     $stmt->execute([':user_id' => $userId, ':id' => $trustId]);
     $trust = $stmt->fetch();
@@ -254,16 +317,7 @@ function handleGetUserTrust() {
         send_json(['success' => false, 'message' => 'Trust not found'], 404);
     }
 
-    $trustData = [];
-    if (!empty($trust['trust_data'])) {
-        $trustData = json_decode($trust['trust_data'], true) ?? [];
-    }
-    $trust['trust_data'] = $trustData;
-
-    // Back-compat fields expected by dashboard/user/manage-trust.php
-    $trust['trust_name'] = $trustData['trust_name'] ?? null;
-    $trust['trust_type'] = $trustData['trust_type'] ?? ($trust['service_key'] ?? null);
-    $trust['beneficiaries'] = $trustData['beneficiaries'] ?? [];
+    $trust = enrich_user_trust_row($trust);
 
     send_json(['success' => true, 'trust' => $trust]);
 }
@@ -273,40 +327,31 @@ function handleListUserTrusts() {
     $db = getDatabase();
     
     $hasPm = user_trusts_has_payment_method_id_column($db);
+    $svcExtra = user_trust_service_extra_select($db);
     $sql = $hasPm
-        ? 'SELECT ut.id, ut.user_id, ut.trust_service_id, ut.payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
-                  ts.service_key, ts.service_name, ts.price, ts.is_free,
+        ? "SELECT ut.id, ut.user_id, ut.trust_service_id, ut.payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
+                  ts.service_key, ts.service_name, ts.price, ts.is_free{$svcExtra},
                   pm.method_type AS payment_method_type, pm.method_name AS payment_method_name
            FROM user_trusts ut
            INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
            LEFT JOIN payment_methods pm ON pm.id = ut.payment_method_id
            WHERE ut.user_id = :user_id
-           ORDER BY ut.created_at DESC'
-        : 'SELECT ut.id, ut.user_id, ut.trust_service_id, NULL AS payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
-                  ts.service_key, ts.service_name, ts.price, ts.is_free,
+           ORDER BY ut.created_at DESC"
+        : "SELECT ut.id, ut.user_id, ut.trust_service_id, NULL AS payment_method_id, ut.status, ut.payment_status, ut.trust_data, ut.created_at, ut.updated_at,
+                  ts.service_key, ts.service_name, ts.price, ts.is_free{$svcExtra},
                   NULL AS payment_method_type, NULL AS payment_method_name
            FROM user_trusts ut
            INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
            WHERE ut.user_id = :user_id
-           ORDER BY ut.created_at DESC';
+           ORDER BY ut.created_at DESC";
     $stmt = $db->prepare($sql);
     $stmt->execute([':user_id' => $userId]);
     $trusts = $stmt->fetchAll();
     
-    // Decode JSON trust_data and add back-compat fields
     foreach ($trusts as &$trust) {
-        if (!empty($trust['trust_data'])) {
-            $trust['trust_data'] = json_decode($trust['trust_data'], true) ?? [];
-        } else {
-            $trust['trust_data'] = [];
-        }
-        
-        // Add back-compat fields expected by dashboard/user/manage-trust.php and dashboard.php
-        $trustData = $trust['trust_data'] ?? [];
-        $trust['trust_name'] = $trustData['trust_name'] ?? null;
-        $trust['trust_type'] = $trustData['trust_type'] ?? ($trust['service_key'] ?? null);
-        $trust['beneficiaries'] = $trustData['beneficiaries'] ?? [];
+        $trust = enrich_user_trust_row($trust);
     }
+    unset($trust);
     
     send_json(['success' => true, 'trusts' => $trusts]);
 }

@@ -254,10 +254,12 @@ let onboardingData = {
     payment_method: null,
     payment_stage: 'select', // select | details | confirmed
     payment_confirmed: false,
-    created_trust_id: null
+    created_trust_id: null,
+    entrusted_coins: [] // coin_key values for Smart Contract Trust
 };
 
 let trustServices = [];
+let availableCoins = [];
 
 // Persist onboarding state across page reloads between steps
 // IMPORTANT: Only persists during active onboarding session, clears when done or abandoned
@@ -407,7 +409,9 @@ async function loadTrustServices() {
         const data = await response.json();
         if (data.success && data.services) {
             // Defensive normalization (prevents "0" truthiness bugs even if backend changes)
-            trustServices = (data.services || []).map(s => ({
+            trustServices = (data.services || [])
+                .filter(s => s.service_key !== 'crypto_asset_trust')
+                .map(s => ({
                 ...s,
                 id: Number(s.id),
                 price: Number(s.price || 0),
@@ -417,6 +421,18 @@ async function loadTrustServices() {
         }
     } catch (error) {
         console.error('Failed to load trust services:', error);
+    }
+}
+
+async function loadAvailableCoins() {
+    try {
+        const response = await fetch('../api/coins.php');
+        const data = await response.json();
+        if (data.success && Array.isArray(data.coins)) {
+            availableCoins = data.coins;
+        }
+    } catch (error) {
+        console.error('Failed to load coins:', error);
     }
 }
 
@@ -445,6 +461,9 @@ async function loadStep(step) {
         case 1:
             if (trustServices.length === 0) {
                 await loadTrustServices();
+            }
+            if (availableCoins.length === 0) {
+                await loadAvailableCoins();
             }
             container.innerHTML = renderTrustTypeStep();
             break;
@@ -475,7 +494,7 @@ async function loadStep(step) {
             }
             // Ensure there is at least one beneficiary form shown by default
             ensureDefaultBeneficiary();
-            if (!isCryptoAssetTrustSelected()) {
+            if (!isSmartContractTrustSelected()) {
                 onboardingData.beneficiaries.forEach(b => { b.wallet_address = ''; });
             }
             container.innerHTML = renderBeneficiariesStep();
@@ -493,8 +512,8 @@ function getTrustServiceIcon(serviceKey) {
     const icons = {
         revocable_living_trust: 'edit',
         irrevocable_trust: 'lock',
-        crypto_asset_trust: 'currency_bitcoin',
-        smart_contract_trust: 'smart_toy',
+        smart_contract_trust: 'wallet',
+        crypto_asset_trust: 'wallet',
         trust_llc: 'business',
     };
     return icons[serviceKey] || 'account_balance';
@@ -556,6 +575,7 @@ function renderTrustTypeStep() {
             <div class="grid grid-cols-1 ${gridCols} gap-6 mb-10">
                 ${serviceCards}
             </div>
+            ${renderCoinSelectionPanel()}
             <div class="bg-secondary-fixed rounded-xl p-4 flex items-start space-x-3 text-on-secondary-fixed-variant border border-secondary/20">
                 <?php echo wt_icon('info', 'text-xl mt-0.5 flex-shrink-0 text-secondary'); ?>
                 <p class="text-sm leading-relaxed">
@@ -565,7 +585,7 @@ function renderTrustTypeStep() {
             <div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/30 py-4 px-8 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <div class="max-w-container-max mx-auto flex justify-between items-center">
                     <button onclick="handleCancelOrExit(); window.location.href='../index.php'" class="px-6 py-2 text-on-surface-variant hover:text-primary">Cancel</button>
-                    <button onclick="nextStep()" ${onboardingData.trust_service_id ? '' : 'disabled'} id="nextBtn" class="bg-secondary text-on-secondary hover:opacity-90 font-semibold py-3 px-8 rounded-lg flex items-center shadow-lg transform transition hover:-translate-y-0.5 focus:ring-4 focus:ring-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button onclick="validateTrustTypeStepAndNext()" ${onboardingData.trust_service_id ? '' : 'disabled'} id="nextBtn" class="bg-secondary text-on-secondary hover:opacity-90 font-semibold py-3 px-8 rounded-lg flex items-center shadow-lg transform transition hover:-translate-y-0.5 focus:ring-4 focus:ring-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed">
                         Next
                         <?php echo wt_icon('arrow-forward', 'ml-2 text-lg'); ?>
                     </button>
@@ -706,13 +726,91 @@ function renderPersonalInfoStep() {
     `;
 }
 
-function isCryptoAssetTrustSelected() {
+function isSmartContractTrustSelected() {
     const service = getSelectedTrustService();
-    return service?.service_key === 'crypto_asset_trust';
+    const key = service?.service_key || onboardingData.trust_type || '';
+    return key === 'smart_contract_trust' || key === 'crypto_asset_trust';
+}
+
+function renderCoinSelectionPanel() {
+    if (!isSmartContractTrustSelected()) {
+        return '';
+    }
+    const selected = onboardingData.entrusted_coins || [];
+    if (!availableCoins.length) {
+        return `
+            <div class="mb-10 p-6 border border-outline-variant/30 rounded-2xl bg-surface-container-low">
+                <p class="text-on-surface-variant text-sm">Loading available cryptocurrencies...</p>
+            </div>
+        `;
+    }
+    const coinCards = availableCoins.map(coin => {
+        const isChecked = selected.includes(coin.coin_key);
+        const logo = coin.logo ? `<img src="${escapeHtml(coin.logo)}" alt="" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.style.display='none'">` : `<span class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-xs font-bold shrink-0">${escapeHtml((coin.symbol || '?').slice(0, 3))}</span>`;
+        return `
+            <label class="flex items-center gap-3 p-4 border-2 ${isChecked ? 'border-secondary bg-secondary/5' : 'border-outline-variant/30'} rounded-xl cursor-pointer hover:border-secondary transition-all">
+                <input type="checkbox" class="rounded text-secondary focus:ring-secondary" ${isChecked ? 'checked' : ''} onchange="toggleEntrustedCoin('${escapeHtml(coin.coin_key)}', this.checked)"/>
+                ${logo}
+                <span class="min-w-0">
+                    <span class="block font-bold text-primary text-sm truncate">${escapeHtml(coin.display_name || coin.coin_key)}</span>
+                    <span class="block text-xs text-on-surface-variant">${escapeHtml(coin.symbol || coin.coin_key.toUpperCase())}</span>
+                </span>
+            </label>
+        `;
+    }).join('');
+
+    return `
+        <div class="mb-10 p-6 lg:p-8 border-2 border-secondary/20 rounded-2xl bg-surface-container-low">
+            <h2 class="text-xl font-bold text-primary mb-2">Select Cryptocurrencies to Entrust</h2>
+            <p class="text-on-surface-variant text-sm mb-6">Choose which digital assets this trust will hold. After your trust is created, you can deposit crypto and track balances from your dashboard.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                ${coinCards}
+            </div>
+            <p class="text-xs text-on-surface-variant mt-4">
+                Selected: <strong id="coinSelectionCount">${selected.length}</strong> coin${selected.length === 1 ? '' : 's'}
+                ${selected.length === 0 ? '<span class="text-red-600"> — select at least one</span>' : ''}
+            </p>
+        </div>
+    `;
+}
+
+function toggleEntrustedCoin(coinKey, checked) {
+    if (!Array.isArray(onboardingData.entrusted_coins)) {
+        onboardingData.entrusted_coins = [];
+    }
+    if (checked) {
+        if (!onboardingData.entrusted_coins.includes(coinKey)) {
+            onboardingData.entrusted_coins.push(coinKey);
+        }
+    } else {
+        onboardingData.entrusted_coins = onboardingData.entrusted_coins.filter(k => k !== coinKey);
+    }
+    const countEl = document.getElementById('coinSelectionCount');
+    if (countEl) {
+        countEl.textContent = String(onboardingData.entrusted_coins.length);
+    }
+    saveOnboardingToStorage();
+}
+
+function validateTrustTypeStepAndNext() {
+    if (!onboardingData.trust_service_id) {
+        alert('Please select a trust type.');
+        return;
+    }
+    if (isSmartContractTrustSelected()) {
+        if (!onboardingData.entrusted_coins || onboardingData.entrusted_coins.length === 0) {
+            alert('Please select at least one cryptocurrency to entrust in this Smart Contract Trust.');
+            return;
+        }
+    } else {
+        onboardingData.entrusted_coins = [];
+    }
+    saveOnboardingToStorage();
+    nextStep();
 }
 
 function renderBeneficiariesStep() {
-    const showCryptoWallet = isCryptoAssetTrustSelected();
+    const showCryptoWallet = isSmartContractTrustSelected();
     const totalAllocation = onboardingData.beneficiaries.reduce((sum, ben) => sum + (parseFloat(ben.allocation) || 0), 0);
     const isValid = Math.abs(totalAllocation - 100) < 0.01;
     const hasMyself = onboardingData.beneficiaries.some(b => b.is_myself);
@@ -915,6 +1013,12 @@ function renderReviewStep() {
                                         <p class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Trust Type</p>
                                         <p class="text-on-background font-medium">${escapeHtml(trustTypeName)}</p>
                                     </div>
+                                    ${isSmartContractTrustSelected() && (onboardingData.entrusted_coins || []).length ? `
+                                    <div>
+                                        <p class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Entrusted Cryptocurrencies</p>
+                                        <p class="text-on-background font-medium">${(onboardingData.entrusted_coins || []).map(k => escapeHtml(k.replace(/_/g, ' '))).join(', ')}</p>
+                                    </div>
+                                    ` : ''}
                                 </div>
                             </div>
                         </details>
@@ -1043,6 +1147,9 @@ function renderReviewStep() {
 function selectTrustType(serviceKey, serviceId) {
     onboardingData.trust_service_id = serviceId;
     onboardingData.trust_type = serviceKey;
+    if (serviceKey !== 'smart_contract_trust' && serviceKey !== 'crypto_asset_trust') {
+        onboardingData.entrusted_coins = [];
+    }
     
     // Enable next button without re-rendering the entire step
     const nextBtn = document.getElementById('nextBtn');
@@ -2056,6 +2163,9 @@ async function createTrust(options = { redirect: true }) {
             trust_data: {
                 personal_info: onboardingData.personal_info,
                 beneficiaries: onboardingData.beneficiaries,
+                ...(isSmartContractTrustSelected() && onboardingData.entrusted_coins?.length ? {
+                    entrusted_coins: onboardingData.entrusted_coins
+                } : {}),
                 payment_info: isFree ? {
                     type: 'free',
                     amount: 0,

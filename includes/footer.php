@@ -22,7 +22,6 @@ include __DIR__ . '/components/site-logo.php';
 <div>
 <h4 class="font-bold mb-6 text-sky-accent text-label-md">Services</h4>
 <ul class="space-y-3 text-sm text-on-primary-container">
-<li><a class="hover:text-sky-accent transition-colors" href="crypto_asset_trust_service.php">Crypto Asset Trust</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="irrevocable_trust_service.php">Irrevocable Trust</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="revocable_living_trust_details.php">Revocable Trust</a></li>
 <li><a class="hover:text-sky-accent transition-colors" href="smart_contract_trust_service.php">Smart Contract Trust</a></li>

@@ -139,13 +139,13 @@ Learn more <?php echo wt_icon('arrow-forward', 'ml-1 text-[18px]'); ?>
 <!-- Also explore -->
 <section class="py-section-padding-md px-gutter bg-surface border-y border-outline-variant/30">
 <div class="max-w-container-max mx-auto grid md:grid-cols-2 gap-6">
-<a href="crypto_asset_trust_service.php" class="flex items-center gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 hover:border-secondary transition-colors group">
+<a href="smart_contract_trust_service.php" class="flex items-center gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 hover:border-secondary transition-colors group">
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary shrink-0">
 <?php echo wt_icon('wallet', 'w-5 h-5'); ?>
 </div>
 <div>
-<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Crypto Asset Trust</h3>
-<p class="font-body-md text-body-md text-on-surface-variant text-sm">Specialized protection for digital assets</p>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Smart Contract Trust</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Deposit and manage cryptocurrency in your trust</p>
 </div>
 </a>
 <a href="trust_llc.php" class="flex items-center gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 hover:border-secondary transition-colors group">

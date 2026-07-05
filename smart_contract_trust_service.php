@@ -2,15 +2,15 @@
 $page_title = 'Smart Contract Trust - WyomingTrust';
 include 'includes/header.php';
 
-$hero_label = 'Fully Automated';
+$hero_label = 'Crypto & Blockchain';
 $hero_title = 'Smart Contract Trust';
-$hero_subtitle = 'Automated, self-executing trusts powered by blockchain technology — no intermediaries, no delays, no disputes.';
+$hero_subtitle = 'Deposit Bitcoin, Ethereum, and other digital assets into a blockchain-native trust. Track balances, manage beneficiaries, and automate distributions on-chain.';
 $hero_bullets = [
-    'Self-executing contracts when conditions are met',
-    'Full transparency with on-chain audit trails',
-    'Eliminate trustee fees and probate costs',
+    'Select the cryptocurrencies you want to entrust during setup',
+    'Deposit crypto and view live portfolio balances in your dashboard',
+    'Beneficiary wallet addresses for automated on-chain transfers',
 ];
-$hero_cta_text = 'Create Smart Contract Trust';
+$hero_cta_text = 'Create Crypto Trust';
 $hero_cta_href = 'onboarding/onboarding.php';
 $hero_secondary_text = 'Compare Trust Types';
 $hero_secondary_href = 'compare_trust_types_page.php';

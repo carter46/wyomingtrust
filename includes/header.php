@@ -148,7 +148,6 @@ Services
 <div class="py-2">
 <a href="irrevocable_trust_service.php" class="block px-4 py-2 text-sm text-on-surface-variant hover:text-secondary hover:bg-surface-container-low transition-colors">Irrevocable Trust</a>
 <a href="revocable_living_trust_details.php" class="block px-4 py-2 text-sm text-on-surface-variant hover:text-secondary hover:bg-surface-container-low transition-colors">Revocable Living Trust</a>
-<a href="crypto_asset_trust_service.php" class="block px-4 py-2 text-sm text-on-surface-variant hover:text-secondary hover:bg-surface-container-low transition-colors">Crypto Asset Trust</a>
 <a href="smart_contract_trust_service.php" class="block px-4 py-2 text-sm text-on-surface-variant hover:text-secondary hover:bg-surface-container-low transition-colors">Smart Contract Trust</a>
 <a href="trust_llc.php" class="block px-4 py-2 text-sm text-on-surface-variant hover:text-secondary hover:bg-surface-container-low transition-colors">Wyoming LLC</a>
 </div>
@@ -176,7 +175,6 @@ Get Started
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest px-2 py-2">Services</span>
 <a href="irrevocable_trust_service.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Irrevocable Trust</a>
 <a href="revocable_living_trust_details.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Revocable Living Trust</a>
-<a href="crypto_asset_trust_service.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Crypto Asset Trust</a>
 <a href="smart_contract_trust_service.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Smart Contract Trust</a>
 <a href="trust_llc.php" class="px-4 py-2 text-sm text-on-surface-variant hover:text-secondary rounded-lg hover:bg-surface-container-low transition-colors">Wyoming LLC</a>
 <div class="border-t border-outline-variant/30 my-2"></div>

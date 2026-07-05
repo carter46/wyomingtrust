@@ -221,6 +221,41 @@ EXECUTE alterIfNotExistsAssetTypes;
 DEALLOCATE PREPARE alterIfNotExistsAssetTypes;
 
 -- ============================================================================
+-- Migration: Add asset_category_config and liquidation_fee to trust_services
+-- ============================================================================
+
+SET @tablename = 'trust_services';
+
+SET @columnname = 'asset_category_config';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' JSON DEFAULT NULL AFTER asset_types')
+));
+PREPARE alterIfNotExistsAssetCatConfig FROM @preparedStatement;
+EXECUTE alterIfNotExistsAssetCatConfig;
+DEALLOCATE PREPARE alterIfNotExistsAssetCatConfig;
+
+SET @columnname = 'liquidation_fee';
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE (TABLE_SCHEMA = @dbname) AND (TABLE_NAME = @tablename) AND (COLUMN_NAME = @columnname)
+  ) > 0,
+  'SELECT 1',
+  CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' DECIMAL(10,2) DEFAULT 0.00 AFTER is_free')
+));
+PREPARE alterIfNotExistsLiquidationFee FROM @preparedStatement;
+EXECUTE alterIfNotExistsLiquidationFee;
+DEALLOCATE PREPARE alterIfNotExistsLiquidationFee;
+
+-- Deactivate legacy Crypto Asset Trust (merged into Smart Contract Trust)
+UPDATE trust_services SET is_active = 0 WHERE service_key = 'crypto_asset_trust';
+
+-- ============================================================================
 -- Migration Complete
 -- ============================================================================
 

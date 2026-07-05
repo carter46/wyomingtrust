@@ -35,7 +35,7 @@ function renderTrustsContent() {
 <script>
 let allTrusts = [];
 let trustTypeOptions = {};
-let suggestedAssetTypes = [];
+let assetCategoryCatalog = {};
 
 async function loadTrusts() {
     try {
@@ -44,7 +44,7 @@ async function loadTrusts() {
         if (data.success && data.trusts) {
             allTrusts = data.trusts;
             trustTypeOptions = data.trust_type_options || {};
-            suggestedAssetTypes = data.suggested_asset_types || [];
+            assetCategoryCatalog = data.asset_category_catalog || {};
             renderTrusts(data.trusts);
             updateAddButton();
         } else {
@@ -102,13 +102,15 @@ function renderAssetTypesSummary(trust) {
     if (trust.is_crypto) {
         return '<span class="text-xs text-slate-500">User deposits crypto</span>';
     }
-    const count = Array.isArray(trust.asset_types) ? trust.asset_types.length : 0;
-    if (count === 0) {
-        return '<span class="text-xs text-amber-600">None configured</span>';
+    if (!trust.supports_asset_catalog) {
+        return '<span class="text-xs text-slate-500">N/A</span>';
     }
-    const preview = trust.asset_types.slice(0, 3).map(escapeHtml).join(', ');
-    const more = count > 3 ? ` +${count - 3} more` : '';
-    return `<span class="text-xs text-slate-600 dark:text-slate-300">${preview}${more}</span>`;
+    const config = Array.isArray(trust.asset_category_config) ? trust.asset_category_config : [];
+    const enabled = config.filter(c => c.enabled).length;
+    if (enabled === 0) {
+        return '<span class="text-xs text-amber-600">No categories enabled</span>';
+    }
+    return `<span class="text-xs text-slate-600 dark:text-slate-300">${enabled} categories enabled</span>`;
 }
 
 function renderTrustRow(trust) {
@@ -188,32 +190,42 @@ function buildTrustTypeSelect(selectedKey = '', disabled = false) {
     `;
 }
 
-function buildAssetTypesSection(assetTypes = [], isCrypto = false) {
-    const hiddenClass = isCrypto ? 'hidden' : '';
-    const rows = (assetTypes.length ? assetTypes : ['']).map((name, i) => `
-        <div class="flex items-center gap-2 asset-type-row">
-            <input type="text" name="asset_types[]" value="${escapeHtml(name)}"
-                   class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-sm"
-                   placeholder="e.g. Real Estate, Bank Accounts, Stocks">
-            <button type="button" onclick="removeAssetTypeRow(this)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg" title="Remove">
-                <span class="material-icons-outlined text-sm">close</span>
-            </button>
-        </div>
-    `).join('');
+function supportsAssetCatalog(trustType) {
+    return trustType === 'irrevocable_trust' || trustType === 'revocable_living_trust';
+}
+
+function allowsLiquidation(trustType) {
+    return trustType !== 'irrevocable_trust';
+}
+
+function buildAssetCategorySection(config = [], trustType = '') {
+    const hiddenClass = supportsAssetCatalog(trustType) ? '' : 'hidden';
+    const configMap = {};
+    (config || []).forEach(c => { configMap[c.key] = c; });
+    const catalog = assetCategoryCatalog || {};
+    const rows = Object.entries(catalog).map(([key, cat]) => {
+        const item = configMap[key] || { key, enabled: supportsAssetCatalog(trustType), requires_document: false, description: cat.default_description || '' };
+        return `
+            <div class="border border-slate-200 dark:border-slate-600 rounded-lg p-3 space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer font-semibold text-sm">
+                    <input type="checkbox" name="cat_enabled_${key}" ${item.enabled ? 'checked' : ''} class="rounded text-primary">
+                    ${escapeHtml(cat.label || key)}
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600 dark:text-slate-400 ml-6">
+                    <input type="checkbox" name="cat_doc_${key}" ${item.requires_document ? 'checked' : ''} class="rounded text-primary">
+                    Require supporting document upload
+                </label>
+                <textarea name="cat_desc_${key}" rows="2" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-xs ml-0"
+                          placeholder="Description shown to users">${escapeHtml(item.description || cat.default_description || '')}</textarea>
+            </div>
+        `;
+    }).join('');
 
     return `
         <div id="assetTypesSection" class="${hiddenClass} border-t border-slate-200 dark:border-slate-700 pt-4 mt-2">
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <label class="block text-sm font-semibold text-navy-900 dark:text-white">Asset Types</label>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add the asset categories users can include in this trust.</p>
-                </div>
-                <button type="button" onclick="addSuggestedAssetTypes()" class="text-xs text-primary hover:underline whitespace-nowrap">Add suggested types</button>
-            </div>
-            <div id="assetTypesList" class="space-y-2 max-h-48 overflow-y-auto">${rows}</div>
-            <button type="button" onclick="addAssetTypeRow()" class="mt-3 text-sm text-primary font-semibold flex items-center gap-1 hover:underline">
-                <span class="material-icons-outlined text-sm">add</span> Add asset type
-            </button>
+            <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Asset Categories</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Select which asset types users can add. Configure document requirements and descriptions per category.</p>
+            <div class="space-y-3 max-h-64 overflow-y-auto">${rows || '<p class="text-xs text-slate-500">Loading catalog...</p>'}</div>
         </div>
     `;
 }
@@ -222,61 +234,22 @@ function onTrustTypeChange() {
     const select = document.getElementById('trustTypeSelect');
     const nameInput = document.getElementById('serviceNameInput');
     const section = document.getElementById('assetTypesSection');
+    const liqSection = document.getElementById('liquidationFeeSection');
     if (!select) return;
 
     const key = select.value;
-    const isCrypto = key === 'crypto_asset_trust';
+    const showAssets = supportsAssetCatalog(key);
+    const showLiq = allowsLiquidation(key);
 
     if (nameInput && key && trustTypeOptions[key] && !nameInput.dataset.userEdited) {
         nameInput.value = trustTypeOptions[key];
     }
-
-    if (section) {
-        section.classList.toggle('hidden', isCrypto);
-    }
+    if (section) section.classList.toggle('hidden', !showAssets);
+    if (liqSection) liqSection.classList.toggle('hidden', !showLiq);
 }
 
-function addAssetTypeRow(value = '') {
-    const list = document.getElementById('assetTypesList');
-    if (!list) return;
-    const row = document.createElement('div');
-    row.className = 'flex items-center gap-2 asset-type-row';
-    row.innerHTML = `
-        <input type="text" name="asset_types[]" value="${escapeHtml(value)}"
-               class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-sm"
-               placeholder="e.g. Real Estate, Bank Accounts, Stocks">
-        <button type="button" onclick="removeAssetTypeRow(this)" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg" title="Remove">
-            <span class="material-icons-outlined text-sm">close</span>
-        </button>
-    `;
-    list.appendChild(row);
-    row.querySelector('input')?.focus();
-}
-
-function removeAssetTypeRow(btn) {
-    const list = document.getElementById('assetTypesList');
-    const row = btn.closest('.asset-type-row');
-    if (!list || !row) return;
-    if (list.querySelectorAll('.asset-type-row').length <= 1) {
-        row.querySelector('input').value = '';
-        return;
-    }
-    row.remove();
-}
-
-function addSuggestedAssetTypes() {
-    const list = document.getElementById('assetTypesList');
-    if (!list) return;
-    const existing = new Set(Array.from(list.querySelectorAll('input[name="asset_types[]"]')).map(i => i.value.trim().toLowerCase()).filter(Boolean));
-    suggestedAssetTypes.forEach(name => {
-        if (!existing.has(name.toLowerCase())) {
-            addAssetTypeRow(name);
-            existing.add(name.toLowerCase());
-        }
-    });
-}
-
-function buildPricingFields(isFree = false, price = '0.00') {
+function buildPricingFields(isFree = false, price = '0.00', liquidationFee = '0.00', trustType = '') {
+    const showLiq = allowsLiquidation(trustType);
     return `
         <div>
             <label class="flex items-center gap-2 cursor-pointer">
@@ -284,14 +257,24 @@ function buildPricingFields(isFree = false, price = '0.00') {
                        class="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary">
                 <span class="text-sm font-semibold text-navy-900 dark:text-white">Mark as Free Service</span>
             </label>
+            <p class="text-xs text-slate-500 ml-6 mt-1">Setup/onboarding price — separate from liquidation fee.</p>
         </div>
         <div>
-            <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Price</label>
+            <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Setup Price</label>
             <div class="relative">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                 <input type="number" name="price" id="modalPriceInput" step="0.01" min="0" value="${isFree ? '0.00' : price}" required
                        class="w-full pl-7 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary"
                        ${isFree ? 'disabled' : ''}>
+            </div>
+        </div>
+        <div id="liquidationFeeSection" class="${showLiq ? '' : 'hidden'}">
+            <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Liquidation Fee</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Fee charged when a user liquidates this trust type. Not applicable to irrevocable trusts.</p>
+            <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                <input type="number" name="liquidation_fee" step="0.01" min="0" value="${parseFloat(liquidationFee || 0).toFixed(2)}"
+                       class="w-full pl-7 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary">
             </div>
         </div>
     `;
@@ -338,7 +321,7 @@ function showCreateTrustModal() {
                           placeholder="Brief description shown on onboarding and marketing pages"></textarea>
             </div>
             ${buildPricingFields()}
-            ${buildAssetTypesSection([], false)}
+            ${buildAssetCategorySection([], '')}
         </div>
     `;
 
@@ -348,14 +331,22 @@ function showCreateTrustModal() {
         const description = (data.description || '').trim();
         const isFree = data.is_free === true || data.is_free === 'on';
         const price = isFree ? 0 : parseFloat(data.price || 0);
-        const assetTypes = Array.isArray(data.asset_types) ? data.asset_types : [];
+        const liquidationFee = parseFloat(data.liquidation_fee || 0);
 
         if (!trustType || !serviceName) {
             showToast('Trust type and display name are required', 'warning');
             return;
         }
 
-        createTrust({ trust_type: trustType, service_name: serviceName, description, price, is_free: isFree ? 1 : 0, asset_types: assetTypes });
+        createTrust({
+            trust_type: trustType,
+            service_name: serviceName,
+            description,
+            price,
+            is_free: isFree ? 1 : 0,
+            liquidation_fee: liquidationFee,
+            asset_category_config: data.asset_category_config || [],
+        });
     });
 
     setTimeout(onTrustTypeChange, 50);
@@ -409,14 +400,13 @@ function editTrust(id) {
         return;
     }
 
-    const assetTypes = Array.isArray(trust.asset_types) ? trust.asset_types : [];
+    const assetConfig = Array.isArray(trust.asset_category_config) ? trust.asset_category_config : [];
     const formHtml = `
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Trust Type</label>
                 <input type="text" value="${escapeHtml(trust.trust_type_label || trust.service_name)}" disabled
                        class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-navy-900 text-slate-600 dark:text-slate-400 cursor-not-allowed">
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Trust type cannot be changed after creation.</p>
             </div>
             <div>
                 <label class="block text-sm font-semibold text-navy-900 dark:text-white mb-2">Display Name *</label>
@@ -428,8 +418,8 @@ function editTrust(id) {
                 <textarea name="description" rows="3"
                           class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-navy-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary">${escapeHtml(trust.description || '')}</textarea>
             </div>
-            ${buildPricingFields(!!trust.is_free, trust.is_free ? '0.00' : parseFloat(trust.price || 0).toFixed(2))}
-            ${buildAssetTypesSection(assetTypes, !!trust.is_crypto)}
+            ${buildPricingFields(!!trust.is_free, trust.is_free ? '0.00' : parseFloat(trust.price || 0).toFixed(2), parseFloat(trust.liquidation_fee || 0).toFixed(2), trust.service_key)}
+            ${buildAssetCategorySection(assetConfig, trust.service_key)}
         </div>
     `;
 
@@ -444,9 +434,11 @@ function editTrust(id) {
             description,
             price,
             is_free: isFree ? 1 : 0,
+            liquidation_fee: parseFloat(data.liquidation_fee || 0),
+            asset_category_config: data.asset_category_config || [],
         };
-        if (!trust.is_crypto) {
-            payload.asset_types = Array.isArray(data.asset_types) ? data.asset_types : [];
+        if (!supportsAssetCatalog(trust.service_key)) {
+            delete payload.asset_category_config;
         }
         updateTrust(payload);
     });

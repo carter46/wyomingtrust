@@ -38,6 +38,45 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function renderListTrustAction(trust) {
+    const meta = trust.service_meta || {};
+    if (meta.is_irrevocable) {
+        return '';
+    }
+    const fee = parseFloat(meta.liquidation_fee || 0);
+    const label = meta.allows_liquidation ? `Liquidate${fee > 0 ? ' ($' + fee.toFixed(2) + ')' : ''}` : 'Delete';
+    return `<button onclick="liquidateTrustFromList(${trust.id}, ${fee})" class="px-4 py-2 rounded-lg bg-error/10 text-error border border-error/30 font-bold hover:bg-error hover:text-on-primary h-10 flex items-center">${escapeHtml(label)}</button>`;
+}
+
+async function liquidateTrustFromList(trustId, fee) {
+    const feeText = fee > 0 ? ` A liquidation fee of $${fee.toFixed(2)} applies.` : '';
+    const confirmed = await showConfirmModal(
+        'Liquidate Trust',
+        `This will begin the trust liquidation process.${feeText} This action cannot be easily undone.`,
+        'Liquidate Trust',
+        'Cancel',
+        'danger'
+    );
+    if (!confirmed) return;
+    try {
+        const res = await fetch('../../api/user/trusts.php', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: trustId, liquidate: true }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            await showAlertModal('Liquidation Started', fee > 0 ? `Your liquidation request was submitted. Fee: $${fee.toFixed(2)}` : 'Your liquidation request was submitted.', 'success');
+            loadTrusts();
+        } else {
+            await showAlertModal('Error', data.message || 'Failed to liquidate trust', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        await showAlertModal('Error', 'Error processing liquidation', 'error');
+    }
+}
+
 async function loadTrusts() {
     try {
         const res = await fetch('../../api/user/trusts.php');
@@ -70,8 +109,8 @@ async function loadTrusts() {
                             <p class="text-xs text-on-surface-variant mt-1">Status: <strong>${escapeHtml(status)}</strong> · Beneficiaries: <strong>${bens}</strong> · Created: ${escapeHtml(createdAt)}</p>
                         </div>
                         <div class="flex gap-2">
-                            <a href="manage-trust.php?id=${t.id}" class="px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 h-10 flex items-center">Edit</a>
-                            <button onclick="deleteTrust(${t.id})" class="px-4 py-2 rounded-lg bg-error text-on-primary font-bold hover:bg-error/90 h-10 flex items-center">Delete</button>
+                            <a href="manage-trust.php?id=${t.id}" class="px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 h-10 flex items-center">Manage</a>
+                            ${renderListTrustAction(t)}
                         </div>
                     </div>
                 </div>
@@ -80,33 +119,6 @@ async function loadTrusts() {
     } catch (e) {
         console.error(e);
         document.getElementById('trustsList').innerHTML = '<div class="text-center py-10 text-error">Error loading trusts</div>';
-    }
-}
-
-async function deleteTrust(trustId) {
-    try {
-        const confirmed = await showConfirmModal(
-            'Delete Trust',
-            'Are you sure you want to permanently delete this trust? This action cannot be undone and all trust data will be permanently removed.',
-            'Delete Trust',
-            'Cancel',
-            'danger'
-        );
-        if (!confirmed) return;
-
-        const res = await fetch(`../../api/user/trusts.php?id=${trustId}`, {
-            method: 'DELETE'
-        });
-        const data = await res.json();
-        if (data.success) {
-            await showAlertModal('Success', 'Trust deleted successfully', 'success');
-            loadTrusts();
-        } else {
-            await showAlertModal('Error', data.message || 'Failed to delete trust', 'error');
-        }
-    } catch (e) {
-        console.error(e);
-        await showAlertModal('Error', 'Error deleting trust', 'error');
     }
 }
 
@@ -299,6 +311,41 @@ Change Status
 </div>
 </section>
 
+<section class="mb-8" id="cryptoTrustSection" style="display:none;">
+<div class="flex justify-between items-center pb-4">
+<h2 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h2>
+<a href="assets.php" class="text-secondary text-sm font-bold hover:underline inline-flex items-center gap-1">View All Assets <?php echo wt_icon('arrow-forward', 'w-4 h-4'); ?></a>
+</div>
+<div id="entrustedCoinsList" class="flex flex-wrap gap-2 mb-4"></div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<a href="assets.php" class="flex items-center gap-2 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-secondary transition-colors">
+<?php echo wt_icon('wallet', 'w-5 h-5 text-secondary'); ?>
+<span class="font-semibold text-sm text-primary">Portfolio & Balances</span>
+</a>
+<a href="receive.php" class="flex items-center gap-2 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-secondary transition-colors">
+<?php echo wt_icon('receive', 'w-5 h-5 text-secondary'); ?>
+<span class="font-semibold text-sm text-primary">Receive Crypto</span>
+</a>
+<a href="send.php" class="flex items-center gap-2 p-4 rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-secondary transition-colors">
+<?php echo wt_icon('send', 'w-5 h-5 text-secondary'); ?>
+<span class="font-semibold text-sm text-primary">Send Crypto</span>
+</a>
+</div>
+</section>
+
+<section class="mb-8" id="trustAssetsSection" style="display:none;">
+<div class="flex justify-between items-center pb-4">
+<h2 class="font-headline-md text-headline-md text-primary">Trust Assets <span id="assetsCountLabel" class="text-on-surface-variant text-base font-normal"></span></h2>
+<button type="button" onclick="openAddAssetModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-bold hover:bg-primary/90">
+<?php echo wt_icon('add', 'w-4 h-4'); ?>
+Add Asset
+</button>
+</div>
+<div id="trustAssetsList" class="flex flex-col gap-3 mb-4">
+<div class="text-center py-8 text-on-surface-variant text-sm">Loading assets...</div>
+</div>
+</section>
+
 <section class="mb-4">
 <div class="flex justify-between items-center pb-4">
 <h2 class="font-headline-md text-headline-md text-primary">Manage Beneficiaries</h2>
@@ -315,21 +362,28 @@ Add Beneficiary
 </div>
 </section>
 
-<section class="rounded-xl border-2 border-error/20 bg-error-container/30 p-6 mb-12 no-print">
+<section class="rounded-xl border-2 border-error/20 bg-error-container/30 p-6 mb-12 no-print" id="dangerZoneSection">
 <div class="flex items-center gap-3 mb-4">
-<?php echo wt_icon('warning', 'text-error'); ?>
-<h2 class="text-error text-lg font-bold">Danger Zone</h2>
+<?php echo wt_icon('warning', 'w-5 h-5 text-error'); ?>
+<h2 class="text-error text-lg font-bold" id="dangerZoneTitle">Danger Zone</h2>
 </div>
-<p class="text-error/70 text-sm mb-6 max-w-2xl">Actions in this section are permanent and may require legal authorization. Proceed with extreme caution.</p>
-<div class="flex flex-wrap gap-4">
+<p class="text-error/70 text-sm mb-6 max-w-2xl" id="dangerZoneDesc">Actions in this section are permanent and may require legal authorization. Proceed with extreme caution.</p>
+<div class="flex flex-wrap gap-4" id="dangerZoneActions">
 <button onclick="suspendTrust()" class="px-6 py-2.5 rounded-lg bg-surface-container-lowest border border-error/20 text-error text-sm font-bold hover:bg-error hover:text-on-primary transition-all shadow-sm">
 Suspend Trust
 </button>
-<button onclick="archiveTrust()" class="px-6 py-2.5 rounded-lg bg-error text-on-primary text-sm font-bold hover:bg-error/90 transition-all shadow-md">
-Delete Trust
+<button onclick="archiveTrust()" id="liquidateTrustBtn" class="px-6 py-2.5 rounded-lg bg-error text-on-primary text-sm font-bold hover:bg-error/90 transition-all shadow-md">
+Liquidate Trust
 </button>
 </div>
 </section>
+
+<section id="irrevocableNotice" class="hidden rounded-xl border border-outline-variant bg-surface-container-low p-6 mb-12">
+<?php echo wt_icon('lock', 'w-5 h-5 text-secondary inline-block mr-2'); ?>
+<p class="text-sm text-on-surface-variant inline"><strong class="text-primary">Irrevocable Trust:</strong> This trust cannot be deleted or liquidated. Assets placed here are managed under irrevocable terms.</p>
+</section>
+
+<script src="<?php echo escape_html(asset_url('assets/js/trust-asset-ui.js')); ?>"></script>
 
 <?php include __DIR__ . '/includes/modal.php'; ?>
 
@@ -486,8 +540,10 @@ async function loadTrustData() {
             currentTrust = trust;
             document.getElementById('trustName').textContent = trust.trust_name || 'Untitled Trust';
             document.getElementById('trustId').textContent = `ID: ${trust.id || 'N/A'}`;
-            document.getElementById('trustTypeBadge').textContent = trust.trust_type || 'Standard';
+            document.getElementById('trustTypeBadge').textContent = trust.service_meta?.is_irrevocable ? 'Irrevocable Trust' : (trust.service_meta?.is_revocable ? 'Revocable Living Trust' : (trust.service_meta?.is_crypto ? 'Smart Contract Trust' : (trust.trust_type || 'Standard')));
             updateStatusUI(trust);
+            updateTrustPermissionsUI(trust);
+            updatePortfolioMetrics(trust);
 
             beneficiariesState = Array.isArray(trust.beneficiaries) ? trust.beneficiaries : [];
             originalBeneficiariesState = JSON.parse(JSON.stringify(beneficiariesState));
@@ -495,6 +551,19 @@ async function loadTrustData() {
             renderBeneficiaries(beneficiariesState);
             document.getElementById('beneficiaryCount').textContent = beneficiariesState.length || 0;
             updateSaveButtonVisibility();
+
+            if (trust.service_meta?.supports_assets) {
+                document.getElementById('trustAssetsSection').style.display = '';
+                document.getElementById('cryptoTrustSection').style.display = 'none';
+                loadTrustAssetsUI(trust);
+            } else if (trust.service_meta?.is_crypto) {
+                document.getElementById('trustAssetsSection').style.display = 'none';
+                document.getElementById('cryptoTrustSection').style.display = '';
+                renderCryptoTrustSection(trust);
+            } else {
+                document.getElementById('trustAssetsSection').style.display = 'none';
+                document.getElementById('cryptoTrustSection').style.display = 'none';
+            }
         } else {
             await showAlertModal('Error', 'Trust not found', 'error');
             window.location.href = 'dashboard.php';
@@ -616,29 +685,109 @@ async function suspendTrust() {
 }
 
 async function archiveTrust() {
+    const meta = currentTrust?.service_meta || {};
+    if (meta.is_irrevocable) {
+        await showAlertModal('Not Allowed', 'Irrevocable trusts cannot be deleted or liquidated.', 'error');
+        return;
+    }
+    const fee = parseFloat(meta.liquidation_fee || 0);
+    const feeMsg = fee > 0 ? ` A liquidation fee of $${fee.toFixed(2)} will apply.` : '';
     const confirmed = await showConfirmModal(
-        'Delete Trust',
-        'Are you sure you want to permanently delete this trust? This action cannot be undone and all trust data will be permanently removed.',
-        'Delete Trust',
+        'Liquidate Trust',
+        `Are you sure you want to liquidate this trust?${feeMsg} This begins the formal wind-down process.`,
+        'Liquidate Trust',
         'Cancel',
         'danger'
     );
     if (confirmed) {
         try {
-            const res = await fetch(`../../api/user/trusts.php?id=${trustId}`, {
-                method: 'DELETE'
+            const res = await fetch('../../api/user/trusts.php', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: trustId, liquidate: true }),
             });
             const data = await res.json();
             if (data.success) {
-                await showAlertModal('Success', 'Trust deleted successfully', 'success');
-                window.location.href = 'dashboard.php';
+                await showAlertModal('Liquidation Started', fee > 0 ? `Liquidation submitted. Fee: $${fee.toFixed(2)}` : 'Liquidation request submitted.', 'success');
+                window.location.href = 'manage-trust.php';
             } else {
-                await showAlertModal('Error', data.message || 'Failed to delete trust', 'error');
+                await showAlertModal('Error', data.message || 'Failed to liquidate trust', 'error');
             }
         } catch (e) {
             console.error(e);
-            await showAlertModal('Error', 'Error deleting trust', 'error');
+            await showAlertModal('Error', 'Error processing liquidation', 'error');
         }
+    }
+}
+
+function updateTrustPermissionsUI(trust) {
+    const meta = trust.service_meta || {};
+    const danger = document.getElementById('dangerZoneSection');
+    const notice = document.getElementById('irrevocableNotice');
+    const liqBtn = document.getElementById('liquidateTrustBtn');
+    if (meta.is_irrevocable) {
+        if (danger) danger.classList.add('hidden');
+        if (notice) notice.classList.remove('hidden');
+        return;
+    }
+    if (danger) danger.classList.remove('hidden');
+    if (notice) notice.classList.add('hidden');
+    if (liqBtn) {
+        const fee = parseFloat(meta.liquidation_fee || 0);
+        liqBtn.textContent = fee > 0 ? `Liquidate Trust ($${fee.toFixed(2)} fee)` : 'Liquidate Trust';
+    }
+}
+
+function updatePortfolioMetrics(trust) {
+    const summary = trust.assets_summary || { count: 0, total_estimated_value: 0 };
+    const assetsEl = document.getElementById('portfolioAssets');
+    const valueEl = document.getElementById('totalValue');
+    if (assetsEl) assetsEl.textContent = String(summary.count || 0);
+    if (valueEl) {
+        const v = parseFloat(summary.total_estimated_value || 0);
+        valueEl.textContent = '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+}
+
+function renderCryptoTrustSection(trust) {
+    const list = document.getElementById('entrustedCoinsList');
+    const coins = Array.isArray(trust.entrusted_coins) ? trust.entrusted_coins : (trust.trust_data?.entrusted_coins || []);
+    if (!list) return;
+    if (!coins.length) {
+        list.innerHTML = '<span class="text-sm text-on-surface-variant">No coins selected at onboarding. Deposit any supported asset from your portfolio.</span>';
+        return;
+    }
+    list.innerHTML = coins.map(key => `
+        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary/10 text-secondary text-xs font-bold uppercase tracking-wide">${escapeHtml(String(key).replace(/_/g, ' '))}</span>
+    `).join('');
+}
+
+function loadTrustAssetsUI(trust) {
+    const assets = Array.isArray(trust.assets) ? trust.assets : [];
+    const categories = trust.service_meta?.asset_categories || [];
+    const countLabel = document.getElementById('assetsCountLabel');
+    if (countLabel) countLabel.textContent = assets.length ? `(${assets.length})` : '';
+    if (typeof TrustAssetUI !== 'undefined') {
+        TrustAssetUI.renderAssetList(assets, categories, 'trustAssetsList', removeTrustAsset);
+    }
+}
+
+function openAddAssetModal() {
+    if (!currentTrust?.service_meta?.supports_assets) return;
+    TrustAssetUI.showAddAssetModal(currentTrust.service_meta.asset_categories || [], trustId, async (data) => {
+        await loadTrustData();
+    });
+}
+
+async function removeTrustAsset(assetId) {
+    const confirmed = await showConfirmModal('Remove Asset', 'Remove this asset from the trust?', 'Remove', 'Cancel', 'danger');
+    if (!confirmed) return;
+    const res = await fetch(`../../api/user/trust-assets.php?trust_id=${trustId}&asset_id=${encodeURIComponent(assetId)}`, { method: 'DELETE', credentials: 'same-origin' });
+    const data = await res.json();
+    if (data.success) {
+        await loadTrustData();
+    } else {
+        await showAlertModal('Error', data.message || 'Failed to remove asset', 'error');
     }
 }
 

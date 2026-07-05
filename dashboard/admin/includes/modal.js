@@ -211,10 +211,25 @@ function handleFormSubmit(event) {
         data.asset_types = data.asset_types.map(v => String(v || '').trim()).filter(Boolean);
     }
     
-    closeModal();
+    // Admin trust form: asset category config
+    const catEnabled = form.querySelectorAll('[name^="cat_enabled_"]');
+    if (catEnabled.length) {
+        data.asset_category_config = [];
+        catEnabled.forEach(cb => {
+            const key = cb.name.replace('cat_enabled_', '');
+            data.asset_category_config.push({
+                key,
+                enabled: cb.checked,
+                requires_document: !!form.querySelector('[name="cat_doc_' + key + '"]')?.checked,
+                description: (form.querySelector('[name="cat_desc_' + key + '"]')?.value || '').trim(),
+            });
+        });
+    }
+
     if (modalContainer._onSubmit) {
         modalContainer._onSubmit(data);
     }
+    closeModal();
 }
 
 /**

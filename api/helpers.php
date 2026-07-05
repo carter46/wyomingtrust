@@ -765,7 +765,6 @@ function check_rate_limit($key, $max_requests = 5, $window = 300) {
  */
 function get_trust_type_options(): array {
     return [
-        'crypto_asset_trust' => 'Crypto Asset Trust Service',
         'irrevocable_trust' => 'Irrevocable Trust Service',
         'revocable_living_trust' => 'Revocable Living Trust',
         'smart_contract_trust' => 'Smart Contract Trust Service',
@@ -773,80 +772,14 @@ function get_trust_type_options(): array {
 }
 
 function is_valid_trust_type_key(string $key): bool {
-    return array_key_exists($key, get_trust_type_options());
+    return array_key_exists($key, get_trust_type_options()) || $key === 'crypto_asset_trust';
 }
 
 function is_crypto_trust_type(string $key): bool {
-    return $key === 'crypto_asset_trust';
+    return in_array($key, ['smart_contract_trust', 'crypto_asset_trust'], true);
 }
 
-function get_suggested_asset_types(): array {
-    return [
-        'Real Estate',
-        'House',
-        'Apartment',
-        'Land',
-        'Rental Property',
-        'Bank Accounts',
-        'Investments',
-        'Stocks',
-        'Bonds',
-        'Business Interests',
-        'Vehicles',
-        'Car',
-        'Boat',
-        'Motorcycle',
-        'Jewelry',
-        'Art',
-    ];
-}
-
-/**
- * Normalize asset_types from JSON string or array input.
- *
- * @param mixed $input
- * @return array<int, string>
- */
-function normalize_asset_types($input): array {
-    if ($input === null || $input === '') {
-        return [];
-    }
-    if (is_string($input)) {
-        $decoded = json_decode($input, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-            $input = $decoded;
-        } else {
-            $input = array_map('trim', explode(',', $input));
-        }
-    }
-    if (!is_array($input)) {
-        return [];
-    }
-    $out = [];
-    foreach ($input as $item) {
-        $name = is_array($item) ? ($item['name'] ?? '') : (string) $item;
-        $name = trim(sanitize_text($name));
-        if ($name !== '' && !in_array($name, $out, true)) {
-            $out[] = $name;
-        }
-    }
-    return $out;
-}
-
-function encode_asset_types_json(array $types): ?string {
-    if (empty($types)) {
-        return null;
-    }
-    return json_encode(array_values($types), JSON_UNESCAPED_UNICODE);
-}
-
-function decode_asset_types(?string $json): array {
-    if ($json === null || $json === '') {
-        return [];
-    }
-    $decoded = json_decode($json, true);
-    return is_array($decoded) ? normalize_asset_types($decoded) : [];
-}
+require_once __DIR__ . '/../includes/trust-asset-catalog.php';
 
 function trust_services_has_asset_types_column(PDO $db): bool {
     static $cache = null;
@@ -860,6 +793,59 @@ function trust_services_has_asset_types_column(PDO $db): bool {
         $cache = false;
     }
     return $cache;
+}
+
+function trust_services_has_asset_category_config_column(PDO $db): bool {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    try {
+        $stmt = $db->query("SHOW COLUMNS FROM trust_services LIKE 'asset_category_config'");
+        $cache = (bool) $stmt->fetch();
+    } catch (Exception $e) {
+        $cache = false;
+    }
+    return $cache;
+}
+
+function trust_services_has_liquidation_fee_column(PDO $db): bool {
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    try {
+        $stmt = $db->query("SHOW COLUMNS FROM trust_services LIKE 'liquidation_fee'");
+        $cache = (bool) $stmt->fetch();
+    } catch (Exception $e) {
+        $cache = false;
+    }
+    return $cache;
+}
+
+/** @deprecated Use get_trust_asset_category_catalog() */
+function get_suggested_asset_types(): array {
+    return array_values(array_map(function ($cat) {
+        return $cat['label'];
+    }, get_trust_asset_category_catalog()));
+}
+
+/** @deprecated Use normalize_asset_category_config() */
+function normalize_asset_types($input): array {
+    return normalize_asset_category_config($input);
+}
+
+/** @deprecated */
+function encode_asset_types_json(array $types): ?string {
+    return encode_asset_category_config_json(normalize_asset_category_config($types));
+}
+
+/** @deprecated */
+function decode_asset_types(?string $json): array {
+    $config = decode_asset_category_config($json);
+    return array_values(array_filter(array_map(function ($item) {
+        return $item['key'] ?? '';
+    }, $config)));
 }
 
 require_once __DIR__ . '/../includes/icons.php';

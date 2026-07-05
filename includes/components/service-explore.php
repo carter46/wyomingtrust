@@ -1,10 +1,9 @@
 <?php
 // Expects: $current_service — one of: crypto, irrevocable, revocable, smart_contract, llc
 $services = [
-    ['key' => 'crypto', 'href' => 'crypto_asset_trust_service.php', 'icon' => 'wallet', 'title' => 'Crypto Asset Trust', 'desc' => 'Blockchain-native security for digital wealth'],
     ['key' => 'irrevocable', 'href' => 'irrevocable_trust_service.php', 'icon' => 'lock', 'title' => 'Irrevocable Trust', 'desc' => 'Maximum asset protection and tax benefits'],
     ['key' => 'revocable', 'href' => 'revocable_living_trust_details.php', 'icon' => 'edit', 'title' => 'Revocable Living Trust', 'desc' => 'Flexible control with probate avoidance'],
-    ['key' => 'smart_contract', 'href' => 'smart_contract_trust_service.php', 'icon' => 'link', 'title' => 'Smart Contract Trust', 'desc' => 'Automated execution on the blockchain'],
+    ['key' => 'smart_contract', 'href' => 'smart_contract_trust_service.php', 'icon' => 'wallet', 'title' => 'Smart Contract Trust', 'desc' => 'Deposit and manage crypto assets on-chain'],
     ['key' => 'llc', 'href' => 'trust_llc.php', 'icon' => 'group', 'title' => 'Wyoming LLC', 'desc' => 'Business formation and asset protection'],
 ];
 $current = $current_service ?? '';
