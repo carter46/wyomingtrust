@@ -30,6 +30,7 @@ $mobileFooterNavClass = function ($key) use ($active_nav) {
 <a class="<?php echo $mobileNavClass('create-trust'); ?>" href="../../onboarding/onboarding.php"><?php echo wt_icon('add-circle', 'w-5 h-5'); ?>Create Trust</a>
 <a class="<?php echo $mobileNavClass('beneficiaries'); ?>" href="beneficiaries.php"><?php echo wt_icon('group', 'w-5 h-5'); ?>Beneficiaries</a>
 <a class="<?php echo $mobileNavClass('billing'); ?>" href="billing.php"><?php echo wt_icon('receipt-long', 'w-5 h-5'); ?>Billing</a>
+<a class="<?php echo $mobileNavClass('support'); ?>" href="../../contact_us.php"><?php echo wt_icon('help', 'w-5 h-5'); ?>Support</a>
 </nav>
 <div class="border-t border-outline-variant pt-4 mt-4 space-y-2">
 <a class="<?php echo $mobileFooterNavClass('profile'); ?>" href="profile.php"><?php echo wt_icon('person', 'w-5 h-5'); ?>My Profile</a>

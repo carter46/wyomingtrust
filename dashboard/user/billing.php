@@ -12,7 +12,7 @@ include __DIR__ . '/includes/layout.php';
 
 <section>
 <h1 class="font-headline-lg text-headline-lg text-primary mb-2">Billing</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Review your trust service payments and billing history.</p>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Review your trust service payments, crypto deposits, and billing history.</p>
 </section>
 
 <section id="lastPaymentSection" class="hidden">
@@ -65,6 +65,33 @@ function formatAmount(amount, isFree) {
     return '$' + Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function formatCoinAmountDisplay(amount) {
+    const amt = parseFloat(amount) || 0;
+    if (amt >= 1) return amt.toFixed(4);
+    if (amt >= 0.01) return amt.toFixed(6);
+    return amt.toFixed(8);
+}
+
+function formatPaymentAmount(payment) {
+    if (payment.record_type === 'crypto_deposit') {
+        const sym = payment.coin_symbol || '';
+        const coinStr = formatCoinAmountDisplay(payment.coin_amount);
+        const usd = parseFloat(payment.amount_usd) || 0;
+        if (usd > 0) {
+            return `${coinStr} ${sym} (≈ ${formatAmount(usd, false)})`;
+        }
+        return `${coinStr} ${sym}`;
+    }
+    return formatAmount(payment.amount, payment.is_free);
+}
+
+function paymentTrustLink(payment) {
+    if (payment.trust_id) {
+        return `<a href="manage-trust.php?id=${payment.trust_id}" class="text-secondary font-semibold hover:underline">View</a>`;
+    }
+    return '<span class="text-on-surface-variant">—</span>';
+}
+
 function statusLabel(status) {
     const s = String(status || '').toLowerCase();
     if (s === 'completed') return { text: 'Completed', class: 'text-deep-forest' };
@@ -81,21 +108,24 @@ function renderLastPayment(payment) {
     }
 
     section.classList.remove('hidden');
-    document.getElementById('lastPaymentAmount').textContent = formatAmount(payment.amount, payment.is_free);
+    document.getElementById('lastPaymentAmount').textContent = formatPaymentAmount(payment);
     document.getElementById('lastPaymentService').textContent = payment.service_name || 'Trust Service';
     document.getElementById('lastPaymentDate').textContent = formatDateSafe(payment.created_at);
     const status = statusLabel(payment.payment_status);
     document.getElementById('lastPaymentStatus').textContent = status.text;
     document.getElementById('lastPaymentStatus').className = 'text-sm font-medium mt-1 ' + status.class;
-    document.getElementById('lastPaymentMethod').textContent = payment.payment_method_name
-        ? 'Paid via ' + payment.payment_method_name
-        : (payment.is_free ? 'No payment required' : 'Payment method not recorded');
+    const methodText = payment.record_type === 'crypto_deposit'
+        ? 'Paid via Cryptocurrency'
+        : (payment.payment_method_name
+            ? 'Paid via ' + payment.payment_method_name
+            : (payment.is_free ? 'No payment required' : 'Payment method not recorded'));
+    document.getElementById('lastPaymentMethod').textContent = methodText;
 }
 
 function renderBillingHistory(payments) {
     const container = document.getElementById('billingContainer');
     if (!payments.length) {
-        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No billing records yet. Payments appear here when you purchase a paid trust service.</div>';
+        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No billing records yet. Trust service payments and crypto deposits appear here.</div>';
         return;
     }
 
@@ -105,7 +135,7 @@ function renderBillingHistory(payments) {
                 <thead>
                     <tr class="bg-surface-container-low border-b border-outline-variant">
                         <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Date</th>
-                        <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Service</th>
+                        <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Description</th>
                         <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Amount</th>
                         <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Method</th>
                         <th class="px-6 md:px-8 py-5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Status</th>
@@ -115,16 +145,17 @@ function renderBillingHistory(payments) {
                 <tbody class="divide-y divide-outline-variant/30">
                     ${payments.map(payment => {
                         const status = statusLabel(payment.payment_status);
+                        const method = payment.record_type === 'crypto_deposit'
+                            ? 'Cryptocurrency'
+                            : (payment.payment_method_name || (payment.is_free ? '—' : 'Not recorded'));
                         return `
                             <tr class="hover:bg-surface transition-colors">
                                 <td class="px-6 md:px-8 py-6 text-on-surface">${formatDateSafe(payment.created_at)}</td>
                                 <td class="px-6 md:px-8 py-6 font-medium text-primary">${escapeHtml(payment.service_name || 'Trust Service')}</td>
-                                <td class="px-6 md:px-8 py-6 font-bold">${formatAmount(payment.amount, payment.is_free)}</td>
-                                <td class="px-6 md:px-8 py-6 text-on-surface-variant">${escapeHtml(payment.payment_method_name || (payment.is_free ? '—' : 'Not recorded'))}</td>
+                                <td class="px-6 md:px-8 py-6 font-bold">${escapeHtml(formatPaymentAmount(payment))}</td>
+                                <td class="px-6 md:px-8 py-6 text-on-surface-variant">${escapeHtml(method)}</td>
                                 <td class="px-6 md:px-8 py-6"><span class="font-medium ${status.class}">${status.text}</span></td>
-                                <td class="px-6 md:px-8 py-6 text-right">
-                                    <a href="manage-trust.php?id=${payment.trust_id}" class="text-secondary font-semibold hover:underline">View</a>
-                                </td>
+                                <td class="px-6 md:px-8 py-6 text-right">${paymentTrustLink(payment)}</td>
                             </tr>
                         `;
                     }).join('')}

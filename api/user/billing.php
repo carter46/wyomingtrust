@@ -59,6 +59,7 @@ foreach ($rows as $row) {
     $amount = isset($paymentInfo['amount']) ? (float) $paymentInfo['amount'] : (float) $row['price'];
 
     $payments[] = [
+        'record_type' => 'trust_payment',
         'trust_id' => (int) $row['trust_id'],
         'service_name' => $row['service_name'],
         'service_key' => $row['service_key'],
@@ -74,9 +75,54 @@ foreach ($rows as $row) {
     ];
 }
 
+$depositStmt = $db->prepare(
+    'SELECT t.id, t.amount, t.status, t.trust_id, t.created_at, t.updated_at, t.transaction_data,
+            c.coin_key, c.display_name, c.symbol
+     FROM transactions t
+     INNER JOIN coins c ON c.id = t.coin_id
+     WHERE t.user_id = :user_id AND t.type = "deposit"
+     ORDER BY t.created_at DESC'
+);
+$depositStmt->execute([':user_id' => $userId]);
+$depositRows = $depositStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($depositRows as $row) {
+    $txData = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+    $amountUsd = isset($txData['amount_usd']) ? (float) $txData['amount_usd'] : 0.0;
+    $coinAmount = (float) $row['amount'];
+    $displayName = $row['display_name'] ?? $row['symbol'] ?? 'Cryptocurrency';
+
+    $payments[] = [
+        'record_type' => 'crypto_deposit',
+        'transaction_id' => (int) $row['id'],
+        'trust_id' => !empty($row['trust_id']) ? (int) $row['trust_id'] : null,
+        'service_name' => 'Crypto Deposit — ' . $displayName,
+        'service_key' => 'crypto_deposit',
+        'coin_key' => $row['coin_key'],
+        'coin_symbol' => $row['symbol'],
+        'coin_amount' => $coinAmount,
+        'amount' => $amountUsd > 0 ? $amountUsd : $coinAmount,
+        'amount_usd' => $amountUsd,
+        'is_free' => false,
+        'payment_status' => $row['status'],
+        'trust_status' => null,
+        'payment_method_name' => 'Cryptocurrency',
+        'payment_method_type' => 'crypto',
+        'payment_type' => 'crypto_deposit',
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at'],
+    ];
+}
+
+usort($payments, static function (array $a, array $b): int {
+    return strtotime((string) ($b['created_at'] ?? '')) <=> strtotime((string) ($a['created_at'] ?? ''));
+});
+
 $lastPayment = null;
 foreach ($payments as $payment) {
-    if (!$payment['is_free']) {
+    if ($payment['record_type'] === 'crypto_deposit' || empty($payment['is_free'])) {
         $lastPayment = $payment;
         break;
     }

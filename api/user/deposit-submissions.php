@@ -62,6 +62,7 @@ function handleCreateDepositSubmission() {
     $coinKey = sanitize_text($_POST['coin_key'] ?? '');
     $txHash = sanitize_text($_POST['tx_hash'] ?? '');
     $amount = isset($_POST['amount']) ? (float) $_POST['amount'] : 0;
+    $amountUsd = isset($_POST['amount_usd']) ? (float) $_POST['amount_usd'] : 0;
     $depositAddress = sanitize_text($_POST['deposit_address'] ?? '');
 
     if ($coinKey === '') {
@@ -153,6 +154,7 @@ function handleCreateDepositSubmission() {
         'proof_path' => $proofPath,
         'proof_filename' => $originalFilename,
         'submitted_at' => date('c'),
+        'amount_usd' => $amountUsd > 0 ? $amountUsd : null,
     ];
 
     $insert = $db->prepare(

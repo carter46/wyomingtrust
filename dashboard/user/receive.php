@@ -89,13 +89,13 @@ An administrator has not yet configured a deposit wallet address for this asset.
 <p id="depositPriceChange" class="text-sm font-medium text-on-surface-variant shrink-0">--</p>
 </div>
 <div>
-<label for="depositCoinAmount" id="depositAmountLabel" class="block text-sm font-semibold text-primary mb-2">Amount to Deposit</label>
+<label for="depositUsdAmount" id="depositAmountLabel" class="block text-sm font-semibold text-primary mb-2">Amount to Deposit (USD)</label>
 <div class="relative max-w-xl">
-<input type="number" id="depositCoinAmount" min="0" step="any" placeholder="0.00" class="w-full px-4 py-3 pr-20 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
-<span id="depositCoinSymbolSuffix" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-on-surface-variant pointer-events-none">--</span>
+<input type="number" id="depositUsdAmount" min="0" step="0.01" placeholder="0.00" class="w-full px-4 py-3 pr-16 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
+<span id="depositCurrencySuffix" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-on-surface-variant pointer-events-none">USD</span>
 </div>
-<p id="depositUsdValue" class="text-base sm:text-lg font-bold text-secondary mt-3 min-h-[1.5em]">≈ $0.00 USD</p>
-<p id="depositRateHint" class="text-xs text-on-surface-variant mt-1">Enter the amount you plan to send in the selected cryptocurrency.</p>
+<p id="depositCoinQuote" class="text-base sm:text-lg font-bold text-secondary mt-3 min-h-[1.5em]">—</p>
+<p id="depositRateHint" class="text-xs text-on-surface-variant mt-1">Enter how much you want to deposit in US dollars. We will calculate the crypto amount to send.</p>
 </div>
 </div>
 <div class="text-center p-6 sm:p-8 bg-surface-container-low rounded-xl">
@@ -118,12 +118,6 @@ An administrator has not yet configured a deposit wallet address for this asset.
 </div>
 </div>
 
-<div id="depositPendingNotice" class="hidden mt-8 p-4 rounded-xl border border-secondary/30 bg-secondary/10 text-sm text-on-surface text-center">
-<?php echo wt_icon('info', 'inline w-4 h-4 text-secondary mr-1'); ?>
-<strong>Deposit pending review.</strong> You already submitted a payment for this asset. An administrator will verify it shortly.
-<a href="dashboard.php" class="block mt-3 text-secondary font-semibold hover:underline">Back to Dashboard</a>
-</div>
-
 <div id="depositConfirmSection" class="hidden mt-2">
 <h2 class="font-headline-md text-headline-md text-primary mb-2">Confirm Your Payment</h2>
 <p class="text-sm text-on-surface-variant mb-6">Enter your transaction details to complete your deposit submission.</p>
@@ -131,9 +125,9 @@ An administrator has not yet configured a deposit wallet address for this asset.
 <input type="hidden" id="depositAddressHidden" value="">
 <input type="hidden" id="depositAmount" name="amount" value="">
 <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant">
-<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Deposit Amount</p>
-<p id="depositConfirmAmountDisplay" class="font-bold text-primary text-lg">--</p>
-<p id="depositConfirmUsdDisplay" class="text-sm text-on-surface-variant mt-1">--</p>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">You Are Depositing</p>
+<p id="depositConfirmUsdDisplay" class="font-bold text-primary text-lg">--</p>
+<p id="depositConfirmAmountDisplay" class="text-sm text-on-surface-variant mt-1">--</p>
 </div>
 <div>
 <label for="depositTxHash" class="block text-sm font-semibold text-primary mb-2">Transaction Hash (TX ID)</label>
@@ -153,6 +147,28 @@ An administrator has not yet configured a deposit wallet address for this asset.
 </button>
 </div>
 </form>
+</div>
+
+<div id="depositPendingNotice" class="hidden mt-8 p-4 rounded-xl border border-secondary/30 bg-secondary/10 text-sm text-on-surface text-center">
+<?php echo wt_icon('info', 'inline w-4 h-4 text-secondary mr-1'); ?>
+<strong>Deposit pending review.</strong> You already submitted a payment for this asset. An administrator will verify it shortly.
+<a href="dashboard.php" class="block mt-3 text-secondary font-semibold hover:underline">Back to Dashboard</a>
+</div>
+
+<div id="depositSuccessPanel" class="hidden text-center py-10 sm:py-14 px-4">
+<div class="w-16 h-16 mx-auto mb-5 rounded-full bg-deep-forest/10 flex items-center justify-center">
+<?php echo wt_icon('check-circle', 'w-9 h-9 text-deep-forest'); ?>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-3">Deposit Submitted Successfully</h2>
+<p class="text-sm sm:text-base text-on-surface-variant max-w-md mx-auto mb-2">
+Your crypto deposit is <strong class="text-primary">pending review</strong>. An administrator will verify your transaction shortly.
+</p>
+<p class="text-sm text-on-surface-variant max-w-md mx-auto mb-8">
+Once confirmed, your funds will be credited to your account within <strong class="text-primary">24 hours</strong>.
+</p>
+<button type="button" onclick="window.location.href='dashboard.php'" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-on-primary px-10 py-4 rounded-xl font-label-md font-bold hover:bg-primary/90 transition-colors">
+Done
+</button>
 </div>
 </div>
 </div>
@@ -209,28 +225,41 @@ function formatPriceDisplay(price) {
 
 function updateDepositAmountLabels() {
     const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || '--';
-    const name = selectedAsset?.display_name || symbol;
-    const label = document.getElementById('depositAmountLabel');
-    const suffix = document.getElementById('depositCoinSymbolSuffix');
-    if (label) label.textContent = `Amount to Deposit (${symbol})`;
-    if (suffix) suffix.textContent = symbol;
     const rateHint = document.getElementById('depositRateHint');
     if (rateHint && currentCoinPrice > 0) {
-        rateHint.textContent = `Rate: ${formatPriceDisplay(currentCoinPrice)} per ${symbol}`;
+        rateHint.textContent = `Rate: ${formatPriceDisplay(currentCoinPrice)} per ${symbol}. Amount updates as the market price changes.`;
+    } else if (rateHint) {
+        rateHint.textContent = 'Enter how much you want to deposit in US dollars. We will calculate the crypto amount to send.';
     }
 }
 
-function updateDepositUsdValue() {
-    const input = document.getElementById('depositCoinAmount');
-    const usdEl = document.getElementById('depositUsdValue');
-    if (!input || !usdEl) return;
-    const coinAmount = parseFloat(input.value) || 0;
-    if (coinAmount <= 0 || currentCoinPrice <= 0) {
-        usdEl.textContent = '≈ $0.00 USD';
+function getUsdDepositAmount() {
+    return parseFloat(document.getElementById('depositUsdAmount')?.value) || 0;
+}
+
+function getCoinAmountFromUsd(usdAmount) {
+    if (!usdAmount || usdAmount <= 0 || !currentCoinPrice || currentCoinPrice <= 0) return 0;
+    return usdAmount / currentCoinPrice;
+}
+
+function updateDepositCoinQuote() {
+    const quoteEl = document.getElementById('depositCoinQuote');
+    if (!quoteEl) return;
+    const usdAmount = getUsdDepositAmount();
+    const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || '';
+
+    if (usdAmount <= 0) {
+        quoteEl.textContent = '—';
         return;
     }
-    const usdValue = coinAmount * currentCoinPrice;
-    usdEl.textContent = `≈ ${formatUsd(usdValue)} USD`;
+    if (currentCoinPrice <= 0) {
+        quoteEl.textContent = 'Unable to calculate — price unavailable';
+        return;
+    }
+
+    const coinAmt = getCoinAmountFromUsd(usdAmount);
+    const disp = formatCoinAmount(coinAmt);
+    quoteEl.textContent = `You will send: ${disp} ${symbol}`;
 }
 
 function updatePriceDisplay(price, change24h) {
@@ -255,7 +284,7 @@ function updatePriceDisplay(price, change24h) {
         }
     }
     updateDepositAmountLabels();
-    updateDepositUsdValue();
+    updateDepositCoinQuote();
 }
 
 function getCachedCoinPrice(coinKey) {
@@ -337,30 +366,34 @@ function stopPriceRefresh() {
 }
 
 function syncConfirmAmountDisplay() {
-    const coinAmount = parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
+    const usdAmount = getUsdDepositAmount();
+    const coinAmount = getCoinAmountFromUsd(usdAmount);
     const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || '';
     const amountDisplay = document.getElementById('depositConfirmAmountDisplay');
     const usdDisplay = document.getElementById('depositConfirmUsdDisplay');
     const hiddenAmount = document.getElementById('depositAmount');
 
     if (hiddenAmount) hiddenAmount.value = coinAmount > 0 ? String(coinAmount) : '';
+    if (usdDisplay) {
+        usdDisplay.textContent = usdAmount > 0 ? formatUsd(usdAmount) : '--';
+    }
     if (amountDisplay) {
         amountDisplay.textContent = coinAmount > 0
-            ? `${formatCoinAmount(coinAmount)} ${symbol}`
+            ? `Send ${formatCoinAmount(coinAmount)} ${symbol}`
             : '--';
-    }
-    if (usdDisplay) {
-        const usdValue = coinAmount > 0 && currentCoinPrice > 0 ? coinAmount * currentCoinPrice : 0;
-        usdDisplay.textContent = coinAmount > 0 ? `≈ ${formatUsd(usdValue)} USD` : '--';
     }
 }
 
 function showConfirmPaymentForm() {
     if (hasPendingDeposit || !selectedAsset) return;
-    const coinAmount = parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
-    if (!coinAmount || coinAmount <= 0) {
-        showAlertModal('Amount Required', 'Please enter the amount you want to deposit before continuing.', 'error');
-        document.getElementById('depositCoinAmount')?.focus();
+    const usdAmount = getUsdDepositAmount();
+    if (!usdAmount || usdAmount <= 0) {
+        showAlertModal('Amount Required', 'Please enter the USD amount you want to deposit before continuing.', 'error');
+        document.getElementById('depositUsdAmount')?.focus();
+        return;
+    }
+    if (!currentCoinPrice || currentCoinPrice <= 0) {
+        showAlertModal('Price Unavailable', 'Unable to calculate the crypto amount right now. Please wait for the live price to load and try again.', 'error');
         return;
     }
     const address = document.getElementById('receiveAddress')?.value?.trim() || '';
@@ -371,6 +404,15 @@ function showConfirmPaymentForm() {
     document.getElementById('depositAddressSection')?.classList.add('hidden');
     document.getElementById('depositConfirmSection')?.classList.remove('hidden');
     document.getElementById('depositTxHash')?.focus();
+}
+
+function showDepositSuccessPanel() {
+    confirmFormOpen = false;
+    stopPriceRefresh();
+    document.getElementById('depositAddressSection')?.classList.add('hidden');
+    document.getElementById('depositConfirmSection')?.classList.add('hidden');
+    document.getElementById('depositPendingNotice')?.classList.add('hidden');
+    document.getElementById('depositSuccessPanel')?.classList.remove('hidden');
 }
 
 function hideConfirmPaymentForm() {
@@ -499,10 +541,10 @@ function updateSelectedAsset() {
     const nameEl = document.getElementById('selectedAssetName');
     if (nameEl) nameEl.textContent = selectedAsset.display_name || selectedAsset.symbol;
     document.getElementById('selectedAssetSymbol').textContent = selectedAsset.symbol || selectedAsset.coin_key || '';
-    const coinInput = document.getElementById('depositCoinAmount');
+    const coinInput = document.getElementById('depositUsdAmount');
     if (coinInput) coinInput.value = '';
     updateDepositAmountLabels();
-    updateDepositUsdValue();
+    updateDepositCoinQuote();
     renderDepositState();
 }
 
@@ -595,7 +637,7 @@ async function submitDepositConfirmation(event) {
 
     syncConfirmAmountDisplay();
     const amount = parseFloat(document.getElementById('depositAmount').value)
-        || parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
+        || getCoinAmountFromUsd(getUsdDepositAmount());
     const txHash = document.getElementById('depositTxHash').value.trim();
     const proofFile = document.getElementById('depositProof').files[0];
     const address = document.getElementById('depositAddressHidden').value.trim()
@@ -624,6 +666,7 @@ async function submitDepositConfirmation(event) {
         const formData = new FormData();
         formData.append('coin_key', selectedAsset.coin_key);
         formData.append('amount', String(amount));
+        formData.append('amount_usd', String(getUsdDepositAmount()));
         formData.append('tx_hash', txHash);
         formData.append('deposit_address', address);
         formData.append('csrf_token', csrfToken);
@@ -639,7 +682,7 @@ async function submitDepositConfirmation(event) {
         const data = await res.json();
 
         if (data.success) {
-            window.location.href = 'dashboard.php';
+            showDepositSuccessPanel();
             return;
         }
         await showAlertModal('Submission Failed', data.message || 'Could not submit deposit.', 'error');
@@ -738,14 +781,13 @@ async function copyAddress() {
 document.addEventListener('DOMContentLoaded', () => {
     loadAssets();
     document.getElementById('depositConfirmForm')?.addEventListener('submit', submitDepositConfirmation);
-    document.getElementById('depositCoinAmount')?.addEventListener('input', () => {
-        updateDepositUsdValue();
+    const usdInput = document.getElementById('depositUsdAmount');
+    const onUsdChange = () => {
+        updateDepositCoinQuote();
         syncConfirmAmountDisplay();
-    });
-    document.getElementById('depositCoinAmount')?.addEventListener('change', () => {
-        updateDepositUsdValue();
-        syncConfirmAmountDisplay();
-    });
+    };
+    usdInput?.addEventListener('input', onUsdChange);
+    usdInput?.addEventListener('change', onUsdChange);
 });
 </script>
 <?php include __DIR__ . '/includes/layout-footer.php'; ?>

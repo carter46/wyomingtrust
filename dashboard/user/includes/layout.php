@@ -1,7 +1,7 @@
 <?php
 /**
  * User dashboard shell — Heritage Modern layout.
- * Expects: $page_title, $userName; optional: $active_nav (dashboard|trusts|create-trust|beneficiaries|billing)
+ * Expects: $page_title, $userName; optional: $active_nav (dashboard|trusts|create-trust|beneficiaries|billing|support)
  */
 $active_nav = $active_nav ?? '';
 $userName = $userName ?? ($_SESSION['user_name'] ?? 'User');
@@ -172,6 +172,10 @@ tailwind.config = {
 <a class="<?php echo $navClass('billing'); ?>" href="billing.php">
 <?php echo wt_icon('receipt-long', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">Billing</span>
+</a>
+<a class="<?php echo $navClass('support'); ?>" href="../../contact_us.php">
+<?php echo wt_icon('help', 'w-5 h-5'); ?>
+<span class="font-label-md text-label-md">Support</span>
 </a>
 </nav>
 <div class="p-6 border-t border-outline-variant">
