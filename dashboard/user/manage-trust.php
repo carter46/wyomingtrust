@@ -18,7 +18,7 @@ if ($trustId <= 0) {
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">View and manage your trusts.</p>
 </div>
 <a href="../../onboarding/onboarding.php" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:bg-primary/90 h-10 transition-colors">
-<span class="material-symbols-outlined text-sm">add</span>
+<?php echo wt_icon('add', 'text-sm'); ?>
 Create New Trust
 </a>
 </section>
@@ -118,7 +118,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         modalResolve = resolve;
         modalReject = reject;
         const modal = document.getElementById('customModal');
-        const icon = document.getElementById('modalIcon');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
         const titleEl = document.getElementById('modalTitle');
         const messageEl = document.getElementById('modalMessage');
         const confirmBtn = document.getElementById('modalConfirmBtn');
@@ -132,14 +132,12 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         cancelBtn.textContent = cancelText;
 
         if (type === 'danger') {
-            icon.textContent = 'warning';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-error text-xl';
+            setModalIcon('warning', 'text-error text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
             confirmBtn.className = 'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-error text-base font-bold text-on-primary hover:bg-error/90 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm';
         } else {
-            icon.textContent = 'help';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-secondary text-xl';
+            setModalIcon('help', 'text-secondary text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
             confirmBtn.className = 'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-bold text-on-primary hover:bg-primary/90 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm';
         }
 
@@ -155,7 +153,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
 function showAlertModal(title, message, type = 'info') {
     return new Promise((resolve) => {
         const modal = document.getElementById('customModal');
-        const icon = document.getElementById('modalIcon');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
         const titleEl = document.getElementById('modalTitle');
         const messageEl = document.getElementById('modalMessage');
         const confirmBtn = document.getElementById('modalConfirmBtn');
@@ -169,17 +167,14 @@ function showAlertModal(title, message, type = 'info') {
         confirmBtn.textContent = 'OK';
 
         if (type === 'success') {
-            icon.textContent = 'check_circle';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-deep-forest/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-deep-forest text-xl';
+            setModalIcon('check-circle', 'text-deep-forest text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-deep-forest/10 sm:mx-0 sm:h-10 sm:w-10';
         } else if (type === 'error') {
-            icon.textContent = 'error';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-error text-xl';
+            setModalIcon('error', 'text-error text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
         } else {
-            icon.textContent = 'info';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-secondary text-xl';
+            setModalIcon('info', 'text-secondary text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
         }
 
         confirmBtn.onclick = () => {
@@ -226,11 +221,11 @@ include __DIR__ . '/includes/layout.php';
 </div>
 <div class="flex gap-2 items-center no-print">
 <button onclick="window.location.href='../../onboarding/onboarding.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-on-primary text-sm font-bold gap-2 hover:bg-primary/90 transition-all">
-<span class="material-symbols-outlined text-sm">add</span>
+<?php echo wt_icon('add', 'text-sm'); ?>
 <span>Create New Trust</span>
 </button>
 <button onclick="window.location.href='manage-trust.php'" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary-container text-on-primary text-sm font-bold gap-2 hover:bg-primary transition-all">
-<span class="material-symbols-outlined text-sm">arrow_back</span>
+<?php echo wt_icon('arrow-back', 'text-sm'); ?>
 <span>Back to Trusts</span>
 </button>
 </div>
@@ -255,7 +250,7 @@ include __DIR__ . '/includes/layout.php';
 <div class="flex flex-col gap-2 rounded-xl p-5 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <p class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Status</p>
 <div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary text-xl">gpp_maybe</span>
+<?php echo wt_icon('shield', 'text-secondary text-xl'); ?>
 <p id="trustStatus" class="text-primary text-lg font-bold">Loading...</p>
 </div>
 </div>
@@ -264,15 +259,15 @@ include __DIR__ . '/includes/layout.php';
 <section class="flex items-center gap-4 mb-8 bg-surface-container-low p-4 rounded-xl border border-outline-variant no-print">
 <p class="text-primary text-sm font-bold mr-2">Quick Actions:</p>
 <button onclick="exportTrustReport()" class="flex items-center gap-2 px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-semibold text-primary hover:bg-secondary/10 transition-colors">
-<span class="material-symbols-outlined text-secondary">ios_share</span>
+<?php echo wt_icon('share', 'text-secondary'); ?>
 Export Report
 </button>
 <button onclick="printTrustDetails()" class="flex items-center gap-2 px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-semibold text-primary hover:bg-secondary/10 transition-colors">
-<span class="material-symbols-outlined text-secondary">print</span>
+<?php echo wt_icon('print', 'text-secondary'); ?>
 Print Details
 </button>
 <button onclick="shareWithAdvisor()" class="flex items-center gap-2 px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-semibold text-primary hover:bg-secondary/10 transition-colors">
-<span class="material-symbols-outlined text-secondary">diversity_3</span>
+<?php echo wt_icon('group', 'text-secondary'); ?>
 Share with Advisor
 </button>
 </section>
@@ -310,7 +305,7 @@ Change Status
 <div class="flex gap-3 items-center">
 <button id="saveChangesBtn" onclick="saveBeneficiaries()" class="hidden px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-bold hover:bg-primary/90">Save Changes</button>
 <button onclick="addBeneficiary()" class="text-secondary text-sm font-bold hover:underline flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">add_circle</span>
+<?php echo wt_icon('add-circle', 'text-sm'); ?>
 Add Beneficiary
 </button>
 </div>
@@ -322,7 +317,7 @@ Add Beneficiary
 
 <section class="rounded-xl border-2 border-error/20 bg-error-container/30 p-6 mb-12 no-print">
 <div class="flex items-center gap-3 mb-4">
-<span class="material-symbols-outlined text-error">warning</span>
+<?php echo wt_icon('warning', 'text-error'); ?>
 <h2 class="text-error text-lg font-bold">Danger Zone</h2>
 </div>
 <p class="text-error/70 text-sm mb-6 max-w-2xl">Actions in this section are permanent and may require legal authorization. Proceed with extreme caution.</p>
@@ -353,7 +348,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         modalResolve = resolve;
         modalReject = reject;
         const modal = document.getElementById('customModal');
-        const icon = document.getElementById('modalIcon');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
         const titleEl = document.getElementById('modalTitle');
         const messageEl = document.getElementById('modalMessage');
         const confirmBtn = document.getElementById('modalConfirmBtn');
@@ -367,14 +362,12 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
         cancelBtn.textContent = cancelText;
 
         if (type === 'danger') {
-            icon.textContent = 'warning';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-error text-xl';
+            setModalIcon('warning', 'text-error text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
             confirmBtn.className = 'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-error text-base font-bold text-on-primary hover:bg-error/90 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm';
         } else {
-            icon.textContent = 'help';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-secondary text-xl';
+            setModalIcon('help', 'text-secondary text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
             confirmBtn.className = 'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-bold text-on-primary hover:bg-primary/90 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm';
         }
 
@@ -390,7 +383,7 @@ function showConfirmModal(title, message, confirmText = 'Confirm', cancelText = 
 function showAlertModal(title, message, type = 'info') {
     return new Promise((resolve) => {
         const modal = document.getElementById('customModal');
-        const icon = document.getElementById('modalIcon');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
         const titleEl = document.getElementById('modalTitle');
         const messageEl = document.getElementById('modalMessage');
         const confirmBtn = document.getElementById('modalConfirmBtn');
@@ -404,17 +397,14 @@ function showAlertModal(title, message, type = 'info') {
         confirmBtn.textContent = 'OK';
 
         if (type === 'success') {
-            icon.textContent = 'check_circle';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-deep-forest/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-deep-forest text-xl';
+            setModalIcon('check-circle', 'text-deep-forest text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-deep-forest/10 sm:mx-0 sm:h-10 sm:w-10';
         } else if (type === 'error') {
-            icon.textContent = 'error';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-error text-xl';
+            setModalIcon('error', 'text-error text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-error-container sm:mx-0 sm:h-10 sm:w-10';
         } else {
-            icon.textContent = 'info';
-            icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
-            icon.className = 'material-symbols-outlined text-secondary text-xl';
+            setModalIcon('info', 'text-secondary text-xl');
+            iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
         }
 
         confirmBtn.onclick = () => {
@@ -431,7 +421,7 @@ function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
         modalResolve = resolve;
         modalReject = reject;
         const modal = document.getElementById('customModal');
-        const icon = document.getElementById('modalIcon');
+        const iconWrap = document.getElementById('modalIcon').parentElement;
         const titleEl = document.getElementById('modalTitle');
         const messageEl = document.getElementById('modalMessage');
         const confirmBtn = document.getElementById('modalConfirmBtn');
@@ -447,9 +437,8 @@ function showInputModal(title, message, placeholder, confirmText = 'Confirm') {
         inputField.value = '';
         confirmBtn.textContent = confirmText;
 
-        icon.textContent = 'edit';
-        icon.parentElement.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
-        icon.className = 'material-symbols-outlined text-secondary text-xl';
+        setModalIcon('edit', 'text-secondary text-xl');
+        iconWrap.className = 'mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10';
         confirmBtn.className = 'w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-bold text-on-primary hover:bg-primary/90 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm';
 
         const handleConfirm = () => {

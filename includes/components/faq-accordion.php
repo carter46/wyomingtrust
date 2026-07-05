@@ -13,7 +13,7 @@ $faq_title = $faq_title ?? 'Common questions.';
 <details class="group bg-white rounded-xl border border-outline-variant/30 overflow-hidden">
 <summary class="flex justify-between items-center p-6 cursor-pointer">
 <span class="font-bold text-lg pr-4"><?php echo escape_html($item['question']); ?></span>
-<span class="material-symbols-outlined transition-transform group-open:rotate-180 flex-shrink-0">expand_more</span>
+<?php echo wt_icon('chevron-down', 'transition-transform group-open:rotate-180 flex-shrink-0'); ?>
 </summary>
 <div class="px-6 pb-6 text-on-surface-variant font-body-md"><?php echo $item['answer']; ?></div>
 </details>

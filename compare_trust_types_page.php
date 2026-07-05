@@ -34,12 +34,12 @@ include 'includes/components/service-hero-split.php';
 </div>
 <div class="p-6 md:p-8 flex flex-col flex-grow">
 <a class="inline-flex items-center text-secondary font-label-md mb-6 hover:underline" href="revocable_living_trust_details.php">
-Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+Learn more <?php echo wt_icon('arrow-forward', 'ml-1 text-[18px]'); ?>
 </a>
 <ul class="space-y-4 mb-8 flex-grow">
 <li class="flex items-center justify-between gap-3 border-b border-outline-variant/30 pb-3">
 <span class="text-on-surface-variant text-sm">Can be modified</span>
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check</span>
+<?php echo wt_icon('check-circle', 'text-secondary'); ?>
 </li>
 <li class="flex items-center justify-between gap-3 border-b border-outline-variant/30 pb-3">
 <span class="text-on-surface-variant text-sm">Asset protection</span>
@@ -70,12 +70,12 @@ Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forwar
 </div>
 <div class="p-6 md:p-8 flex flex-col flex-grow">
 <a class="inline-flex items-center text-secondary font-label-md mb-6 hover:underline" href="irrevocable_trust_service.php">
-Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+Learn more <?php echo wt_icon('arrow-forward', 'ml-1 text-[18px]'); ?>
 </a>
 <ul class="space-y-4 mb-8 flex-grow">
 <li class="flex items-center justify-between gap-3 border-b border-outline-variant/30 pb-3">
 <span class="text-on-surface-variant text-sm">Can be modified</span>
-<span class="material-symbols-outlined text-error">close</span>
+<?php echo wt_icon('close', 'text-error'); ?>
 </li>
 <li class="flex items-center justify-between gap-3 border-b border-outline-variant/30 pb-3">
 <span class="text-on-surface-variant text-sm">Asset protection</span>
@@ -105,7 +105,7 @@ Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forwar
 </div>
 <div class="p-6 md:p-8 flex flex-col flex-grow">
 <a class="inline-flex items-center text-secondary font-label-md mb-6 hover:underline" href="smart_contract_trust_service.php">
-Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+Learn more <?php echo wt_icon('arrow-forward', 'ml-1 text-[18px]'); ?>
 </a>
 <ul class="space-y-4 mb-8 flex-grow">
 <li class="flex items-center justify-between gap-3 border-b border-outline-variant/30 pb-3">
@@ -141,7 +141,7 @@ Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forwar
 <div class="max-w-container-max mx-auto grid md:grid-cols-2 gap-6">
 <a href="crypto_asset_trust_service.php" class="flex items-center gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 hover:border-secondary transition-colors group">
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary shrink-0">
-<span class="material-symbols-outlined">currency_bitcoin</span>
+<?php echo wt_icon('wallet', 'w-5 h-5'); ?>
 </div>
 <div>
 <h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Crypto Asset Trust</h3>
@@ -150,7 +150,7 @@ Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forwar
 </a>
 <a href="trust_llc.php" class="flex items-center gap-4 p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/30 hover:border-secondary transition-colors group">
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary shrink-0">
-<span class="material-symbols-outlined">business</span>
+<?php echo wt_icon('group', 'w-5 h-5'); ?>
 </div>
 <div>
 <h3 class="font-headline-md text-headline-md text-primary group-hover:text-secondary transition-colors">Wyoming LLC</h3>
@@ -167,7 +167,7 @@ Learn more <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forwar
 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
 <a href="contact_us.php" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Schedule a Free Consultation
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 <a href="pricing.php" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 border-2 border-sky-accent text-sky-accent px-8 py-4 rounded-xl font-bold hover:bg-sky-accent/10 transition-colors">
 View Pricing

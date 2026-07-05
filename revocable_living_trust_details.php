@@ -45,7 +45,7 @@ foreach ($features as $f):
 ?>
 <div class="flex gap-4">
 <div class="flex-shrink-0 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-on-secondary">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+<?php echo wt_icon('check', 'text-sm'); ?>
 </div>
 <div>
 <h4 class="font-headline-md text-headline-md text-on-primary"><?php echo $f['title']; ?></h4>
@@ -70,16 +70,16 @@ foreach ($features as $f):
 $benefits = [
     ['icon' => 'gavel', 'title' => 'Avoid Probate Court', 'desc' => 'Bypass probate entirely, saving beneficiaries months of legal proceedings and thousands in court fees.'],
     ['icon' => 'group', 'title' => 'Maintain Privacy', 'desc' => 'Trusts remain completely private. Your crypto holdings and beneficiaries stay confidential.'],
-    ['icon' => 'tune', 'title' => 'Maximum Flexibility', 'desc' => 'Change beneficiaries, update allocations, or modify terms anytime as life changes.'],
-    ['icon' => 'monitor_heart', 'title' => 'Incapacity Protection', 'desc' => 'Successor trustee seamlessly takes over without court intervention if you\'re unable to manage assets.'],
-    ['icon' => 'bolt', 'title' => 'Immediate Transfer', 'desc' => 'Beneficiaries receive crypto assets immediately upon your passing—no waiting for probate.'],
-    ['icon' => 'verified_user', 'title' => 'Harder to Contest', 'desc' => 'Trusts are more difficult to challenge than wills, better protecting your wishes.'],
+    ['icon' => 'settings', 'title' => 'Maximum Flexibility', 'desc' => 'Change beneficiaries, update allocations, or modify terms anytime as life changes.'],
+    ['icon' => 'shield', 'title' => 'Incapacity Protection', 'desc' => 'Successor trustee seamlessly takes over without court intervention if you\'re unable to manage assets.'],
+    ['icon' => 'arrow-forward', 'title' => 'Immediate Transfer', 'desc' => 'Beneficiaries receive crypto assets immediately upon your passing—no waiting for probate.'],
+    ['icon' => 'shield', 'title' => 'Harder to Contest', 'desc' => 'Trusts are more difficult to challenge than wills, better protecting your wishes.'],
 ];
 foreach ($benefits as $b):
 ?>
 <div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm hover:shadow-md hover:border-secondary/30 transition-all">
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary mb-5">
-<span class="material-symbols-outlined"><?php echo $b['icon']; ?></span>
+<?php echo wt_icon($b['icon'], 'w-5 h-5'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary mb-3"><?php echo $b['title']; ?></h3>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed"><?php echo $b['desc']; ?></p>
@@ -128,9 +128,9 @@ include 'includes/components/cta-banner.php';
 <section class="py-section-padding-md px-gutter bg-surface">
 <div class="max-w-container-max mx-auto">
 <div class="flex flex-wrap justify-center gap-6 md:gap-10">
-<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">security</span> Blockchain secured</span>
-<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">verified</span> Legally compliant</span>
-<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><span class="material-symbols-outlined text-secondary">credit_card_off</span> No credit card required</span>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><?php echo wt_icon('shield', 'text-secondary'); ?> Blockchain secured</span>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><?php echo wt_icon('shield', 'text-secondary'); ?> Legally compliant</span>
+<span class="flex items-center gap-2 font-body-md text-on-surface-variant"><?php echo wt_icon('credit-card-off', 'text-secondary'); ?> No credit card required</span>
 </div>
 </div>
 </section>

@@ -338,13 +338,13 @@ async function loadTransactionHistory() {
                 const amount = parseFloat(tx.amount || 0);
                 const date = new Date(tx.created_at);
                 const typeClass = type === 'send' ? 'text-error' : type === 'receive' ? 'text-deep-forest' : 'text-on-surface-variant';
-                const typeIcon = type === 'send' ? 'arrow_upward' : type === 'receive' ? 'arrow_downward' : 'swap_horiz';
+                const iconName = type === 'send' ? 'send' : type === 'receive' ? 'receive' : 'swap';
                 const coinSymbol = escapeHtml(tx.coin_symbol || currentAsset.symbol || '');
                 const status = escapeHtml(tx.status || 'completed');
                 return `
                     <div class="flex items-center justify-between p-4 border-b border-outline-variant/30">
                         <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined ${typeClass}">${typeIcon}</span>
+                            ${typeof wtIcon === 'function' ? wtIcon(iconName, 'w-5 h-5 ' + typeClass) : ''}
                             <div>
                                 <p class="font-medium text-on-surface">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
                                 <p class="text-xs text-on-surface-variant">${escapeHtml(date.toLocaleDateString())} ${escapeHtml(date.toLocaleTimeString())}</p>

@@ -24,10 +24,10 @@ include __DIR__ . '/includes/layout.php';
 <div class="flex flex-col items-center text-center space-y-6">
 <div class="relative">
 <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined text-primary text-4xl">link</span>
+<?php echo wt_icon('link', 'text-primary text-4xl'); ?>
 </div>
 <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-surface-container-lowest rounded-full border-4 border-surface flex items-center justify-center">
-<span class="material-symbols-outlined text-primary text-xs font-bold">lock</span>
+<?php echo wt_icon('lock', 'text-primary text-xs font-bold'); ?>
 </div>
 </div>
 <div class="space-y-3">
@@ -38,11 +38,11 @@ Securely connect your external wallet to access your funds and manage your digit
 </div>
 <button id="connectWalletBtn" onclick="openWalletModal()" class="w-full py-4 bg-primary text-on-primary text-lg font-bold rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2 group">
 <span class="truncate">Connect Wallet</span>
-<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'group-hover:translate-x-1 transition-transform'); ?>
 </button>
 <div class="pt-6 border-t border-outline-variant w-full flex flex-col gap-4">
 <div class="flex items-center justify-center gap-2 text-xs text-on-surface-variant font-medium uppercase tracking-widest">
-<span class="material-symbols-outlined text-sm">verified_user</span>
+<?php echo wt_icon('shield', 'text-sm'); ?>
 Non-custodial and secure
 </div>
 <div class="grid grid-cols-2 gap-4">
@@ -60,15 +60,15 @@ Non-custodial and secure
 </div>
 <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
 <div class="flex items-center gap-3 p-4 bg-surface-container-lowest/50 rounded-lg border border-dashed border-outline-variant">
-<span class="material-symbols-outlined text-primary text-xl">shield</span>
+<?php echo wt_icon('shield', 'text-primary text-xl'); ?>
 <span class="text-xs font-semibold text-on-surface">Privacy First</span>
 </div>
 <div class="flex items-center gap-3 p-4 bg-surface-container-lowest/50 rounded-lg border border-dashed border-outline-variant">
-<span class="material-symbols-outlined text-primary text-xl">bolt</span>
+<?php echo wt_icon('bolt', 'text-primary text-xl'); ?>
 <span class="text-xs font-semibold text-on-surface">Fast Sync</span>
 </div>
 <div class="flex items-center gap-3 p-4 bg-surface-container-lowest/50 rounded-lg border border-dashed border-outline-variant">
-<span class="material-symbols-outlined text-primary text-xl">account_tree</span>
+<?php echo wt_icon('link', 'text-primary text-xl'); ?>
 <span class="text-xs font-semibold text-on-surface">Multi-Chain</span>
 </div>
 </div>
@@ -81,7 +81,7 @@ Non-custodial and secure
 <div class="p-6 border-b border-outline-variant flex items-center justify-between">
 <h3 class="font-headline-md text-headline-md text-primary">Select Wallet</h3>
 <button onclick="closeWalletModal()" class="p-2 hover:bg-surface-container-low rounded-lg transition-colors text-on-surface-variant">
-<span class="material-symbols-outlined">close</span>
+<?php echo wt_icon('close', 'w-5 h-5'); ?>
 </button>
 </div>
 <div class="p-6 space-y-3">
@@ -107,7 +107,7 @@ Non-custodial and secure
 </div>
 <div id="wallet-coinbase" onclick="selectWallet('coinbase')" class="flex items-center gap-3 p-4 rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors">
 <div class="size-10 rounded-full bg-surface-container-lowest p-1 flex items-center justify-center">
-<span class="material-symbols-outlined text-secondary text-2xl">account_balance_wallet</span>
+<?php echo wt_icon('wallet', 'text-secondary text-2xl'); ?>
 </div>
 <div class="text-left flex-1">
 <span class="text-primary font-medium text-base block">Coinbase Wallet</span>
@@ -116,7 +116,7 @@ Non-custodial and secure
 </div>
 <div id="wallet-trust" onclick="selectWallet('trust')" class="flex items-center gap-3 p-4 rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors">
 <div class="size-10 rounded-full bg-surface-container-lowest p-1 flex items-center justify-center">
-<span class="material-symbols-outlined text-primary text-2xl">shield_with_heart</span>
+<?php echo wt_icon('shield', 'text-primary text-2xl'); ?>
 </div>
 <div class="text-left flex-1">
 <span class="text-primary font-medium text-base block">Trust Wallet</span>
@@ -125,7 +125,7 @@ Non-custodial and secure
 </div>
 <div id="wallet-walletconnect" onclick="selectWallet('walletconnect')" class="flex items-center gap-3 p-4 rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors">
 <div class="size-10 rounded-full bg-surface-container-lowest p-1 flex items-center justify-center">
-<span class="material-symbols-outlined text-secondary text-2xl">sync</span>
+<?php echo wt_icon('refresh', 'text-secondary text-2xl'); ?>
 </div>
 <div class="text-left flex-1">
 <span class="text-primary font-medium text-base block">WalletConnect</span>

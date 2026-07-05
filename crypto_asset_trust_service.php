@@ -43,21 +43,21 @@ include 'includes/components/service-hero-split.php';
 </div>
 <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 flex flex-col items-center text-center shadow-sm hover:shadow-md hover:border-secondary/40 transition-all group">
 <div class="w-14 h-14 mb-3 rounded-xl bg-tertiary-fixed flex items-center justify-center text-deep-forest group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl">token</span>
+<?php echo wt_icon('token', 'text-3xl'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary">NFTs</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant mt-1 uppercase tracking-widest">ERC-721</p>
 </div>
 <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 flex flex-col items-center text-center shadow-sm hover:shadow-md hover:border-secondary/40 transition-all group">
 <div class="w-14 h-14 mb-3 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl">paid</span>
+<?php echo wt_icon('paid', 'text-3xl'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary">USDT</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant mt-1 uppercase tracking-widest">Tether</p>
 </div>
 <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 flex flex-col items-center text-center shadow-sm hover:shadow-md hover:border-secondary/40 transition-all group">
 <div class="w-14 h-14 mb-3 rounded-xl bg-sky-accent/40 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl">radar</span>
+<?php echo wt_icon('radar', 'text-3xl'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary">Solana</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant mt-1 uppercase tracking-widest">SOL</p>
@@ -83,13 +83,13 @@ include 'includes/components/service-hero-split.php';
 <div class="grid md:grid-cols-2 gap-8">
 <div class="bg-surface-container-lowest p-8 md:p-10 rounded-2xl border border-outline-variant/30 shadow-sm">
 <div class="w-12 h-12 bg-error-container rounded-xl flex items-center justify-center text-error mb-6">
-<span class="material-symbols-outlined">warning</span>
+<?php echo wt_icon('warning', 'w-5 h-5'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary mb-6">Without a Trust</h3>
 <ul class="space-y-4">
 <?php foreach (['Crypto assets may be lost forever if keys are lost', 'Family has no access or knowledge of holdings', 'Subject to lengthy probate process', 'No protection from creditors or lawsuits', 'Potential for theft or fraud'] as $item): ?>
 <li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-error mt-0.5 flex-shrink-0">close</span>
+<?php echo wt_icon('close', 'text-error mt-0.5 flex-shrink-0'); ?>
 <span class="font-body-md text-body-md text-on-surface-variant"><?php echo $item; ?></span>
 </li>
 <?php endforeach; ?>
@@ -100,13 +100,13 @@ include 'includes/components/service-hero-split.php';
 <span class="bg-secondary text-on-secondary font-label-sm text-label-sm uppercase tracking-widest px-3 py-1 rounded-full">Recommended</span>
 </div>
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary mb-6">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'w-5 h-5'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-sky-accent mb-6">With WyomingTrust</h3>
 <ul class="space-y-4">
 <?php foreach (['Secure, encrypted key management', 'Automatic transfer to beneficiaries', 'Bypass probate entirely', 'Asset protection from creditors', 'Blockchain-verified and immutable'] as $item): ?>
 <li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent mt-0.5 flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check</span>
+<?php echo wt_icon('check', 'text-sky-accent mt-0.5 flex-shrink-0'); ?>
 <span class="font-body-md text-body-md text-on-primary-container"><?php echo $item; ?></span>
 </li>
 <?php endforeach; ?>
@@ -126,7 +126,7 @@ include 'includes/components/service-hero-split.php';
 <div class="grid md:grid-cols-3 gap-8">
 <?php
 $steps = [
-    ['num' => '1', 'title' => 'Create Your Trust', 'desc' => 'Set up your crypto trust online with guided onboarding in minutes.', 'icon' => 'edit_document'],
+    ['num' => '1', 'title' => 'Create Your Trust', 'desc' => 'Set up your crypto trust online with guided onboarding in minutes.', 'icon' => 'edit'],
     ['num' => '2', 'title' => 'Link Your Assets', 'desc' => 'Securely connect wallets and designate beneficiaries with encrypted key management.', 'icon' => 'link'],
     ['num' => '3', 'title' => 'Protect Forever', 'desc' => 'Your assets transfer automatically per your wishes — no probate, no lost keys.', 'icon' => 'shield'],
 ];
@@ -134,7 +134,7 @@ foreach ($steps as $step):
 ?>
 <div class="bg-primary-container p-8 rounded-2xl border border-white/10 text-center">
 <div class="w-14 h-14 bg-secondary text-on-secondary rounded-2xl flex items-center justify-center text-xl font-bold mx-auto mb-5"><?php echo $step['num']; ?></div>
-<span class="material-symbols-outlined text-sky-accent text-4xl mb-4 block"><?php echo $step['icon']; ?></span>
+<?php echo wt_icon($step['icon'], 'text-sky-accent text-4xl mb-4 block'); ?>
 <h3 class="font-headline-md text-headline-md text-sky-accent mb-3"><?php echo $step['title']; ?></h3>
 <p class="font-body-md text-body-md text-on-primary-container"><?php echo $step['desc']; ?></p>
 </div>

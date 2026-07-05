@@ -7,7 +7,7 @@ $email = $_GET['email'] ?? $_SESSION['user_email'] ?? '';
 <div class="max-w-md w-full bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_20px_40px_rgba(4,22,39,0.08)] border border-outline-variant/30">
 <div class="flex justify-center mb-6">
 <div class="bg-secondary-fixed p-4 rounded-full">
-<span class="material-symbols-outlined text-secondary text-5xl">mail</span>
+<?php echo wt_icon('mail', 'text-secondary text-5xl'); ?>
 </div>
 </div>
 <h2 class="text-center font-headline-lg text-headline-lg text-primary mb-2">Check Your Email</h2>

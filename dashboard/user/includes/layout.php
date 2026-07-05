@@ -1,7 +1,7 @@
 <?php
 /**
  * User dashboard shell — Heritage Modern layout.
- * Expects: $page_title, $userName; optional: $active_nav (dashboard|trusts|create-trust|beneficiaries|profile|billing)
+ * Expects: $page_title, $userName; optional: $active_nav (dashboard|trusts|create-trust|beneficiaries|billing)
  */
 $active_nav = $active_nav ?? '';
 $userName = $userName ?? ($_SESSION['user_name'] ?? 'User');
@@ -19,8 +19,11 @@ $navClass = function ($key) use ($active_nav) {
     }
     return 'flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all';
 };
-$navIconFill = function ($key) use ($active_nav) {
-    return $active_nav === $key ? " style=\"font-variation-settings: 'FILL' 1;\"" : '';
+$footerNavClass = function ($key) use ($active_nav) {
+    if ($active_nav === $key) {
+        return 'flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium transition-all';
+    }
+    return 'flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all';
 };
 ?>
 <!DOCTYPE html>
@@ -31,7 +34,7 @@ $navIconFill = function ($key) use ($active_nav) {
 <title><?php echo escape_html($page_title ?? 'WyomingTrust Dashboard'); ?></title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="<?php echo escape_html(wt_icon_script_url()); ?>"></script>
 <script>
 tailwind.config = {
     darkMode: "class",
@@ -92,6 +95,7 @@ tailwind.config = {
 </script>
 <style>
 .sidebar-active { background-color: #041627; color: #ffffff; box-shadow: 0 10px 15px -3px rgba(4, 22, 39, 0.1); }
+.sidebar-active .wt-icon { stroke: #ffffff; }
 .glass-effect { backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.85); }
 .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .card-hover:hover {
@@ -105,21 +109,7 @@ tailwind.config = {
 @media (min-width: 768px) {
     .metric-stat-value { font-size: 3.25rem; }
 }
-.material-symbols-outlined {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
+.wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d9dadb; border-radius: 10px; }
@@ -145,68 +135,70 @@ tailwind.config = {
 </div>
 <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
 <a class="<?php echo $navClass('dashboard'); ?>" href="dashboard.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('dashboard'); ?>>dashboard</span>
+<?php echo wt_icon('dashboard', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">Dashboard</span>
 </a>
 <a class="<?php echo $navClass('trusts'); ?>" href="manage-trust.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('trusts'); ?>>gavel</span>
+<?php echo wt_icon('gavel', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">My Trusts</span>
 </a>
 <a class="<?php echo $navClass('create-trust'); ?>" href="../../onboarding/onboarding.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('create-trust'); ?>>add_circle</span>
+<?php echo wt_icon('add-circle', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">Create Trust</span>
 </a>
 <a class="<?php echo $navClass('beneficiaries'); ?>" href="beneficiaries.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('beneficiaries'); ?>>group</span>
+<?php echo wt_icon('group', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">Beneficiaries</span>
 </a>
-<a class="<?php echo $navClass('profile'); ?>" href="profile.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('profile'); ?>>person</span>
-<span class="font-label-md text-label-md">My Profile</span>
-</a>
 <a class="<?php echo $navClass('billing'); ?>" href="billing.php">
-<span class="material-symbols-outlined"<?php echo $navIconFill('billing'); ?>>receipt_long</span>
+<?php echo wt_icon('receipt-long', 'w-5 h-5'); ?>
 <span class="font-label-md text-label-md">Billing</span>
 </a>
 </nav>
 <div class="p-6 border-t border-outline-variant">
 <div class="flex items-center gap-4 mb-4">
 <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm"><?php echo escape_html($userInitials); ?></div>
-<div>
-<p class="font-label-md text-label-md font-bold"><?php echo escape_html($userName); ?></p>
+<div class="min-w-0">
+<p class="font-label-md text-label-md font-bold truncate"><?php echo escape_html($userName); ?></p>
 <p class="text-xs text-secondary">Member</p>
 </div>
 </div>
-<a href="../../api/logout.php" class="flex items-center gap-2 w-full px-4 py-2 text-error font-label-md text-label-md hover:bg-error-container/20 rounded-lg transition-colors">
-<span class="material-symbols-outlined text-sm">logout</span>
+<div class="border-t border-outline-variant pt-4 space-y-1">
+<a class="<?php echo $footerNavClass('profile'); ?>" href="profile.php">
+<?php echo wt_icon('person', 'w-5 h-5'); ?>
+<span class="font-label-md text-label-md">My Profile</span>
+</a>
+<a href="../../api/logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-error font-label-md text-label-md hover:bg-error-container/20 transition-colors">
+<?php echo wt_icon('logout', 'w-5 h-5', '#ba1a1a'); ?>
 Logout
 </a>
+</div>
 </div>
 </aside>
 <main class="flex-1 md:ml-72 min-h-screen flex flex-col">
 <header class="h-20 glass-effect sticky top-0 z-40 flex items-center justify-between px-gutter md:px-12 border-b border-outline-variant/30">
 <div class="flex items-center flex-1 max-w-xl">
 <button type="button" class="md:hidden mr-4 p-2 hover:bg-surface-container rounded-full" onclick="toggleMobileNav()" aria-label="Open menu">
-<span class="material-symbols-outlined">menu</span>
+<?php echo wt_icon('menu', 'w-6 h-6'); ?>
 </button>
 <div class="relative w-full max-w-md hidden sm:block">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"><?php echo wt_icon('search', 'w-5 h-5'); ?></span>
 <input class="w-full pl-11 pr-4 py-2 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-secondary/50 font-body-md text-sm" placeholder="Search trusts or beneficiaries..." type="search"/>
 </div>
 </div>
 <div class="flex items-center gap-2 md:gap-6">
 <button type="button" class="relative p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors" aria-label="Notifications">
-<span class="material-symbols-outlined">notifications</span>
+<?php echo wt_icon('notifications', 'w-6 h-6'); ?>
 <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
 </button>
 <button type="button" onclick="window.location.href='profile.php'" class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors" aria-label="Settings">
-<span class="material-symbols-outlined">settings</span>
+<?php echo wt_icon('settings', 'w-6 h-6'); ?>
 </button>
 <div class="h-8 w-px bg-outline-variant hidden md:block"></div>
 <div class="hidden md:flex items-center gap-3 bg-surface-container px-4 py-1.5 rounded-full">
 <span class="font-label-md text-label-md font-medium">Member</span>
 <div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
-<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<?php echo wt_icon('star', 'w-3.5 h-3.5', '#ffffff'); ?>
 </div>
 </div>
 </div>

@@ -17,7 +17,7 @@ include 'includes/header.php';
 <input type="hidden" id="resetToken" value="<?php echo htmlspecialchars($token); ?>">
 <div id="tokenError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
 <p class="flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">error</span>
+<?php echo wt_icon('error', 'text-sm'); ?>
 <span id="tokenErrorText">Invalid or expired reset token. Please request a new password reset link.</span>
 </p>
 </div>
@@ -27,7 +27,7 @@ include 'includes/header.php';
 <div class="relative">
 <input id="password" name="password" type="password" required class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-t-lg px-4 py-3 pr-12 transition-colors" placeholder="Enter your new password">
 <button type="button" onclick="togglePasswordVisibility('password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-xl toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'text-xl toggle-password-icon'); ?>
 </button>
 </div>
 <p class="text-xs text-on-surface-variant">Password must be at least 8 characters with uppercase, lowercase, number, and special character</p>
@@ -37,7 +37,7 @@ include 'includes/header.php';
 <div class="relative">
 <input id="confirm_password" name="confirm_password" type="password" required class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-t-lg px-4 py-3 pr-12 transition-colors" placeholder="Confirm your new password">
 <button type="button" onclick="togglePasswordVisibility('confirm_password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-xl toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'text-xl toggle-password-icon'); ?>
 </button>
 </div>
 </div>
@@ -45,14 +45,14 @@ include 'includes/header.php';
 <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"></div>
 <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
 <p class="flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sm'); ?>
 <span>Password reset successfully! Redirecting to login...</span>
 </p>
 </div>
 <div id="submitButtonContainer">
 <button type="submit" class="w-full bg-secondary text-on-secondary flex items-center justify-center gap-2 py-4 rounded-lg font-bold hover:opacity-90 transition-all">
 Reset Password
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </button>
 </div>
 <div class="text-center space-y-2 pt-2 text-sm text-on-surface-variant">
@@ -133,26 +133,25 @@ document.getElementById('resetPasswordForm').addEventListener('submit', async (e
             errorMessage.textContent = data.message || 'Failed to reset password. Please try again or request a new reset link.';
             errorMessage.classList.remove('hidden');
             submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Reset Password <span class="material-symbols-outlined">arrow_forward</span>';
+            submitBtn.innerHTML = 'Reset Password <?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>';
         }
     } catch (error) {
         errorMessage.textContent = 'An error occurred. Please try again later.';
         errorMessage.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Reset Password <span class="material-symbols-outlined">arrow_forward</span>';
+        submitBtn.innerHTML = 'Reset Password <?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>';
     }
 });
 
 function togglePasswordVisibility(inputId, button) {
     const input = document.getElementById(inputId);
-    const icon = button.querySelector('.toggle-password-icon');
-    if (input && icon) {
+    if (input && button) {
         if (input.type === 'password') {
             input.type = 'text';
-            icon.textContent = 'visibility';
+            button.innerHTML = wtIcon('visibility', 'w-5 h-5');
         } else {
             input.type = 'password';
-            icon.textContent = 'visibility_off';
+            button.innerHTML = wtIcon('visibility-off', 'w-5 h-5');
         }
     }
 }

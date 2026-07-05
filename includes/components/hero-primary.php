@@ -15,7 +15,7 @@ $hero_cta_text = $hero_cta_text ?? 'Get Started';
 <div class="flex flex-col sm:flex-row gap-4 justify-center">
 <a class="bg-secondary text-on-secondary px-8 py-4 rounded-lg font-bold inline-flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" href="<?php echo escape_html($hero_cta_href); ?>">
 <?php echo escape_html($hero_cta_text); ?>
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 <?php if (!empty($hero_secondary_text) && !empty($hero_secondary_href)): ?>
 <a class="border-2 border-sky-accent text-sky-accent px-8 py-4 rounded-lg font-bold inline-flex items-center justify-center hover:bg-sky-accent/10 transition-all" href="<?php echo escape_html($hero_secondary_href); ?>">

@@ -759,3 +759,5 @@ function check_rate_limit($key, $max_requests = 5, $window = 300) {
         }
     }
 }
+
+require_once __DIR__ . '/../includes/icons.php';

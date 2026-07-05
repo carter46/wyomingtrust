@@ -33,7 +33,7 @@ include 'includes/components/service-hero-split.php';
 </div>
 <a href="onboarding/onboarding.php" class="inline-flex items-center gap-2 text-secondary font-label-md font-bold hover:underline">
 Deploy your smart contract trust
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-[18px]'); ?>
 </a>
 </div>
 <div class="bg-primary-container p-8 md:p-10 rounded-2xl border border-white/10 shadow-xl">
@@ -70,18 +70,18 @@ foreach ($how as $h):
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 <?php
 $features = [
-    ['icon' => 'bolt', 'title' => 'Instant Execution', 'desc' => 'No waiting for probate or executor decisions. Transfers happen immediately when conditions are met.'],
+    ['icon' => 'arrow-forward', 'title' => 'Instant Execution', 'desc' => 'No waiting for probate or executor decisions. Transfers happen immediately when conditions are met.'],
     ['icon' => 'visibility', 'title' => 'Full Transparency', 'desc' => 'All transactions recorded on the blockchain—completely transparent and auditable.'],
     ['icon' => 'lock', 'title' => 'Immutable', 'desc' => 'Once deployed, the contract cannot be altered, ensuring your wishes are honored without dispute.'],
     ['icon' => 'payments', 'title' => 'Cost-Effective', 'desc' => 'Eliminate ongoing trustee fees, executor commissions, and expensive probate costs.'],
-    ['icon' => 'settings_suggest', 'title' => 'Complex Logic', 'desc' => 'Sophisticated distribution rules based on multiple conditions, time frames, and triggers.'],
-    ['icon' => 'language', 'title' => 'Global Access', 'desc' => 'Beneficiaries anywhere in the world receive their inheritance automatically.'],
+    ['icon' => 'settings', 'title' => 'Complex Logic', 'desc' => 'Sophisticated distribution rules based on multiple conditions, time frames, and triggers.'],
+    ['icon' => 'globe', 'title' => 'Global Access', 'desc' => 'Beneficiaries anywhere in the world receive their inheritance automatically.'],
 ];
 foreach ($features as $f):
 ?>
 <div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/30 shadow-sm hover:shadow-md hover:border-secondary/30 transition-all">
 <div class="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center text-on-secondary mb-5">
-<span class="material-symbols-outlined"><?php echo $f['icon']; ?></span>
+<?php echo wt_icon($f['icon'], 'w-5 h-5'); ?>
 </div>
 <h4 class="font-headline-md text-headline-md text-primary mb-3"><?php echo $f['title']; ?></h4>
 <p class="font-body-md text-body-md text-on-surface-variant"><?php echo $f['desc']; ?></p>
@@ -100,7 +100,7 @@ foreach ($features as $f):
 <ul class="space-y-3">
 <?php foreach (['No executor fees or delays', 'On-chain proof of every transaction', 'Works across borders and jurisdictions', 'Integrates with major blockchains'] as $item): ?>
 <li class="flex items-center gap-3 text-on-primary-container font-body-md">
-<span class="material-symbols-outlined text-sky-accent" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?>
 <?php echo $item; ?>
 </li>
 <?php endforeach; ?>

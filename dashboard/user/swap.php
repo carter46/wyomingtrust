@@ -15,7 +15,7 @@ include __DIR__ . '/includes/layout.php';
 
 <div class="bg-warm-cream border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0">warning</span>
+<?php echo wt_icon('warning', 'text-secondary flex-shrink-0'); ?>
 <div class="text-sm text-on-surface">
 <p class="font-semibold mb-2">Important Security Notice:</p>
 <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-on-surface-variant">
@@ -35,14 +35,14 @@ include __DIR__ . '/includes/layout.php';
 <div id="fromAssetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-2">
 <img id="fromAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="fromAssetName" class="font-bold text-on-surface">Select Asset</span>
-<span class="material-symbols-outlined ml-auto text-on-surface-variant">expand_more</span>
+<?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
 </div>
 <input type="number" id="fromAmount" step="0.00000001" placeholder="0.00" oninput="calculateSwap()" class="w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-sm text-on-surface">
 <p class="text-xs text-on-surface-variant mt-2">Balance: <span id="fromBalance">--</span></p>
 </div>
 <div class="flex justify-center my-4">
 <button onclick="swapAssets()" class="p-2 bg-surface-container-low rounded-full hover:bg-surface-container text-on-surface">
-<span class="material-symbols-outlined text-2xl">swap_vert</span>
+<?php echo wt_icon('swap', 'text-2xl'); ?>
 </button>
 </div>
 <div class="mb-6">
@@ -50,7 +50,7 @@ include __DIR__ . '/includes/layout.php';
 <div id="toAssetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-2">
 <img id="toAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="toAssetName" class="font-bold text-on-surface">Select Asset</span>
-<span class="material-symbols-outlined ml-auto text-on-surface-variant">expand_more</span>
+<?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
 </div>
 <input type="number" id="toAmount" readonly class="w-full px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-low text-sm text-on-surface">
 <p class="text-xs text-on-surface-variant mt-2">Exchange Rate: <span id="exchangeRate">--</span></p>
@@ -69,7 +69,7 @@ Swap
 <div class="p-6 border-b border-outline-variant flex items-center justify-between">
 <h3 class="font-bold text-lg text-primary">Select Asset</h3>
 <button onclick="closeAssetModal()" class="text-on-surface-variant hover:text-on-surface">
-<span class="material-symbols-outlined">close</span>
+<?php echo wt_icon('close', 'w-5 h-5'); ?>
 </button>
 </div>
 <div id="assetList" class="p-4"></div>

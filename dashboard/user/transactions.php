@@ -101,7 +101,7 @@ function renderTransactions() {
         const amount = parseFloat(t.amount || 0);
         const coinSymbol = t.coin_symbol || t.asset_symbol || '?';
         const logo = t.coin_logo || '';
-        const typeIcon = t.type === 'send' ? 'send' : t.type === 'receive' ? 'call_received' : t.type === 'swap' ? 'swap_horiz' : 'payment';
+        const typeIcon = t.type === 'send' ? 'send' : t.type === 'receive' ? 'receive' : t.type === 'swap' ? 'swap' : 'payments';
         const statusClass = t.status === 'completed' ? 'bg-deep-forest/10 text-deep-forest' : 
                            t.status === 'pending' ? 'bg-warm-cream text-on-surface' :
                            'bg-error-container text-error';
@@ -110,7 +110,7 @@ function renderTransactions() {
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 border-b border-outline-variant hover:bg-surface-container-low">
                 <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                     <div class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined">${typeIcon}</span>
+                        ${wtIcon(typeIcon, 'w-5 h-5')}
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 mb-1">

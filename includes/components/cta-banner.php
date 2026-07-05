@@ -10,7 +10,7 @@ $cta_secondary_text = $cta_secondary_text ?? 'Create Your Will';
 <div class="max-w-container-max mx-auto">
 <div class="bg-secondary p-10 md:p-12 rounded-3xl text-center text-on-secondary shadow-xl relative overflow-hidden">
 <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-<span class="material-symbols-outlined text-[200px]">verified</span>
+<?php echo wt_icon('shield', 'text-[200px]'); ?>
 </div>
 <div class="relative z-10 space-y-6">
 <h2 class="font-display-lg text-display-lg"><?php echo escape_html($cta_title); ?></h2>

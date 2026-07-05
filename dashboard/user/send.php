@@ -15,7 +15,7 @@ include __DIR__ . '/includes/layout.php';
 
 <div class="bg-warm-cream border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0">warning</span>
+<?php echo wt_icon('warning', 'text-secondary flex-shrink-0'); ?>
 <div class="text-sm text-on-surface">
 <p class="font-semibold mb-2">Security Notice:</p>
 <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-on-surface-variant">
@@ -33,14 +33,14 @@ include __DIR__ . '/includes/layout.php';
 <div id="assetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-6">
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
-<span class="material-symbols-outlined ml-auto text-on-surface-variant">expand_more</span>
+<?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
 </div>
 <div class="mb-6">
 <label class="block text-sm font-semibold mb-2 text-on-surface">Recipient Address</label>
 <div class="flex gap-2">
 <input type="text" id="recipientAddress" placeholder="Enter wallet address" class="flex-1 px-4 py-3 border border-outline-variant rounded-lg bg-surface-container-lowest text-sm text-on-surface">
 <button onclick="pasteAddress()" class="px-4 py-3 bg-surface-container-low rounded-lg hover:bg-surface-container text-on-surface">
-<span class="material-symbols-outlined text-base">content_paste</span>
+<?php echo wt_icon('edit', 'text-base'); ?>
 </button>
 </div>
 </div>
@@ -83,7 +83,7 @@ Send Transaction
 <div class="p-6 border-b border-outline-variant flex items-center justify-between">
 <h3 class="font-bold text-lg text-primary">Select Asset</h3>
 <button onclick="closeAssetModal()" class="text-on-surface-variant hover:text-on-surface">
-<span class="material-symbols-outlined">close</span>
+<?php echo wt_icon('close', 'w-5 h-5'); ?>
 </button>
 </div>
 <div id="assetList" class="p-4"></div>

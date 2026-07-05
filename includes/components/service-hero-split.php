@@ -22,7 +22,7 @@ $hero_image_alt = $hero_image_alt ?? 'WyomingTrust estate planning';
 <ul class="space-y-3 mb-8">
 <?php foreach ($hero_bullets as $bullet): ?>
 <li class="flex items-start gap-3 text-on-primary-container font-body-md">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0 mt-0.5'); ?>
 <span><?php echo escape_html($bullet); ?></span>
 </li>
 <?php endforeach; ?>
@@ -31,7 +31,7 @@ $hero_image_alt = $hero_image_alt ?? 'WyomingTrust estate planning';
 <div class="flex flex-col sm:flex-row gap-4">
 <a href="<?php echo escape_html($hero_cta_href); ?>" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg shadow-secondary/20">
 <?php echo escape_html($hero_cta_text); ?>
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 <?php if (!empty($hero_secondary_text) && !empty($hero_secondary_href)): ?>
 <a href="<?php echo escape_html($hero_secondary_href); ?>" class="inline-flex items-center justify-center gap-2 border-2 border-sky-accent text-sky-accent px-8 py-4 rounded-xl font-bold hover:bg-sky-accent/10 transition-colors">
@@ -47,7 +47,7 @@ $hero_image_alt = $hero_image_alt ?? 'WyomingTrust estate planning';
 <?php if (!empty($hero_badge_value)): ?>
 <div class="absolute -bottom-5 -left-5 bg-primary-container text-on-primary p-5 rounded-2xl shadow-xl border-4 border-white/10 hidden sm:flex items-center gap-4">
 <div class="bg-secondary p-3 rounded-full">
-<span class="material-symbols-outlined text-on-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+<?php echo wt_icon('shield', 'text-on-secondary text-2xl'); ?>
 </div>
 <div>
 <div class="text-2xl font-black leading-none text-on-primary"><?php echo escape_html($hero_badge_value); ?></div>

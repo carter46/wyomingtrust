@@ -12,10 +12,10 @@ include __DIR__ . '/includes/layout.php';
 
 <section>
 <h1 class="font-headline-lg text-headline-lg text-primary mb-2">Profile Settings</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Update your account information and password.</p>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Update your account information and password.</p>
 </section>
 
-<div class="max-w-2xl space-y-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
 <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8">
 <h2 class="font-headline-md text-headline-md text-primary mb-6">Account Information</h2>
 <div class="space-y-4">
@@ -34,7 +34,7 @@ Save Changes
 </div>
 </div>
 
-<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8 pb-20">
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-6 sm:p-8">
 <h2 class="font-headline-md text-headline-md text-primary mb-6">Change Password</h2>
 <div class="space-y-4">
 <div>
@@ -42,7 +42,7 @@ Save Changes
 <div class="relative">
 <input type="password" id="currentPassword" class="w-full px-4 py-3 pr-12 border border-outline-variant rounded-lg bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-secondary/50">
 <button type="button" onclick="togglePasswordVisibility('currentPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-lg toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'w-5 h-5'); ?>
 </button>
 </div>
 </div>
@@ -51,7 +51,7 @@ Save Changes
 <div class="relative">
 <input type="password" id="newPassword" class="w-full px-4 py-3 pr-12 border border-outline-variant rounded-lg bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-secondary/50">
 <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-lg toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'w-5 h-5'); ?>
 </button>
 </div>
 </div>
@@ -60,7 +60,7 @@ Save Changes
 <div class="relative">
 <input type="password" id="confirmPassword" class="w-full px-4 py-3 pr-12 border border-outline-variant rounded-lg bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-secondary/50">
 <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-lg toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'w-5 h-5'); ?>
 </button>
 </div>
 </div>
@@ -76,13 +76,13 @@ let userProfile = null;
 
 function togglePasswordVisibility(fieldId, btn) {
     const input = document.getElementById(fieldId);
-    const icon = btn.querySelector('.toggle-password-icon');
+    const svg = btn.querySelector('svg');
     if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
+        if (svg && typeof wtIcon === 'function') btn.innerHTML = wtIcon('visibility', 'w-5 h-5');
     } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
+        if (svg && typeof wtIcon === 'function') btn.innerHTML = wtIcon('visibility-off', 'w-5 h-5');
     }
 }
 

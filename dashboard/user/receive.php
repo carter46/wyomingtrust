@@ -16,7 +16,7 @@ include __DIR__ . '/includes/layout.php';
 
 <div class="bg-surface-container-low border border-outline-variant rounded-2xl p-4 sm:p-6 mb-6">
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0">info</span>
+<?php echo wt_icon('info', 'text-secondary flex-shrink-0'); ?>
 <div class="text-sm text-on-surface">
 <p class="font-semibold mb-2">Security Information:</p>
 <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-on-surface-variant">
@@ -33,7 +33,7 @@ include __DIR__ . '/includes/layout.php';
 <div id="assetSelector" class="flex items-center gap-3 p-4 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low mb-6">
 <img id="selectedAssetLogo" src="" alt="" class="w-10 h-10 rounded-full hidden">
 <span id="selectedAssetName" class="font-bold text-on-surface">Select Asset</span>
-<span class="material-symbols-outlined ml-auto text-on-surface-variant">expand_more</span>
+<?php echo wt_icon('chevron-down', 'ml-auto text-on-surface-variant'); ?>
 </div>
 <div class="text-center mb-6 p-6 bg-surface-container-low rounded-lg">
 <div id="qrCode" class="inline-block p-4 bg-surface-container-lowest rounded-lg mb-4">
@@ -43,7 +43,7 @@ include __DIR__ . '/includes/layout.php';
 <div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-lg border border-outline-variant">
 <input type="text" id="receiveAddress" readonly class="flex-1 bg-transparent text-xs sm:text-sm font-mono break-all text-on-surface">
 <button onclick="copyAddress()" class="px-3 py-2 bg-primary text-on-primary rounded-lg hover:bg-primary/90 text-xs font-semibold">
-<span class="material-symbols-outlined text-base align-middle">content_copy</span>
+<?php echo wt_icon('share', 'text-base align-middle'); ?>
 </button>
 </div>
 <p class="text-xs text-on-surface-variant mt-2">Send only <span id="selectedAssetSymbol">--</span> to this address</p>
@@ -56,7 +56,7 @@ include __DIR__ . '/includes/layout.php';
 <div class="p-6 border-b border-outline-variant flex items-center justify-between">
 <h3 class="font-bold text-lg text-primary">Select Asset</h3>
 <button onclick="closeAssetModal()" class="text-on-surface-variant hover:text-on-surface">
-<span class="material-symbols-outlined">close</span>
+<?php echo wt_icon('close', 'w-5 h-5'); ?>
 </button>
 </div>
 <div id="assetList" class="p-4"></div>

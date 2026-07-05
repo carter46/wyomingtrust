@@ -102,7 +102,7 @@ function renderBeneficiaries(rows) {
                             <td class="px-6 md:px-8 py-6 text-right">
                                 <a href="manage-trust.php?id=${row.trustId}" class="inline-flex items-center gap-1 px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors">
                                     View Trust
-                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                    <?php echo wt_icon('arrow-forward', 'text-sm'); ?>
                                 </a>
                             </td>
                         </tr>

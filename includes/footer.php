@@ -14,9 +14,9 @@ include __DIR__ . '/components/site-logo.php';
                     Helping families protect their crypto legacy with modern estate planning and bank-grade security.
                 </p>
 <div class="flex gap-4 mb-8">
-<a class="text-sky-accent hover:opacity-80 transition-opacity" href="#" aria-label="Social"><span class="material-symbols-outlined">share</span></a>
-<a class="text-sky-accent hover:opacity-80 transition-opacity" href="contact_us.php" aria-label="Contact"><span class="material-symbols-outlined">alternate_email</span></a>
-<a class="text-sky-accent hover:opacity-80 transition-opacity" href="#" aria-label="Web"><span class="material-symbols-outlined">public</span></a>
+<a class="text-sky-accent hover:opacity-80 transition-opacity" href="#" aria-label="Social"><?php echo wt_icon('share', 'w-5 h-5', '#B6D6F2'); ?></a>
+<a class="text-sky-accent hover:opacity-80 transition-opacity" href="contact_us.php" aria-label="Contact"><?php echo wt_icon('mail', 'w-5 h-5', '#B6D6F2'); ?></a>
+<a class="text-sky-accent hover:opacity-80 transition-opacity" href="#" aria-label="Web"><?php echo wt_icon('globe', 'w-5 h-5', '#B6D6F2'); ?></a>
 </div>
 </div>
 <div>

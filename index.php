@@ -16,7 +16,7 @@ include 'includes/header.php';
 <div class="flex flex-col sm:flex-row gap-4">
 <a class="bg-secondary text-on-secondary px-8 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all group" href="onboarding/onboarding.php">
                             Create Your Trust
-                            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            <?php echo wt_icon('arrow-forward', 'group-hover:translate-x-1 transition-transform'); ?>
 </a>
 <a class="border-2 border-secondary text-secondary px-8 py-4 rounded-lg font-bold flex items-center justify-center hover:bg-secondary/5 transition-all" href="onboarding/onboarding.php">
                             Create Your Will
@@ -24,11 +24,11 @@ include 'includes/header.php';
 </div>
 <div class="mt-8 flex items-center gap-2 text-on-surface-variant">
 <span class="text-yellow-500 flex">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<?php echo wt_icon('star', 'w-5 h-5'); ?>
+<?php echo wt_icon('star', 'w-5 h-5'); ?>
+<?php echo wt_icon('star', 'w-5 h-5'); ?>
+<?php echo wt_icon('star', 'w-5 h-5'); ?>
+<?php echo wt_icon('star', 'w-5 h-5'); ?>
 </span>
 <span class="font-label-md text-label-md">Excellent on Trustpilot</span>
 </div>
@@ -40,13 +40,13 @@ include 'includes/header.php';
 <div class="absolute -bottom-6 -left-6 glass-card p-6 rounded-xl shadow-xl hidden md:block border border-white/20">
 <ul class="space-y-3">
 <li class="flex items-center gap-3 text-deep-forest font-label-md">
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span> Power of Attorney
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> Power of Attorney
                             </li>
 <li class="flex items-center gap-3 text-deep-forest font-label-md">
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span> Last Will &amp; Testament
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> Last Will &amp; Testament
                             </li>
 <li class="flex items-center gap-3 text-deep-forest font-label-md">
-<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span> HIPAA Authorization
+<?php echo wt_icon('check-circle', 'text-secondary'); ?> HIPAA Authorization
                             </li>
 </ul>
 </div>
@@ -84,17 +84,17 @@ include 'includes/header.php';
                     </p>
 <a class="inline-flex items-center text-sky-accent font-label-md mb-10 hover:underline" href="compare_trust_types_page.php">
                         More About Trusts
-                        <span class="material-symbols-outlined ml-1">arrow_forward</span>
+                        <?php echo wt_icon('arrow-forward', 'ml-1'); ?>
 </a>
 <ul class="space-y-4 mb-10">
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-sky-accent">done</span> Popular choice for homeowners
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Popular choice for homeowners
                         </li>
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-sky-accent">done</span> Contains all Will documents
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Contains all Will documents
                         </li>
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-sky-accent">done</span> Goes into effect while you're living
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Goes into effect while you're living
                         </li>
 </ul>
 <a class="block w-full text-center bg-secondary text-on-secondary py-4 rounded-xl font-bold hover:bg-secondary-container transition-colors" href="onboarding/onboarding.php">Create Your Trust</a>
@@ -106,17 +106,17 @@ include 'includes/header.php';
                     </p>
 <a class="inline-flex items-center text-sky-accent font-label-md mb-10 hover:underline" href="compare_trust_types_page.php">
                         More About Wills
-                        <span class="material-symbols-outlined ml-1">arrow_forward</span>
+                        <?php echo wt_icon('arrow-forward', 'ml-1'); ?>
 </a>
 <ul class="space-y-4 mb-10">
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-sky-accent">done</span> Simple, legal, and state-specific
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Simple, legal, and state-specific
                         </li>
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-error">close</span> Does not prevent probate court
+<?php echo wt_icon('close', 'text-error'); ?> Does not prevent probate court
                         </li>
 <li class="flex items-center gap-3">
-<span class="material-symbols-outlined text-sky-accent">done</span> Goes into effect after you're gone
+<?php echo wt_icon('check-circle', 'text-sky-accent'); ?> Goes into effect after you're gone
                         </li>
 </ul>
 <a class="block w-full text-center bg-sky-accent text-primary py-4 rounded-xl font-bold hover:bg-white transition-colors" href="onboarding/onboarding.php">Create Your Will</a>
@@ -138,21 +138,21 @@ include 'includes/header.php';
 <h3 class="font-headline-md text-headline-md mb-4">Your estate, fully connected.</h3>
 <ul class="space-y-4 mb-8">
 <li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary mt-1">auto_awesome</span>
+<?php echo wt_icon('star', 'text-secondary mt-1'); ?>
 <div>
 <p class="font-bold">Unlimited updates to your plan</p>
 <p class="text-sm text-on-surface-variant">Stay current as life happens without extra fees.</p>
 </div>
 </li>
 <li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary mt-1">groups</span>
+<?php echo wt_icon('group', 'text-secondary mt-1'); ?>
 <div>
 <p class="font-bold">Share access with trusted contacts</p>
 <p class="text-sm text-on-surface-variant">Securely grant access to your family or executors.</p>
 </div>
 </li>
 <li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary mt-1">insights</span>
+<?php echo wt_icon('info', 'text-secondary mt-1'); ?>
 <div>
 <p class="font-bold">Smart alerts &amp; personalized insights</p>
 <p class="text-sm text-on-surface-variant">Proactive reminders to keep your plan healthy.</p>
@@ -191,32 +191,32 @@ include 'includes/header.php';
 <h2 class="font-headline-lg text-headline-lg mb-6 lg:mb-8"><span class="text-sky-accent">&#9650;</span> Why Choose WyomingTrust?</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 lg:mb-10">
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">100% free setup &amp; management.</p>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">Multi-signature security.</p>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">Support for 50+ cryptocurrencies.</p>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">Unlimited beneficiaries.</p>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">Bank-grade encryption.</p>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 <p class="text-sm font-medium text-on-primary-container">Estate planning documents included.</p>
 </div>
 </div>
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity w-full sm:w-auto">
-<span class="material-symbols-outlined">shopping_cart</span>
+<?php echo wt_icon('payments', 'w-5 h-5'); ?>
 <span>Create Your Trust Now</span>
 </a>
 </div>
@@ -272,24 +272,24 @@ include 'includes/header.php';
 </div>
 <a class="hidden md:flex items-center gap-2 text-sky-accent font-label-md border-b border-sky-accent pb-1" href="compare_trust_types_page.php">
                         Compare All Trust Types
-                        <span class="material-symbols-outlined">chevron_right</span>
+                        <?php echo wt_icon('chevron-right', 'w-5 h-5'); ?>
 </a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <a href="compare_trust_types_page.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
 <p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Compare</p>
 <h3 class="font-headline-md text-headline-md mb-6 leading-snug">Will vs Trust — Which Option Is Right for You?</h3>
-<span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-sky-accent group-hover:translate-x-2 transition-transform'); ?>
 </a>
 <a href="pricing.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
 <p class="text-xs uppercase tracking-widest text-sky-accent mb-4">Pricing</p>
 <h3 class="font-headline-md text-headline-md mb-6 leading-snug">Transparent Plans for Every Trust Type</h3>
-<span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-sky-accent group-hover:translate-x-2 transition-transform'); ?>
 </a>
 <a href="about_us.php" class="bg-primary-container p-8 rounded-2xl border border-white/5 hover:border-sky-accent transition-all group block">
 <p class="text-xs uppercase tracking-widest text-sky-accent mb-4">About Us</p>
 <h3 class="font-headline-md text-headline-md mb-6 leading-snug">Why Families Choose WyomingTrust</h3>
-<span class="material-symbols-outlined text-sky-accent group-hover:translate-x-2 transition-transform">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-sky-accent group-hover:translate-x-2 transition-transform'); ?>
 </a>
 </div>
 </div>
@@ -305,7 +305,7 @@ include 'includes/header.php';
 <details class="group bg-white rounded-xl border border-outline-variant/30 overflow-hidden">
 <summary class="flex justify-between items-center p-6 cursor-pointer">
 <span class="font-bold text-lg pr-4">How long does the process take?</span>
-<span class="material-symbols-outlined transition-transform group-open:rotate-180 flex-shrink-0">expand_more</span>
+<?php echo wt_icon('chevron-down', 'transition-transform group-open:rotate-180 flex-shrink-0'); ?>
 </summary>
 <div class="px-6 pb-6 text-on-surface-variant font-body-md">
                             Some people can finish their Estate / crypto plans in as little as 30 minutes. But don't worry, we'll save your responses as you go so you can always pick up where you left off.
@@ -314,7 +314,7 @@ include 'includes/header.php';
 <details class="group bg-white rounded-xl border border-outline-variant/30 overflow-hidden">
 <summary class="flex justify-between items-center p-6 cursor-pointer">
 <span class="font-bold text-lg pr-4">Is this legal?</span>
-<span class="material-symbols-outlined transition-transform group-open:rotate-180 flex-shrink-0">expand_more</span>
+<?php echo wt_icon('chevron-down', 'transition-transform group-open:rotate-180 flex-shrink-0'); ?>
 </summary>
 <div class="px-6 pb-6 text-on-surface-variant font-body-md">
                             All of our Estate / crypto plans are built by attorneys and customized by you. Every plan is legally-valid, state specific, and created to meet your specific needs.
@@ -323,7 +323,7 @@ include 'includes/header.php';
 <details class="group bg-white rounded-xl border border-outline-variant/30 overflow-hidden">
 <summary class="flex justify-between items-center p-6 cursor-pointer">
 <span class="font-bold text-lg pr-4">I lost someone I love, now what?</span>
-<span class="material-symbols-outlined transition-transform group-open:rotate-180 flex-shrink-0">expand_more</span>
+<?php echo wt_icon('chevron-down', 'transition-transform group-open:rotate-180 flex-shrink-0'); ?>
 </summary>
 <div class="px-6 pb-6 text-on-surface-variant font-body-md">
                             We are so sorry for your loss and we're here to support you in figuring out the next steps. First, obtain legal documentation of the death and notify the necessary parties.
@@ -332,7 +332,7 @@ include 'includes/header.php';
 <details class="group bg-white rounded-xl border border-outline-variant/30 overflow-hidden">
 <summary class="flex justify-between items-center p-6 cursor-pointer">
 <span class="font-bold text-lg pr-4">Is my information secure?</span>
-<span class="material-symbols-outlined transition-transform group-open:rotate-180 flex-shrink-0">expand_more</span>
+<?php echo wt_icon('chevron-down', 'transition-transform group-open:rotate-180 flex-shrink-0'); ?>
 </summary>
 <div class="px-6 pb-6 text-on-surface-variant font-body-md">
                             Here at WyomingTrust, we use bank-level security to protect and encrypt your personal information. We're serious about security and we'll never sell or share your information without consent.

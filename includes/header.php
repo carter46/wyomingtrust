@@ -23,7 +23,7 @@ $nav_active = function ($page) use ($current_page) {
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="<?php echo escape_html(wt_icon_script_url()); ?>"></script>
 <script>
         tailwind.config = {
             darkMode: "class",
@@ -124,23 +124,7 @@ $nav_active = function ($page) use ($current_page) {
         };
     </script>
 <style>
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        .wt-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
         .glass-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
@@ -158,7 +142,7 @@ $nav_active = function ($page) use ($current_page) {
 <div class="relative group">
 <a class="<?php echo $is_service_page ? 'text-secondary font-bold' : 'text-on-surface-variant hover:text-secondary'; ?> transition-colors cursor-pointer flex items-center gap-1" href="#">
 Services
-<span class="material-symbols-outlined text-[18px]">expand_more</span>
+<?php echo wt_icon('chevron-down', 'w-4 h-4'); ?>
 </a>
 <div class="absolute top-full left-0 mt-2 w-64 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/30 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
 <div class="py-2">
@@ -180,11 +164,11 @@ Services
 <?php endif; ?>
 <a class="bg-secondary text-on-secondary px-6 py-2.5 rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center gap-2" href="onboarding/onboarding.php">
 Get Started
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-4 h-4'); ?>
 </a>
 </nav>
 <button id="mobileMenuBtn" type="button" class="lg:hidden text-primary p-2" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-<span class="material-symbols-outlined">menu</span>
+<?php echo wt_icon('menu', 'w-6 h-6'); ?>
 </button>
 </div>
 <div id="mobileMenu" class="hidden lg:hidden fixed top-20 left-0 right-0 glass-card border-b border-outline-variant/30 shadow-lg max-h-[calc(100vh-5rem)] overflow-y-auto">
@@ -216,10 +200,10 @@ function toggleMobileMenu() {
     const btn = document.getElementById('mobileMenuBtn');
     if (menu.classList.contains('hidden')) {
         menu.classList.remove('hidden');
-        btn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+        btn.innerHTML = <?php echo json_encode(wt_icon('close', 'w-6 h-6')); ?>;
     } else {
         menu.classList.add('hidden');
-        btn.innerHTML = '<span class="material-symbols-outlined">menu</span>';
+        btn.innerHTML = <?php echo json_encode(wt_icon('menu', 'w-6 h-6')); ?>;
     }
 }
 </script>

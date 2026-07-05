@@ -13,7 +13,7 @@ include __DIR__ . '/includes/layout.php';
 <!-- Welcome -->
 <section>
 <h1 class="font-headline-lg text-headline-lg text-primary mb-2">Welcome Back, <span id="userName"><?php echo escape_html($userName); ?></span>.</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage your trusts, beneficiaries, and estate planning from one secure dashboard.</p>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your trusts, beneficiaries, and estate planning from one secure dashboard.</p>
 </section>
 
 <!-- Key Metrics (3 cards) -->
@@ -44,31 +44,25 @@ include __DIR__ . '/includes/layout.php';
 </div>
 </section>
 
-<!-- Create Trust Banner (full width) -->
+<!-- My Trusts (list) -->
 <section>
-<div class="relative overflow-hidden bg-warm-cream p-8 md:p-12 rounded-2xl border border-outline-variant group">
-<div class="relative z-10 max-w-2xl">
-<h3 class="font-headline-md text-headline-md md:text-[28px] text-primary mb-3">Create Another Trust?</h3>
-<p class="font-body-md md:text-lg text-on-surface-variant mb-8">Expand your estate planning with new asset protections and customized legal frameworks.</p>
-<button type="button" onclick="window.location.href='../../onboarding/onboarding.php'" class="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-on-primary rounded-lg font-bold text-base transition-all">
-Create New Trust
-<span class="material-symbols-outlined">add</span>
-</button>
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline-md text-headline-md text-primary">My Trusts</h2>
+<a class="font-label-md text-label-md text-secondary hover:underline underline-offset-4 inline-flex items-center gap-1" href="manage-trust.php">View All <?php echo wt_icon('arrow-forward', 'w-4 h-4'); ?></a>
 </div>
-<div class="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-<span class="material-symbols-outlined text-[200px]" style="font-variation-settings: 'wght' 700;">gavel</span>
-</div>
+<div id="trustsContainer" class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden divide-y divide-outline-variant/30">
+<div class="p-10 text-center text-on-surface-variant">Loading trusts...</div>
 </div>
 </section>
 
-<!-- My Trusts -->
+<!-- Payment History -->
 <section class="pb-20">
 <div class="flex items-center justify-between mb-6">
-<h2 class="font-headline-md text-headline-md text-primary">My Trusts</h2>
-<a class="font-label-md text-label-md text-secondary hover:underline underline-offset-4" href="manage-trust.php">View All</a>
+<h2 class="font-headline-md text-headline-md text-primary">Payment History</h2>
+<a class="font-label-md text-label-md text-secondary hover:underline underline-offset-4 inline-flex items-center gap-1" href="billing.php">View All <?php echo wt_icon('arrow-forward', 'w-4 h-4'); ?></a>
 </div>
-<div id="trustsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="col-span-full text-center py-10 text-on-surface-variant">Loading trusts...</div>
+<div id="paymentsContainer" class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
+<div class="p-10 text-center text-on-surface-variant">Loading payments...</div>
 </div>
 </section>
 
@@ -81,7 +75,7 @@ function formatDateSafe(value) {
         const isoish = s.includes(' ') && !s.includes('T') ? s.replace(' ', 'T') : s;
         const d = new Date(isoish);
         if (Number.isNaN(d.getTime())) return 'N/A';
-        return d.toLocaleDateString();
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     } catch (e) {
         return 'N/A';
     }
@@ -93,15 +87,17 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function trustCardIcon(serviceKey) {
-    const icons = {
-        irrevocable_trust: { icon: 'shield', bg: 'bg-primary/5', color: 'text-primary' },
-        revocable_living_trust: { icon: 'family_restroom', bg: 'bg-secondary/5', color: 'text-secondary' },
-        crypto_asset_trust: { icon: 'currency_bitcoin', bg: 'bg-secondary/5', color: 'text-secondary' },
-        smart_contract_trust: { icon: 'smart_toy', bg: 'bg-primary/5', color: 'text-primary' },
-        trust_llc: { icon: 'business', bg: 'bg-primary/5', color: 'text-primary' },
-    };
-    return icons[serviceKey] || { icon: 'gavel', bg: 'bg-primary/5', color: 'text-primary' };
+function formatAmount(amount, isFree) {
+    if (isFree) return 'Free';
+    return '$' + Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function paymentStatusClass(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'completed') return 'text-deep-forest';
+    if (s === 'pending') return 'text-secondary';
+    if (s === 'rejected') return 'text-error';
+    return 'text-on-surface-variant';
 }
 
 function updateLastSynced() {
@@ -124,12 +120,13 @@ function countUniqueBeneficiaries(trusts) {
 
 async function loadDashboardData() {
     const trustsContainer = document.getElementById('trustsContainer');
+    const paymentsContainer = document.getElementById('paymentsContainer');
     const trustCountEl = document.getElementById('trustCount');
     const beneficiaryEl = document.getElementById('beneficiaryCount');
 
     const showTrustsError = (message) => {
         if (trustsContainer) {
-            trustsContainer.innerHTML = `<div class="col-span-full text-center py-10 text-error">${escapeHtml(message)}</div>`;
+            trustsContainer.innerHTML = `<div class="p-10 text-center text-error">${escapeHtml(message)}</div>`;
         }
         if (trustCountEl) trustCountEl.textContent = '0';
         if (beneficiaryEl) beneficiaryEl.textContent = '0';
@@ -179,7 +176,7 @@ async function loadDashboardData() {
                     renderTrusts(activeTrusts);
                 } else if (trustsData.trusts.length > 0) {
                     if (trustsContainer) {
-                        trustsContainer.innerHTML = '<div class="col-span-full text-center py-10 text-on-surface-variant">No active trusts yet. <a href="manage-trust.php" class="text-secondary font-semibold hover:underline">View pending trusts</a></div>';
+                        trustsContainer.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No active trusts yet. <a href="manage-trust.php" class="text-secondary font-semibold hover:underline">View pending trusts</a></div>';
                     }
                 } else {
                     renderTrusts([]);
@@ -188,9 +185,29 @@ async function loadDashboardData() {
                 if (trustCountEl) trustCountEl.textContent = '0';
                 if (beneficiaryEl) beneficiaryEl.textContent = '0';
                 if (trustsContainer) {
-                    trustsContainer.innerHTML = '<div class="col-span-full text-center py-10 text-on-surface-variant">No trusts yet. <a href="../../onboarding/onboarding.php" class="text-secondary font-semibold hover:underline">Create your first trust</a></div>';
+                    trustsContainer.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No trusts yet. <a href="../../onboarding/onboarding.php" class="text-secondary font-semibold hover:underline">Create your first trust</a></div>';
                 }
             }
+        }
+
+        try {
+            const billingResponse = await fetch('../../api/user/billing.php', {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            });
+            if (billingResponse.ok) {
+                const billingData = await billingResponse.json();
+                if (billingData.success && Array.isArray(billingData.payments)) {
+                    renderPayments(billingData.payments.slice(0, 5));
+                } else {
+                    renderPayments([]);
+                }
+            } else {
+                paymentsContainer.innerHTML = '<div class="p-10 text-center text-on-surface-variant">Unable to load payment history.</div>';
+            }
+        } catch (billingError) {
+            console.error('Error loading payments:', billingError);
+            paymentsContainer.innerHTML = '<div class="p-10 text-center text-on-surface-variant">Unable to load payment history.</div>';
         }
 
         updateLastSynced();
@@ -203,33 +220,76 @@ async function loadDashboardData() {
 function renderTrusts(trusts) {
     const container = document.getElementById('trustsContainer');
     if (!trusts || trusts.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center py-10 text-on-surface-variant">No trusts yet. <a href="../../onboarding/onboarding.php" class="text-secondary font-semibold hover:underline">Create your first trust</a></div>';
+        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No trusts yet. <a href="../../onboarding/onboarding.php" class="text-secondary font-semibold hover:underline">Create your first trust</a></div>';
         return;
     }
 
     container.innerHTML = trusts.map(trust => {
         const trustName = trust.trust_name || trust.service_name || 'Untitled Trust';
-        const serviceKey = trust.service_key || trust.trust_type || '';
+        const serviceName = trust.service_name || '';
         const createdDate = formatDateSafe(trust.created_at);
         const trustId = trust.id || 0;
-        const { icon, bg, color } = trustCardIcon(serviceKey);
+        const status = (trust.status || 'pending').toString();
+        const showBadge = trust.trust_name && trust.trust_name !== serviceName;
 
         return `
-            <div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant flex flex-col sm:flex-row items-start gap-6 card-hover">
-                <div class="w-16 h-16 rounded-xl ${bg} flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined ${color} text-3xl">${icon}</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-headline-md text-headline-md text-primary leading-tight">${escapeHtml(trustName)}</p>
-                    <p class="text-sm text-on-surface-variant mt-1 mb-6">Created: ${createdDate}</p>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button type="button" onclick="window.location.href='manage-trust.php?id=${trustId}'" class="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors">Manage</button>
-                        <button type="button" onclick="window.location.href='manage-trust.php?id=${trustId}'" class="px-5 py-2.5 border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">View Details</button>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 hover:bg-surface transition-colors">
+                <div class="flex items-center gap-4 min-w-0 flex-1">
+                    <div class="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center shrink-0">
+                        ${typeof wtIcon === 'function' ? wtIcon('shield', 'w-6 h-6 text-primary') : ''}
                     </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <p class="font-bold text-primary text-lg truncate">${escapeHtml(trustName)}</p>
+                            ${showBadge ? `<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-secondary/10 text-secondary">${escapeHtml(serviceName)}</span>` : ''}
+                        </div>
+                        <p class="text-sm text-on-surface-variant mt-0.5">Status: <span class="capitalize font-medium">${escapeHtml(status)}</span> · Created ${createdDate}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                    <button type="button" onclick="window.location.href='manage-trust.php?id=${trustId}'" class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors">Manage</button>
+                    <button type="button" onclick="window.location.href='manage-trust.php?id=${trustId}'" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors">Details</button>
                 </div>
             </div>
         `;
     }).join('');
+}
+
+function renderPayments(payments) {
+    const container = document.getElementById('paymentsContainer');
+    if (!payments.length) {
+        container.innerHTML = '<div class="p-10 text-center text-on-surface-variant">No payment records yet.</div>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-outline-variant">
+                        <th class="px-6 md:px-8 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Date</th>
+                        <th class="px-6 md:px-8 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Service</th>
+                        <th class="px-6 md:px-8 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Amount</th>
+                        <th class="px-6 md:px-8 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Status</th>
+                        <th class="px-6 md:px-8 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest text-right">Trust</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/30">
+                    ${payments.map(payment => `
+                        <tr class="hover:bg-surface transition-colors">
+                            <td class="px-6 md:px-8 py-5 text-on-surface">${formatDateSafe(payment.created_at)}</td>
+                            <td class="px-6 md:px-8 py-5 font-medium text-primary">${escapeHtml(payment.service_name || 'Trust Service')}</td>
+                            <td class="px-6 md:px-8 py-5 font-bold">${formatAmount(payment.amount, payment.is_free)}</td>
+                            <td class="px-6 md:px-8 py-5"><span class="font-medium capitalize ${paymentStatusClass(payment.payment_status)}">${escapeHtml(payment.payment_status || 'unknown')}</span></td>
+                            <td class="px-6 md:px-8 py-5 text-right">
+                                <a href="manage-trust.php?id=${payment.trust_id}" class="text-secondary font-semibold hover:underline">View</a>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
 }
 
 document.addEventListener('DOMContentLoaded', loadDashboardData);

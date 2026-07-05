@@ -18,15 +18,15 @@ include __DIR__ . '/includes/layout.php';
 </div>
 <div class="flex gap-2 sm:gap-4">
 <a href="send.php" class="flex items-center justify-center gap-2 bg-primary text-on-primary px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">
-<span class="material-symbols-outlined text-base">send</span>
+<?php echo wt_icon('send', 'text-base'); ?>
 <span class="hidden sm:inline">Send</span>
 </a>
 <a href="receive.php" class="flex items-center justify-center gap-2 bg-surface-container-low text-on-surface px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm font-bold hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined text-base">call_received</span>
+<?php echo wt_icon('receive', 'text-base'); ?>
 <span class="hidden sm:inline">Receive</span>
 </a>
 <a href="swap.php" class="flex items-center justify-center gap-2 bg-secondary text-on-secondary px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm font-bold hover:bg-secondary/90 transition-colors">
-<span class="material-symbols-outlined text-base">swap_horiz</span>
+<?php echo wt_icon('swap', 'text-base'); ?>
 <span class="hidden sm:inline">Swap</span>
 </a>
 </div>
@@ -36,7 +36,7 @@ include __DIR__ . '/includes/layout.php';
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 <div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+<?php echo wt_icon('wallet', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Total Portfolio Value</p>
 </div>
 <p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight">$<span id="totalPortfolioValue">0.00</span></p>
@@ -44,21 +44,21 @@ include __DIR__ . '/includes/layout.php';
 </div>
 <div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined text-sm">trending_up</span>
+<?php echo wt_icon('arrow-forward', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">24h Change</p>
 </div>
 <p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight" id="total24hChange">--</p>
 </div>
 <div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-primary">
-<span class="material-symbols-outlined text-sm">inventory_2</span>
+<?php echo wt_icon('wallet', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Total Assets</p>
 </div>
 <p class="text-on-surface tracking-tight text-xl sm:text-2xl font-bold leading-tight" id="totalAssetsCount">0</p>
 </div>
 <div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-2xl p-4 sm:p-6 border border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="flex items-center gap-2 text-secondary">
-<span class="material-symbols-outlined text-sm">sync</span>
+<?php echo wt_icon('refresh', 'text-sm'); ?>
 <p class="text-on-surface-variant text-xs sm:text-sm font-medium">Last Updated</p>
 </div>
 <p class="text-on-surface tracking-tight text-sm sm:text-base font-bold leading-tight" id="lastUpdated">Just Now</p>
@@ -72,7 +72,7 @@ include __DIR__ . '/includes/layout.php';
 <div class="flex gap-2 sm:gap-4">
 <input type="text" id="assetSearch" placeholder="Search assets..." class="flex-1 sm:flex-none sm:w-64 px-4 py-2 text-sm border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
 <button id="refreshPrices" class="px-4 py-2 text-sm font-semibold bg-surface-container-low text-on-surface rounded-lg hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined text-base align-middle">refresh</span>
+<?php echo wt_icon('refresh', 'text-base align-middle'); ?>
 </button>
 </div>
 </div>

@@ -30,7 +30,7 @@ include 'includes/header.php';
 <div class="space-y-6">
 <div class="flex items-start gap-4">
 <div class="w-12 h-12 rounded-full bg-sky-accent flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-primary">verified_user</span>
+<?php echo wt_icon('shield', 'text-primary'); ?>
 </div>
 <div>
 <h3 class="font-label-md text-label-md text-primary uppercase tracking-wider">Bank-Level Security</h3>
@@ -39,7 +39,7 @@ include 'includes/header.php';
 </div>
 <div class="flex items-start gap-4">
 <div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-primary">family_restroom</span>
+<?php echo wt_icon('group', 'text-primary'); ?>
 </div>
 <div>
 <h3 class="font-label-md text-label-md text-primary uppercase tracking-wider">Trusted by Families</h3>
@@ -65,7 +65,7 @@ include 'includes/header.php';
 <div class="relative">
 <input id="password" name="password" type="password" required class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-t-lg px-4 py-3 pr-12 transition-colors" placeholder="Enter your password"/>
 <button type="button" onclick="togglePasswordVisibility('password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary focus:outline-none" aria-label="Toggle password visibility">
-<span class="material-symbols-outlined text-xl toggle-password-icon">visibility_off</span>
+<?php echo wt_icon('visibility-off', 'text-xl toggle-password-icon'); ?>
 </button>
 </div>
 </div>
@@ -80,13 +80,13 @@ include 'includes/header.php';
 
 <div id="verificationSuccess" class="hidden bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
     <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-sm">check_circle</span>
+        <?php echo wt_icon('check-circle', 'text-sm'); ?>
         <span>Email verified successfully! You can now log in.</span>
     </div>
 </div>
 <div id="passwordResetSuccess" class="hidden bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
     <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-sm">check_circle</span>
+        <?php echo wt_icon('check-circle', 'text-sm'); ?>
         <span>Password reset successfully! You can now log in with your new password.</span>
     </div>
 </div>
@@ -94,7 +94,7 @@ include 'includes/header.php';
 
 <div id="verificationNotice" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-4">
     <div class="flex items-start gap-3">
-        <span class="material-symbols-outlined text-amber-600">warning</span>
+        <?php echo wt_icon('warning', 'text-amber-600'); ?>
         <div class="flex-1">
             <h3 class="font-bold text-amber-900 mb-1">Email Verification Required</h3>
             <p class="text-sm text-amber-800 mb-3">Please verify your email address before logging in.</p>
@@ -123,7 +123,7 @@ include 'includes/header.php';
 
 <button type="submit" class="w-full bg-secondary text-on-secondary flex items-center justify-center gap-2 py-4 rounded-lg font-label-md text-label-md font-bold hover:opacity-90 transition-all shadow-md">
 Sign In
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </button>
 
 <div class="text-center pt-2 space-y-2">
@@ -131,7 +131,7 @@ Sign In
 Don't have an account? <a class="text-secondary font-bold hover:underline" href="onboarding/onboarding.php">Get Started</a>
 </p>
 <p class="text-xs text-on-surface-variant flex items-center justify-center gap-1">
-<span class="material-symbols-outlined text-sm">lock</span>
+<?php echo wt_icon('lock', 'text-sm'); ?>
 Your data is encrypted and secured
 </p>
 </div>
@@ -353,15 +353,13 @@ function showResendMessage(message, type) {
 
 function togglePasswordVisibility(inputId, button) {
     const input = document.getElementById(inputId);
-    const icon = button.querySelector('.toggle-password-icon');
-
-    if (input && icon) {
+    if (input && button) {
         if (input.type === 'password') {
             input.type = 'text';
-            icon.textContent = 'visibility';
+            button.innerHTML = wtIcon('visibility', 'w-5 h-5');
         } else {
             input.type = 'password';
-            icon.textContent = 'visibility_off';
+            button.innerHTML = wtIcon('visibility-off', 'w-5 h-5');
         }
     }
 }

@@ -10,11 +10,11 @@ include 'includes/header.php';
 <div class="flex items-center gap-4 flex-wrap justify-center">
 <span class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">Trustpilot</span>
 <div class="flex gap-1 text-secondary">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm opacity-60" style="font-variation-settings: 'FILL' 1;">star</span>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm opacity-60'); ?>
 </div>
 <span class="font-bold text-primary">4.4/5</span>
 <span class="text-on-surface-variant text-sm">Based on 544 reviews</span>
@@ -35,21 +35,21 @@ Register Your Business in <span class="text-sky-accent">Wyoming</span>
 <p class="font-headline-lg text-headline-lg text-sky-accent mb-6">Only $250 + State Filing Fees.</p>
 <ul class="space-y-3 sm:space-y-4 mb-8 sm:mb-10">
 <li class="flex items-center gap-2 sm:gap-3 text-on-primary-container text-sm sm:text-base font-medium">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 Private &amp; Anonymous.
 </li>
 <li class="flex items-center gap-2 sm:gap-3 text-on-primary-container text-sm sm:text-base font-medium">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 Do Business In Any State With a Wyoming LLC.
 </li>
 <li class="flex items-center gap-2 sm:gap-3 text-on-primary-container text-sm sm:text-base font-medium">
-<span class="material-symbols-outlined text-sky-accent flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-sky-accent flex-shrink-0'); ?>
 Get Assistance From Business Formation Experts.
 </li>
 </ul>
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-secondary text-on-secondary px-8 sm:px-10 py-3 sm:py-4 rounded-xl font-extrabold text-base sm:text-lg hover:opacity-90 transition-opacity">
 Start Your Business
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 <p class="mt-6 text-on-primary-container text-sm sm:text-base font-medium">Business Formations Made Safe and Easy</p>
 </div>
@@ -59,7 +59,7 @@ Start Your Business
 </div>
 <div class="absolute -bottom-6 -left-6 bg-primary-container text-on-primary p-6 rounded-2xl shadow-xl flex items-center gap-4 border-4 border-white/10 hidden sm:flex">
 <div class="bg-secondary p-3 rounded-full">
-<span class="material-symbols-outlined text-on-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+<?php echo wt_icon('shield', 'text-on-secondary text-3xl'); ?>
 </div>
 <div>
 <div class="text-2xl font-black leading-none">+100,000</div>
@@ -69,7 +69,7 @@ Start Your Business
 <div class="mt-8 text-center lg:text-left">
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Business
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </div>
@@ -87,11 +87,11 @@ Start Your Business
 <div>
 <div class="font-bold text-primary">Robert V.</div>
 <div class="flex gap-1 text-secondary items-center">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
 <span class="text-on-surface-variant text-xs ml-1">5/5</span>
 </div>
 <p class="text-on-surface-variant text-xs font-medium">Jun 27, 2023</p>
@@ -105,11 +105,11 @@ Start Your Business
 <div>
 <div class="font-bold text-primary">Katrina K.</div>
 <div class="flex gap-1 text-secondary items-center">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
+<?php echo wt_icon('star', 'text-sm'); ?>
 <span class="text-on-surface-variant text-xs ml-1">5/5</span>
 </div>
 <p class="text-on-surface-variant text-xs font-medium">Jan 9, 2023</p>
@@ -130,58 +130,58 @@ Start Your Business
 </div>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">description</span>
+<?php echo wt_icon('edit', 'text-sky-accent'); ?>
 <span>Operating Agreement</span>
 </div>
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">article</span>
+<?php echo wt_icon('receipt-long', 'text-sky-accent'); ?>
 <span>Articles of Organization</span>
 </div>
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">verified</span>
+<?php echo wt_icon('shield', 'text-sky-accent'); ?>
 <span>Certificate of Formation</span>
 </div>
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">account_balance</span>
+<?php echo wt_icon('payments', 'text-sky-accent'); ?>
 <span>Free Bank Account</span>
 </div>
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">menu_book</span>
+<?php echo wt_icon('help', 'text-sky-accent'); ?>
 <span>Operations Manual</span>
 </div>
 <div class="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-<span class="material-symbols-outlined text-sky-accent">contact_mail</span>
+<?php echo wt_icon('mail', 'text-sky-accent'); ?>
 <span>First Year Registered Agent and Business Address</span>
 </div>
 </div>
 <div class="text-center mb-12">
 <h3 class="font-headline-md text-headline-md mb-6">Forming A Wyoming LLC With Us Is Quick And Easy</h3>
 <ul class="space-y-3 text-on-primary-container mb-8 max-w-2xl mx-auto">
-<li class="flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> Online filing forms take 10 minutes to complete.</li>
-<li class="flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> 24 hour guarantee for filing new companies.</li>
-<li class="flex items-center justify-center gap-2"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> Everything you need to launch your business.</li>
+<li class="flex items-center justify-center gap-2"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> Online filing forms take 10 minutes to complete.</li>
+<li class="flex items-center justify-center gap-2"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> 24 hour guarantee for filing new companies.</li>
+<li class="flex items-center justify-center gap-2"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> Everything you need to launch your business.</li>
 </ul>
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Business
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 <div class="border-t border-white/10 pt-12">
 <h3 class="font-headline-md text-headline-md mb-6 text-center">Why Form An LLC In Wyoming?</h3>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> 100% anonymity and privacy.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> Close/closed LLCs are allowed.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> No state taxes.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> No additional fees for extra members.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> Low annual fees.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> No minimum capital contribution.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> Assets protection.</div>
-<div class="flex items-center gap-2 text-on-primary-container"><span class="material-symbols-outlined text-sky-accent text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> File everything online.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> 100% anonymity and privacy.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> Close/closed LLCs are allowed.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> No state taxes.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> No additional fees for extra members.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> Low annual fees.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> No minimum capital contribution.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> Assets protection.</div>
+<div class="flex items-center gap-2 text-on-primary-container"><?php echo wt_icon('check-circle', 'text-sky-accent text-sm'); ?> File everything online.</div>
 </div>
 <div class="text-center">
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Business
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </div>
@@ -199,34 +199,34 @@ Start Your Business
 <div class="bg-surface-container-lowest p-8 sm:p-10 rounded-2xl border border-outline-variant/30 shadow-sm">
 <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
 <div class="bg-secondary p-2 sm:p-3 rounded-full flex-shrink-0">
-<span class="material-symbols-outlined text-on-secondary text-base sm:text-lg">receipt_long</span>
+<?php echo wt_icon('receipt-long', 'text-on-secondary text-base sm:text-lg'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary">Annual Fees &amp; Requirements</h3>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-4">Many do business in Wyoming due to the relatively minimal state requirements and fees. To set up an LLC, you are only required to list a registered agent and to pay a $100 filing fee to the Secretary of State. Maintaining the company in future years is simple. You are only required to file a $60 annual report with the Secretary of State.</p>
 <a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="pricing.php">
 View Pricing
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-sm'); ?>
 </a>
 </div>
 <div class="bg-surface-container-lowest p-8 sm:p-10 rounded-2xl border border-outline-variant/30 shadow-sm">
 <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
 <div class="bg-primary p-2 sm:p-3 rounded-full flex-shrink-0">
-<span class="material-symbols-outlined text-on-primary text-base sm:text-lg">account_balance_wallet</span>
+<?php echo wt_icon('wallet', 'text-on-primary text-base sm:text-lg'); ?>
 </div>
 <h3 class="font-headline-md text-headline-md text-primary">Wyoming LLC Taxes</h3>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-4">Limited Liability Companies offer the ability to be taxed as partnerships, corporations, or s-corporations. Each designation maintains the limited liability benefits. This hybrid structure is partly what drives the popularity of LLCs. If you choose the partnership designation, then you will be taxed according to your personal tax rate.</p>
 <a class="text-secondary font-bold text-sm hover:underline inline-flex items-center gap-1" href="pricing.php">
 View Pricing
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'text-sm'); ?>
 </a>
 </div>
 </div>
 <div class="text-center mt-12">
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Business
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </div>
@@ -245,63 +245,63 @@ Start Your Business
 <p class="text-on-surface-variant mb-8">Every filing includes these essential documents and services:</p>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Registered Agent Service</h4>
 <p class="text-on-surface-variant text-sm">Professional representation for your business</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Free Mail Scanning</h4>
 <p class="text-on-surface-variant text-sm">5 pieces included monthly</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Business Address</h4>
 <p class="text-on-surface-variant text-sm">Use our address for everything</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Operating Agreements</h4>
 <p class="text-on-surface-variant text-sm">Single &amp; multi-member versions</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Meeting Minutes</h4>
 <p class="text-on-surface-variant text-sm">Organizational documentation</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Articles of Organization</h4>
 <p class="text-on-surface-variant text-sm">Official state filing documents</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Certificate of Formation</h4>
 <p class="text-on-surface-variant text-sm">Proof of business existence</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Bank Account Resolution</h4>
 <p class="text-on-surface-variant text-sm">Documentation for banking</p>
 </div>
 </div>
 <div class="flex items-start gap-3">
-<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?>
 <div>
 <h4 class="font-bold text-primary">Operations Manual</h4>
 <p class="text-on-surface-variant text-sm">Complete business guide</p>
@@ -315,7 +315,7 @@ Start Your Business
 <div class="text-center mt-8">
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Business Today
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </div>
@@ -333,42 +333,42 @@ Start Your Business Today
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4 bg-secondary-fixed rounded-lg">
-<span class="material-symbols-outlined text-secondary text-2xl sm:text-3xl">lock_open</span>
+<?php echo wt_icon('lock', 'text-secondary text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">Private &amp; Anonymous</h4>
 <p class="text-on-surface-variant text-sm">Owners and managers are not listed in public records. Your personal information remains completely private and secure.</p>
 </div>
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-4 bg-secondary">
-<span class="material-symbols-outlined text-on-secondary text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<?php echo wt_icon('check-circle', 'text-on-secondary text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">Simple Requirements</h4>
 <p class="text-on-surface-variant text-sm">Everything is handled online with no need to visit Wyoming. No residency requirements or wait times.</p>
 </div>
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-4 bg-primary-container">
-<span class="material-symbols-outlined text-sky-accent text-2xl sm:text-3xl">attach_money</span>
+<?php echo wt_icon('payments', 'text-sky-accent text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">Low Annual Fees</h4>
 <p class="text-on-surface-variant text-sm">Starting at just $250 plus state fees ($102). Minimal ongoing costs with only a $60 annual report required.</p>
 </div>
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-4 bg-primary">
-<span class="material-symbols-outlined text-on-primary text-2xl sm:text-3xl">close</span>
+<?php echo wt_icon('close', 'text-on-primary text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">No State Taxes</h4>
 <p class="text-on-surface-variant text-sm">Wyoming has no state income tax, corporate tax, or franchise tax. Significant savings for all business owners.</p>
 </div>
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-4 bg-deep-forest">
-<span class="material-symbols-outlined text-on-primary text-2xl sm:text-3xl" style="font-variation-settings: 'FILL' 1;">shield</span>
+<?php echo wt_icon('shield', 'text-on-primary text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">Asset Protection</h4>
 <p class="text-on-surface-variant text-sm">Strong charging order protection. Personal creditors cannot seize your LLC, and LLC creditors cannot seize personal assets.</p>
 </div>
 <div class="bg-surface-container-lowest p-6 sm:p-8 rounded-2xl border border-outline-variant/30 text-center">
 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-4 bg-secondary-container">
-<span class="material-symbols-outlined text-on-secondary text-2xl sm:text-3xl">directions</span>
+<?php echo wt_icon('arrow-forward', 'text-on-secondary text-2xl sm:text-3xl'); ?>
 </div>
 <h4 class="font-bold text-base sm:text-lg mb-3 text-primary">Operational Flexibility</h4>
 <p class="text-on-surface-variant text-sm">Conduct business in all 50 states. No minimum capital required and flexible management structure options.</p>
@@ -377,18 +377,18 @@ Start Your Business Today
 <div class="bg-surface-container-lowest p-6 sm:p-8 lg:p-10 rounded-2xl border border-outline-variant/30">
 <h4 class="text-center font-headline-md text-headline-md mb-6 text-primary">Additional Wyoming LLC Advantages</h4>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">Single-Member LLCs allowed</span></div>
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">No operating agreement required</span></div>
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">Close/Closed LLC structures allowed</span></div>
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">No additional fees for extra members</span></div>
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">No minimum capital contribution</span></div>
-<div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span><span class="font-medium">S-Corp tax election available</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">Single-Member LLCs allowed</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">No operating agreement required</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">Close/Closed LLC structures allowed</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">No additional fees for extra members</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">No minimum capital contribution</span></div>
+<div class="flex items-center gap-2"><?php echo wt_icon('check-circle', 'text-secondary flex-shrink-0'); ?><span class="font-medium">S-Corp tax election available</span></div>
 </div>
 </div>
 <div class="text-center mt-12">
 <a href="onboarding/onboarding.php" class="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-opacity">
 Start Your Wyoming LLC
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </div>

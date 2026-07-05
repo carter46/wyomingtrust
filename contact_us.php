@@ -50,7 +50,7 @@ include 'includes/header.php';
 </div>
 <button class="w-full bg-secondary text-on-secondary font-label-md text-label-md py-4 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2 group" type="submit">
                             Send Message
-                            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            <?php echo wt_icon('arrow-forward', 'group-hover:translate-x-1 transition-transform'); ?>
 </button>
 </form>
 </div>
@@ -59,7 +59,7 @@ include 'includes/header.php';
 <div class="contact-card-hover bg-primary-container rounded-xl p-8 border border-on-primary-container/20">
 <div class="flex items-start gap-4 mb-6">
 <div class="bg-secondary p-3 rounded-full text-on-secondary">
-<span class="material-symbols-outlined">smart_toy</span>
+<?php echo wt_icon('link', 'w-5 h-5'); ?>
 </div>
 <div>
 <h3 class="font-headline-md text-headline-md text-on-primary">Connect with AI Support</h3>
@@ -68,13 +68,13 @@ include 'includes/header.php';
 </div>
 <a class="inline-flex items-center gap-2 text-sky-accent hover:underline font-label-md" href="compare_trust_types_page.php">
                             Compare Trust Types
-                            <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                            <?php echo wt_icon('arrow-forward', 'text-[20px]'); ?>
 </a>
 </div>
 <div class="contact-card-hover bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/30">
 <div class="flex items-start gap-4 mb-6">
 <div class="bg-surface-container-high p-3 rounded-full text-secondary">
-<span class="material-symbols-outlined">call</span>
+<?php echo wt_icon('call', 'w-5 h-5'); ?>
 </div>
 <div>
 <h3 class="font-headline-md text-headline-md text-primary">Call Support</h3>
@@ -87,7 +87,7 @@ include 'includes/header.php';
 <div class="contact-card-hover bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/30">
 <div class="flex items-start gap-4 mb-6">
 <div class="bg-surface-container-high p-3 rounded-full text-secondary">
-<span class="material-symbols-outlined">alternate_email</span>
+<?php echo wt_icon('mail', 'w-5 h-5'); ?>
 </div>
 <div>
 <h3 class="font-headline-md text-headline-md text-primary">Email Support</h3>
@@ -107,27 +107,27 @@ include 'includes/header.php';
 <h2 class="font-headline-lg text-headline-lg text-primary mb-12">Explore our services</h2>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
 <a href="compare_trust_types_page.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">compare_arrows</span>
+<?php echo wt_icon('compare-arrows', 'text-secondary mb-4 text-3xl'); ?>
 <h4 class="font-headline-md text-headline-md text-primary mb-2">Compare Trust Types</h4>
 <p class="text-on-surface-variant mb-4">Side-by-side comparison of revocable, irrevocable, and smart contract trusts.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            View Comparison <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            View Comparison <?php echo wt_icon('chevron-right', 'text-sm'); ?>
 </span>
 </a>
 <a href="pricing.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">payments</span>
+<?php echo wt_icon('payments', 'text-secondary mb-4 text-3xl'); ?>
 <h4 class="font-headline-md text-headline-md text-primary mb-2">Pricing</h4>
 <p class="text-on-surface-variant mb-4">Transparent plans and starting prices for every trust type.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            View Pricing <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            View Pricing <?php echo wt_icon('chevron-right', 'text-sm'); ?>
 </span>
 </a>
 <a href="about_us.php" class="bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/20 hover:border-secondary transition-colors group block">
-<span class="material-symbols-outlined text-secondary mb-4 text-3xl">groups</span>
+<?php echo wt_icon('group', 'text-secondary mb-4 text-3xl'); ?>
 <h4 class="font-headline-md text-headline-md text-primary mb-2">About WyomingTrust</h4>
 <p class="text-on-surface-variant mb-4">Learn about our mission and why families trust us with their estates.</p>
 <span class="text-secondary font-label-md flex items-center gap-1 group-hover:underline">
-                            About Us <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            About Us <?php echo wt_icon('chevron-right', 'text-sm'); ?>
 </span>
 </a>
 </div>
@@ -149,12 +149,12 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Sending...';
+    btn.innerHTML = '<?php echo wt_icon('refresh', 'animate-spin'); ?> Sending...';
     btn.classList.add('opacity-80');
     btn.disabled = true;
 
     setTimeout(() => {
-        btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Sent!';
+        btn.innerHTML = '<?php echo wt_icon('check-circle', 'w-5 h-5'); ?> Sent!';
         btn.classList.remove('bg-secondary', 'opacity-80');
         btn.classList.add('bg-green-600');
 

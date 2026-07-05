@@ -12,11 +12,11 @@ include 'includes/header.php';
 <p class="font-body-lg text-body-lg text-on-surface-variant">We're on a mission to make estate planning affordable and accessible for every family. From Wills and Trusts to crypto legacy planning, we're helping families protect their legacy with peace of mind.</p>
 <div class="flex flex-wrap gap-4 pt-4">
 <div class="flex items-center gap-2 text-primary font-bold">
-<span class="material-symbols-outlined text-secondary">verified</span>
+<?php echo wt_icon('shield', 'text-secondary'); ?>
 <span class="font-label-md text-label-md">Bank-Grade Security</span>
 </div>
 <div class="flex items-center gap-2 text-primary font-bold">
-<span class="material-symbols-outlined text-secondary">groups</span>
+<?php echo wt_icon('group', 'text-secondary'); ?>
 <span class="font-label-md text-label-md">50,000+ Families Protected</span>
 </div>
 </div>
@@ -79,7 +79,7 @@ include 'includes/header.php';
 </div>
 <div class="space-y-6">
 <div class="bg-primary text-on-primary p-8 rounded-2xl h-full flex flex-col justify-between">
-<span class="material-symbols-outlined text-sky-accent text-5xl">support_agent</span>
+<?php echo wt_icon('help', 'text-sky-accent text-5xl'); ?>
 <div>
 <h3 class="font-headline-md text-headline-md mb-2">Expert Support</h3>
 <p class="font-body-md text-body-md opacity-80">Our member support and legal experts are here to help you every step of the way, providing proactive updates as life changes.</p>
@@ -102,17 +102,17 @@ include 'includes/header.php';
 </div>
 <div class="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-3 gap-8">
 <div class="bg-primary-container p-10 rounded-2xl border border-on-primary/10">
-<span class="material-symbols-outlined text-sky-accent text-4xl mb-6">accessibility_new</span>
+<?php echo wt_icon('help', 'text-sky-accent text-4xl mb-6'); ?>
 <h3 class="font-headline-md text-headline-md mb-4 text-white">Accessibility</h3>
 <p class="font-body-md text-body-md opacity-70">Removing the barriers of high legal fees and complex jargon. Estate planning should be for the 100%, not just the 1%.</p>
 </div>
 <div class="bg-primary-container p-10 rounded-2xl border border-on-primary/10">
-<span class="material-symbols-outlined text-sky-accent text-4xl mb-6">shield_with_heart</span>
+<?php echo wt_icon('shield', 'text-sky-accent text-4xl mb-6'); ?>
 <h3 class="font-headline-md text-headline-md mb-4 text-white">Integrity</h3>
 <p class="font-body-md text-body-md opacity-70">Building tools designed by legal experts. We take the trust you place in us seriously, using bank-level encryption for every document.</p>
 </div>
 <div class="bg-primary-container p-10 rounded-2xl border border-on-primary/10">
-<span class="material-symbols-outlined text-sky-accent text-4xl mb-6">auto_awesome</span>
+<?php echo wt_icon('star', 'text-sky-accent text-4xl mb-6'); ?>
 <h3 class="font-headline-md text-headline-md mb-4 text-white">Innovation</h3>
 <p class="font-body-md text-body-md opacity-70">Continuously improving our platform—like our EstateOS—to keep your plan strong today, tomorrow, and beyond.</p>
 </div>
@@ -124,7 +124,7 @@ include 'includes/header.php';
 <div class="max-w-container-max mx-auto px-gutter">
 <div class="bg-secondary p-12 rounded-3xl text-center text-on-secondary shadow-xl relative overflow-hidden">
 <div class="absolute top-0 right-0 p-8 opacity-10">
-<span class="material-symbols-outlined text-[200px]">verified</span>
+<?php echo wt_icon('shield', 'text-[200px]'); ?>
 </div>
 <div class="relative z-10 space-y-6">
 <h2 class="font-display-lg text-display-lg">Ready to protect your family's future?</h2>

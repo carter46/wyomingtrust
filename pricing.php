@@ -18,7 +18,7 @@ include 'includes/components/hero-primary.php';
 
 <div id="errorState" class="hidden text-center py-12">
 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg inline-flex items-center gap-2 text-sm">
-<span class="material-symbols-outlined">error</span>
+<?php echo wt_icon('error', 'w-5 h-5'); ?>
 Failed to load pricing plans. Please refresh the page.
 </div>
 </div>
@@ -36,10 +36,10 @@ Failed to load pricing plans. Please refresh the page.
 <span class="font-body-md text-body-md text-on-surface-variant">/year</span>
 </div>
 <ul class="space-y-4 mb-8">
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">1 Revocable Trust</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">5 Beneficiaries</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Basic Documentation</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Email Support</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">1 Revocable Trust</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">5 Beneficiaries</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Basic Documentation</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Email Support</span></li>
 </ul>
 <a href="onboarding/onboarding.php" class="block w-full bg-secondary text-on-secondary text-center py-3 rounded-lg font-bold hover:opacity-90 transition-opacity">Get Started</a>
 </div>
@@ -54,11 +54,11 @@ Failed to load pricing plans. Please refresh the page.
 <span class="font-body-md text-body-md text-on-surface-variant">/year</span>
 </div>
 <ul class="space-y-4 mb-8">
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Unlimited Trusts</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Unlimited Beneficiaries</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Advanced Documentation</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Priority Support</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Multi-Signature Security</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Unlimited Trusts</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Unlimited Beneficiaries</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Advanced Documentation</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Priority Support</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Multi-Signature Security</span></li>
 </ul>
 <a href="onboarding/onboarding.php" class="block w-full bg-secondary text-on-secondary text-center py-3 rounded-lg font-bold hover:opacity-90 transition-opacity">Get Started</a>
 </div>
@@ -73,11 +73,11 @@ Failed to load pricing plans. Please refresh the page.
 <span class="font-body-md text-body-md text-on-surface-variant">/year</span>
 </div>
 <ul class="space-y-4 mb-8">
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Everything in Professional</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Custom Legal Structure</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Dedicated Account Manager</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">24/7 Support</span></li>
-<li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">check_circle</span><span class="font-body-md text-body-md text-on-surface">Advanced Security Features</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Everything in Professional</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Custom Legal Structure</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Dedicated Account Manager</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">24/7 Support</span></li>
+<li class="flex items-center gap-3"><?php echo wt_icon('check-circle', 'text-secondary'); ?><span class="font-body-md text-body-md text-on-surface">Advanced Security Features</span></li>
 </ul>
 <a href="onboarding/onboarding.php" class="block w-full bg-secondary text-on-secondary text-center py-3 rounded-lg font-bold hover:opacity-90 transition-opacity">Get Started</a>
 </div>
@@ -89,28 +89,28 @@ Failed to load pricing plans. Please refresh the page.
 <details class="group bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-6">
 <summary class="flex items-center justify-between cursor-pointer font-label-md text-primary list-none">
 <span>Can I change my plan later?</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+<?php echo wt_icon('chevron-down', 'group-open:rotate-180 transition-transform'); ?>
 </summary>
 <p class="mt-4 font-body-md text-body-md text-on-surface-variant">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any pricing differences.</p>
 </details>
 <details class="group bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-6">
 <summary class="flex items-center justify-between cursor-pointer font-label-md text-primary list-none">
 <span>Are there any hidden fees?</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+<?php echo wt_icon('chevron-down', 'group-open:rotate-180 transition-transform'); ?>
 </summary>
 <p class="mt-4 font-body-md text-body-md text-on-surface-variant">No hidden fees. The price you see is the price you pay. All plans include secure trust management, documentation, and support.</p>
 </details>
 <details class="group bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-6">
 <summary class="flex items-center justify-between cursor-pointer font-label-md text-primary list-none">
 <span>What payment methods do you accept?</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+<?php echo wt_icon('chevron-down', 'group-open:rotate-180 transition-transform'); ?>
 </summary>
 <p class="mt-4 font-body-md text-body-md text-on-surface-variant">We accept various payment methods including credit cards, PayPal, and cryptocurrency (Bitcoin, Ethereum, USDC).</p>
 </details>
 <details class="group bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-6">
 <summary class="flex items-center justify-between cursor-pointer font-label-md text-primary list-none">
 <span>Is my data secure?</span>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+<?php echo wt_icon('chevron-down', 'group-open:rotate-180 transition-transform'); ?>
 </summary>
 <p class="mt-4 font-body-md text-body-md text-on-surface-variant">Absolutely. We use bank-grade encryption and multi-signature security to protect all your assets and personal information.</p>
 </details>
@@ -125,7 +125,7 @@ Failed to load pricing plans. Please refresh the page.
 <p class="font-body-md text-body-md text-on-surface-variant mb-8 max-w-2xl mx-auto">Start your trust setup today with guided onboarding and expert support.</p>
 <a href="onboarding/onboarding.php" class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-lg font-bold hover:opacity-90 transition-opacity">
 Get Started
-<span class="material-symbols-outlined">arrow_forward</span>
+<?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
 </a>
 </div>
 </section>
@@ -202,7 +202,7 @@ function renderPricingPlans(plans) {
             <ul class="space-y-4 mb-8">
                 ${features.map(feature => `
                     <li class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-secondary">check_circle</span>
+                        <?php echo wt_icon('check-circle', 'text-secondary'); ?>
                         <span class="font-body-md text-body-md text-on-surface">${escapeHtml(feature)}</span>
                     </li>
                 `).join('')}

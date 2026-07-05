@@ -43,10 +43,11 @@ $page_title = 'Create Trust - WyomingTrust';
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title><?php echo htmlspecialchars($page_title); ?></title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="../assets/js/wt-icons.js"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
 <script>
         tailwind.config = {
             darkMode: "class",
@@ -147,23 +148,6 @@ $page_title = 'Create Trust - WyomingTrust';
         };
     </script>
 <style>
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
         .payment-method-card {
             cursor: pointer;
             transition: all 0.2s;
@@ -541,12 +525,12 @@ function renderTrustTypeStep() {
                     <input class="peer sr-only" name="trust_type" type="radio" value="${escapeHtml(service.service_key)}" ${isSelected ? 'checked' : ''} onchange="selectTrustType('${escapeHtml(service.service_key)}', ${service.id})"/>
                     <div class="absolute top-6 right-6 w-6 h-6 rounded-full border-2 ${isSelected ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors"></div>
                     <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-on-secondary">
-                        <span class="material-symbols-outlined text-2xl">${icon}</span>
+                        ${wtIcon(icon, 'text-2xl')}
                     </div>
                     <h3 class="text-xl font-bold text-primary mb-3 mt-4">${title}</h3>
                     <p class="text-on-surface-variant leading-relaxed mb-6 flex-grow text-sm">${description}</p>
                     <div class="flex items-center font-bold text-sm ${isFree ? 'text-green-600 dark:text-green-400' : 'text-secondary'}">
-                        <span class="material-symbols-outlined text-lg mr-1.5">${isFree ? 'check_circle' : 'payments'}</span>
+                        ${wtIcon(isFree ? 'check-circle' : 'payments', 'text-lg mr-1.5')}
                         ${label}
                     </div>
                     <div class="absolute inset-0 rounded-2xl border-2 border-transparent ${isSelected ? 'border-secondary' : ''} pointer-events-none"></div>
@@ -555,7 +539,7 @@ function renderTrustTypeStep() {
         }).join('')
         : `
             <div class="col-span-full text-center py-12 text-on-surface-variant">
-                <span class="material-symbols-outlined text-4xl mb-3 block">info</span>
+                ${wtIcon('info', 'text-4xl mb-3 block')}
                 <p>No trust services are available right now. Please try again later or contact support.</p>
             </div>
         `;
@@ -572,7 +556,7 @@ function renderTrustTypeStep() {
                 ${serviceCards}
             </div>
             <div class="bg-secondary-fixed rounded-xl p-4 flex items-start space-x-3 text-on-secondary-fixed-variant border border-secondary/20">
-                <span class="material-symbols-outlined text-xl mt-0.5 flex-shrink-0 text-secondary">info</span>
+                <?php echo wt_icon('info', 'text-xl mt-0.5 flex-shrink-0 text-secondary'); ?>
                 <p class="text-sm leading-relaxed">
                     <span class="font-bold">Not sure?</span> You can change your selection later. Our system will guide you based on your specific needs.
                 </p>
@@ -582,7 +566,7 @@ function renderTrustTypeStep() {
                     <button onclick="handleCancelOrExit(); window.location.href='../index.php'" class="px-6 py-2 text-on-surface-variant hover:text-primary">Cancel</button>
                     <button onclick="nextStep()" ${onboardingData.trust_service_id ? '' : 'disabled'} id="nextBtn" class="bg-secondary text-on-secondary hover:opacity-90 font-semibold py-3 px-8 rounded-lg flex items-center shadow-lg transform transition hover:-translate-y-0.5 focus:ring-4 focus:ring-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed">
                         Next
-                        <span class="material-symbols-outlined ml-2 text-lg">arrow_forward</span>
+                        <?php echo wt_icon('arrow-forward', 'ml-2 text-lg'); ?>
                     </button>
                 </div>
             </div>
@@ -633,7 +617,7 @@ function renderPersonalInfoStep() {
                                     <div class="relative">
                                         <input type="password" id="passwordInput" placeholder="Enter your password" autocomplete="new-password" class="form-input flex w-full rounded-lg text-primary border border-outline-variant bg-surface-container-low focus:ring-2 focus:ring-secondary focus:border-secondary h-14 placeholder:text-on-surface-variant p-4 pr-12 text-base font-normal" required/>
                                         <button type="button" onclick="togglePasswordVisibility('passwordInput', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary focus:outline-none" aria-label="Toggle password visibility">
-                                            <span class="material-symbols-outlined text-xl toggle-password-icon">visibility_off</span>
+                                            <?php echo wt_icon('visibility-off', 'text-xl toggle-password-icon'); ?>
                                         </button>
                                     </div>
                                     <p class="text-xs text-on-surface-variant">Must be at least 8 characters with uppercase, lowercase, number, and special character.</p>
@@ -643,7 +627,7 @@ function renderPersonalInfoStep() {
                                     <div class="relative">
                                         <input type="password" id="confirmPasswordInput" placeholder="Confirm your password" autocomplete="new-password" class="form-input flex w-full rounded-lg text-primary border border-outline-variant bg-surface-container-low focus:ring-2 focus:ring-secondary focus:border-secondary h-14 placeholder:text-on-surface-variant p-4 pr-12 text-base font-normal" required/>
                                         <button type="button" onclick="togglePasswordVisibility('confirmPasswordInput', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary focus:outline-none" aria-label="Toggle password visibility">
-                                            <span class="material-symbols-outlined text-xl toggle-password-icon">visibility_off</span>
+                                            <?php echo wt_icon('visibility-off', 'text-xl toggle-password-icon'); ?>
                                         </button>
                                     </div>
                                 </div>
@@ -663,7 +647,7 @@ function renderPersonalInfoStep() {
                             <div class="pt-6 flex justify-end">
                                 <button type="button" onclick="savePersonalInfoAndContinue();" class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-lg h-14 px-6 bg-secondary text-on-secondary hover:opacity-90 transition-all text-base font-bold shadow-md shadow-secondary/20">
                                     <span>Continue to Beneficiaries</span>
-                                    <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
+                                    <?php echo wt_icon('arrow-forward', 'ml-2 text-sm'); ?>
                                 </button>
                             </div>
                         </form>
@@ -675,35 +659,35 @@ function renderPersonalInfoStep() {
                         <div class="relative z-10 flex flex-col gap-6">
                             <div>
                                 <h3 class="text-primary text-lg font-bold flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-secondary">lightbulb</span>
+                                    <?php echo wt_icon('help', 'text-secondary'); ?>
                                     Trust Tips
                                 </h3>
                                 <p class="text-on-surface-variant text-sm font-medium mt-1">Why Choose Wyoming?</p>
                             </div>
                             <div class="flex flex-col gap-4">
                                 <div class="flex items-start gap-3 p-3 rounded-lg bg-secondary/5 border border-secondary/10">
-                                    <span class="material-symbols-outlined text-secondary text-xl">shield</span>
+                                    <?php echo wt_icon('shield', 'text-secondary text-xl'); ?>
                                     <div>
                                         <p class="text-primary text-sm font-bold">Asset Protection</p>
                                         <p class="text-xs text-on-surface-variant mt-1">Wyoming offers some of the strongest statutory protections for trust assets in the USA.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
-                                    <span class="material-symbols-outlined text-on-surface-variant text-xl">lock</span>
+                                    <?php echo wt_icon('lock', 'text-on-surface-variant text-xl'); ?>
                                     <div>
                                         <p class="text-primary text-sm font-bold">Privacy Protection</p>
                                         <p class="text-xs text-on-surface-variant mt-1">Beneficiary and grantor names are not public record in Wyoming filings.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
-                                    <span class="material-symbols-outlined text-on-surface-variant text-xl">payments</span>
+                                    <?php echo wt_icon('payments', 'text-on-surface-variant text-xl'); ?>
                                     <div>
                                         <p class="text-primary text-sm font-bold">Tax Advantages</p>
                                         <p class="text-xs text-on-surface-variant mt-1">0% state income tax for non-resident trust creators.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
-                                    <span class="material-symbols-outlined text-on-surface-variant text-xl">currency_bitcoin</span>
+                                    <?php echo wt_icon('wallet', 'text-on-surface-variant text-xl'); ?>
                                     <div>
                                         <p class="text-primary text-sm font-bold">Crypto-Friendly</p>
                                         <p class="text-xs text-on-surface-variant mt-1">Explicit laws recognizing digital assets as legal property within trusts.</p>
@@ -846,20 +830,20 @@ function renderReviewStep() {
                 <div class="lg:col-span-3 flex flex-col gap-6">
                     <div class="flex flex-col gap-4">
                         <h2 class="text-primary text-xl font-bold flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary">verified_user</span>
+                            <?php echo wt_icon('shield', 'text-secondary'); ?>
                             Review Your Information
                         </h2>
                         <details class="group rounded-xl border border-outline-variant/30 bg-surface-container-lowest shadow-sm" open>
                             <summary class="flex cursor-pointer items-center justify-between p-5 list-none">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-primary">
-                                        <span class="material-symbols-outlined text-xl">person</span>
+                                        <?php echo wt_icon('person', 'text-xl'); ?>
                                     </div>
                                     <p class="text-primary font-semibold">Personal Information</p>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <button type="button" onclick="window.location.href='?step=2'" class="text-secondary text-sm font-bold hover:underline">Edit</button>
-                                    <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform">expand_more</span>
+                                    <?php echo wt_icon('chevron-down', 'text-on-surface-variant group-open:rotate-180 transition-transform'); ?>
                                 </div>
                             </summary>
                             <div class="px-5 pb-5 pt-0 border-t border-outline-variant/20 mt-2">
@@ -885,13 +869,13 @@ function renderReviewStep() {
                             <summary class="flex cursor-pointer items-center justify-between p-5 list-none">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-primary">
-                                        <span class="material-symbols-outlined text-xl">groups</span>
+                                        <?php echo wt_icon('group', 'text-xl'); ?>
                                     </div>
                                     <p class="text-primary font-semibold">Beneficiaries</p>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <button type="button" onclick="window.location.href='?step=3'" class="text-secondary text-sm font-bold hover:underline">Edit</button>
-                                    <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform">expand_more</span>
+                                    <?php echo wt_icon('chevron-down', 'text-on-surface-variant group-open:rotate-180 transition-transform'); ?>
                                 </div>
                             </summary>
                             <div class="px-5 pb-5 pt-0 border-t border-outline-variant/20 mt-2">
@@ -915,13 +899,13 @@ function renderReviewStep() {
                             <summary class="flex cursor-pointer items-center justify-between p-5 list-none">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-primary">
-                                        <span class="material-symbols-outlined text-xl">account_balance</span>
+                                        <?php echo wt_icon('payments', 'text-xl'); ?>
                                     </div>
                                     <p class="text-primary font-semibold">Trust Type</p>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <button type="button" onclick="window.location.href='?step=1'" class="text-secondary text-sm font-bold hover:underline">Edit</button>
-                                    <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform">expand_more</span>
+                                    <?php echo wt_icon('chevron-down', 'text-on-surface-variant group-open:rotate-180 transition-transform'); ?>
                                 </div>
                             </summary>
                             <div class="px-5 pb-5 pt-0 border-t border-outline-variant/20 mt-2">
@@ -937,13 +921,13 @@ function renderReviewStep() {
                     <div class="bg-secondary-fixed rounded-xl p-6 border border-secondary/20 flex flex-col md:flex-row items-center gap-6">
                         <div class="flex -space-x-2">
                             <div class="size-12 rounded-full border-2 border-surface-container-lowest bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm" title="SSL Encrypted">
-                                <span class="material-symbols-outlined">lock</span>
+                                <?php echo wt_icon('lock', 'w-5 h-5'); ?>
                             </div>
                             <div class="size-12 rounded-full border-2 border-surface-container-lowest bg-surface-container-lowest flex items-center justify-center text-green-500 shadow-sm" title="Compliance Verified">
-                                <span class="material-symbols-outlined">security</span>
+                                <?php echo wt_icon('shield', 'w-5 h-5'); ?>
                             </div>
                             <div class="size-12 rounded-full border-2 border-surface-container-lowest bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm" title="Secure Payment">
-                                <span class="material-symbols-outlined">encrypted</span>
+                                <?php echo wt_icon('lock', 'w-5 h-5'); ?>
                             </div>
                         </div>
                         <div>
@@ -956,7 +940,7 @@ function renderReviewStep() {
                     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
                         <div class="p-6 border-b border-outline-variant/20">
                             <h2 class="text-primary text-xl font-bold flex items-center gap-2">
-                                <span class="material-symbols-outlined text-secondary">payments</span>
+                                <?php echo wt_icon('payments', 'text-secondary'); ?>
                                 ${isFree ? 'Free Checkout' : 'Payment'}
                             </h2>
                             <p class="text-on-surface-variant text-sm mt-1">
@@ -1009,14 +993,14 @@ function renderReviewStep() {
                         <div class="px-6 pb-6">
                             ${isFree ? `
                                 <button onclick="completeFreeCheckout()" class="w-full bg-secondary text-on-secondary hover:opacity-90 font-bold py-4 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
-                                    <span class="material-symbols-outlined">check_circle</span>
+                                    <?php echo wt_icon('check-circle', 'w-5 h-5'); ?>
                                     Complete Free Checkout
                                 </button>
                             ` : (
                                 paymentStage === 'details'
                                     ? `
                                         <button onclick="confirmPaymentAndCreateTrust()" class="w-full bg-secondary text-on-secondary hover:opacity-90 font-bold py-4 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
-                                            <span class="material-symbols-outlined">verified</span>
+                                            <?php echo wt_icon('shield', 'w-5 h-5'); ?>
                                             I’ve made this payment
                                         </button>
                                         <button onclick="backToPaymentSelection()" class="w-full mt-3 border border-outline-variant/30 hover:bg-surface-container-low text-primary font-semibold py-3 px-6 rounded-xl">
@@ -1026,7 +1010,7 @@ function renderReviewStep() {
                                     : paymentStage === 'confirmed'
                                         ? `
                                             <button onclick="doneToDashboard()" class="w-full bg-secondary text-on-secondary hover:opacity-90 font-bold py-4 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3">
-                                                <span class="material-symbols-outlined">dashboard</span>
+                                                <?php echo wt_icon('dashboard', 'w-5 h-5'); ?>
                                                 Done — Go to Dashboard
                                             </button>
                                         `
@@ -1036,7 +1020,7 @@ function renderReviewStep() {
                                                 <div class="text-center py-4 text-on-surface-variant text-sm">Loading payment methods...</div>
                                             </div>
                                             <button id="continueToPaymentDetailsBtn" onclick="goToPaymentDetails()" ${onboardingData.payment_method_id ? '' : 'disabled'} class="w-full bg-secondary text-on-secondary hover:opacity-90 font-bold py-4 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <span class="material-symbols-outlined">arrow_forward</span>
+                                                <?php echo wt_icon('arrow-forward', 'w-5 h-5'); ?>
                                                 Continue to Payment Details
                                             </button>
                                         `
@@ -1170,7 +1154,7 @@ function renderOTPVerificationStep() {
         <div class="max-w-md mx-auto">
             <div class="mb-8 text-center">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-secondary/10 rounded-full mb-4">
-                    <span class="material-symbols-outlined text-secondary text-3xl">mail_outline</span>
+                    <?php echo wt_icon('mail', 'text-secondary text-3xl'); ?>
                 </div>
                 <h1 class="text-primary text-3xl font-black leading-tight tracking-tight mb-3">Verify Your Email</h1>
                 <p class="text-on-surface-variant text-base leading-relaxed">
@@ -1631,7 +1615,7 @@ function renderPaymentMethods(methods) {
                     <div class="flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-                                <span class="material-symbols-outlined text-secondary">${iconFor(m.method_type)}</span>
+                                ${wtIcon(iconFor(m.method_type), 'text-secondary')}
                             </div>
                             <div class="min-w-0">
                                 <p class="font-bold text-primary truncate">${escapeHtml(m.method_name || 'Payment Method')}</p>
@@ -1673,7 +1657,7 @@ function renderCryptoPaymentMethod(method, config) {
                         <label class="text-xs font-semibold text-on-surface-variant">Wallet Address</label>
                         <button onclick="event.stopPropagation(); copyToClipboard('${escapeHtml(walletAddress)}', ${method.id})" 
                                 class="text-secondary hover:text-secondary/80 text-xs font-semibold flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            <?php echo wt_icon('share', 'text-sm'); ?>
                             Copy
                         </button>
                     </div>
@@ -1841,7 +1825,7 @@ function renderSelectedPaymentDetails(amount) {
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Wallet Address</p>
                             <button onclick="copyToClipboard('${escapeHtml(walletAddress)}', ${method.id})" class="text-secondary text-xs font-semibold flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+                                <?php echo wt_icon('share', 'text-sm'); ?> Copy
                             </button>
                         </div>
                         <p class="text-xs font-mono text-primary break-all" id="wallet_${method.id}">${escapeHtml(walletAddress)}</p>
@@ -2143,15 +2127,13 @@ function escapeHtml(text) {
 // Password visibility toggle function
 function togglePasswordVisibility(inputId, button) {
     const input = document.getElementById(inputId);
-    const icon = button.querySelector('.toggle-password-icon');
-    
-    if (input && icon) {
+    if (input && button) {
         if (input.type === 'password') {
             input.type = 'text';
-            icon.textContent = 'visibility';
+            button.innerHTML = wtIcon('visibility', 'w-5 h-5');
         } else {
             input.type = 'password';
-            icon.textContent = 'visibility_off';
+            button.innerHTML = wtIcon('visibility-off', 'w-5 h-5');
         }
     }
 }

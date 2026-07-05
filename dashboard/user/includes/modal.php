@@ -6,7 +6,7 @@
 <div class="px-4 pt-5 pb-4 sm:p-6">
 <div class="sm:flex sm:items-start">
 <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-secondary/10 sm:mx-0 sm:h-10 sm:w-10">
-<span id="modalIcon" class="material-symbols-outlined text-secondary text-xl">info</span>
+<span id="modalIcon"><?php echo wt_icon('info', 'text-secondary text-xl'); ?></span>
 </div>
 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
 <h3 id="modalTitle" class="text-lg leading-6 font-bold text-primary"></h3>
