@@ -250,7 +250,7 @@ const steps = [
 
 let onboardingData = {
     trust_service_id: null,
-    trust_type: '', // 'revocable' or 'irrevocable'
+    trust_type: '', // service_key from trust_services
     personal_info: {
         full_name: '',
         email: '',
@@ -415,10 +415,10 @@ async function prefillPersonalInfoFromLastTrust() {
     }
 }
 
-// Load available trust services from API (filtered for onboarding - only Revocable and Irrevocable)
+// Load available trust services from API (all active services from admin)
 async function loadTrustServices() {
     try {
-        const response = await fetch('../api/trust-services.php?for_onboarding=true');
+        const response = await fetch('../api/trust-services.php');
         const data = await response.json();
         if (data.success && data.services) {
             // Defensive normalization (prevents "0" truthiness bugs even if backend changes)
@@ -458,6 +458,9 @@ async function loadStep(step) {
     
     switch(step) {
         case 1:
+            if (trustServices.length === 0) {
+                await loadTrustServices();
+            }
             container.innerHTML = renderTrustTypeStep();
             break;
         case 2:
@@ -487,6 +490,9 @@ async function loadStep(step) {
             }
             // Ensure there is at least one beneficiary form shown by default
             ensureDefaultBeneficiary();
+            if (!isCryptoAssetTrustSelected()) {
+                onboardingData.beneficiaries.forEach(b => { b.wallet_address = ''; });
+            }
             container.innerHTML = renderBeneficiariesStep();
             // Attach event listeners after HTML is inserted
             setupBeneficiariesStep();
@@ -498,67 +504,72 @@ async function loadStep(step) {
 }
 
 
+function getTrustServiceIcon(serviceKey) {
+    const icons = {
+        revocable_living_trust: 'edit',
+        irrevocable_trust: 'lock',
+        crypto_asset_trust: 'currency_bitcoin',
+        smart_contract_trust: 'smart_toy',
+        trust_llc: 'business',
+    };
+    return icons[serviceKey] || 'account_balance';
+}
+
+function formatTrustServicePrice(service) {
+    const price = Number(service.price || 0);
+    const isFree = Number(service.is_free) === 1 || price <= 0;
+    return {
+        isFree,
+        label: isFree ? 'FREE' : `$${price.toFixed(2)}`,
+    };
+}
+
 function renderTrustTypeStep() {
-    const revocableService = trustServices.find(s => s.service_key === 'revocable_living_trust');
-    const irrevocableService = trustServices.find(s => s.service_key === 'irrevocable_trust');
-    const selectedServiceKey = onboardingData.trust_service_id ? (trustServices.find(s => s.id === onboardingData.trust_service_id)?.service_key || null) : null;
-    const revocableId = revocableService ? revocableService.id : null;
-    const irrevocableId = irrevocableService ? irrevocableService.id : null;
+    const selectedServiceKey = onboardingData.trust_service_id
+        ? (trustServices.find(s => s.id === onboardingData.trust_service_id)?.service_key || null)
+        : null;
 
-    // Pricing labels (pull from admin-managed trust_services)
-    const revocablePrice = revocableService ? Number(revocableService.price || 0) : 0;
-    const irrevocablePrice = irrevocableService ? Number(irrevocableService.price || 0) : 0;
+    const serviceCards = trustServices.length > 0
+        ? trustServices.map(service => {
+            const isSelected = selectedServiceKey === service.service_key;
+            const { isFree, label } = formatTrustServicePrice(service);
+            const title = escapeHtml(service.service_name || service.service_key);
+            const description = escapeHtml(service.description || 'Select this trust service to continue.');
+            const icon = getTrustServiceIcon(service.service_key);
+            return `
+                <label class="relative border-2 ${isSelected ? 'border-secondary' : 'border-outline-variant/30'} rounded-2xl p-6 cursor-pointer hover:border-secondary transition-all group h-full flex flex-col">
+                    <input class="peer sr-only" name="trust_type" type="radio" value="${escapeHtml(service.service_key)}" ${isSelected ? 'checked' : ''} onchange="selectTrustType('${escapeHtml(service.service_key)}', ${service.id})"/>
+                    <div class="absolute top-6 right-6 w-6 h-6 rounded-full border-2 ${isSelected ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors"></div>
+                    <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-on-secondary">
+                        <span class="material-symbols-outlined text-2xl">${icon}</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-primary mb-3 mt-4">${title}</h3>
+                    <p class="text-on-surface-variant leading-relaxed mb-6 flex-grow text-sm">${description}</p>
+                    <div class="flex items-center font-bold text-sm ${isFree ? 'text-green-600 dark:text-green-400' : 'text-secondary'}">
+                        <span class="material-symbols-outlined text-lg mr-1.5">${isFree ? 'check_circle' : 'payments'}</span>
+                        ${label}
+                    </div>
+                    <div class="absolute inset-0 rounded-2xl border-2 border-transparent ${isSelected ? 'border-secondary' : ''} pointer-events-none"></div>
+                </label>
+            `;
+        }).join('')
+        : `
+            <div class="col-span-full text-center py-12 text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl mb-3 block">info</span>
+                <p>No trust services are available right now. Please try again later or contact support.</p>
+            </div>
+        `;
 
-    const revocableIsFree = !revocableService
-        ? true
-        : (Number(revocableService.is_free) === 1 || revocablePrice <= 0);
+    const gridCols = trustServices.length > 2 ? 'md:grid-cols-2 lg:grid-cols-2' : 'md:grid-cols-2';
 
-    const irrevocableIsFree = !irrevocableService
-        ? true
-        : (Number(irrevocableService.is_free) === 1 || irrevocablePrice <= 0);
-
-    const revocablePriceLabel = revocableIsFree ? 'FREE' : `$${revocablePrice.toFixed(2)}`;
-    const irrevocablePriceLabel = irrevocableIsFree ? 'FREE' : `$${irrevocablePrice.toFixed(2)}`;
-    
     return `
-        <div class="max-w-5xl mx-auto">
+        <div class="max-w-container-max mx-auto">
             <div class="text-center mb-10">
                 <h1 class="text-3xl font-bold text-primary mb-3">Choose Your Trust Type</h1>
                 <p class="text-on-surface-variant text-lg">Select the type of trust that best fits your needs</p>
             </div>
-            <div class="grid md:grid-cols-2 gap-6 mb-10">
-                <label class="relative border-2 ${selectedServiceKey === 'revocable_living_trust' ? 'border-secondary' : 'border-outline-variant/30'} rounded-2xl p-6 cursor-pointer hover:border-secondary transition-all group h-full flex flex-col">
-                    <input class="peer sr-only" name="trust_type" type="radio" value="revocable_living_trust" ${selectedServiceKey === 'revocable_living_trust' ? 'checked' : ''} onchange="selectTrustType('revocable_living_trust', ${revocableId || 'null'})"/>
-                    <div class="absolute top-6 right-6 w-6 h-6 rounded-full border-2 ${selectedServiceKey === 'revocable_living_trust' ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors"></div>
-                    <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-on-secondary">
-                        <span class="material-symbols-outlined text-2xl">edit</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-primary mb-3">Revocable Trust</h3>
-                    <p class="text-on-surface-variant leading-relaxed mb-6 flex-grow">
-                        Flexible and amendable during your lifetime. Retain full control of your assets.
-                    </p>
-                    <div class="flex items-center font-bold text-sm ${revocableIsFree ? 'text-green-600 dark:text-green-400' : 'text-secondary'}">
-                        <span class="material-symbols-outlined text-lg mr-1.5">${revocableIsFree ? 'check_circle' : 'payments'}</span>
-                        ${revocablePriceLabel}
-                    </div>
-                    <div class="absolute inset-0 rounded-2xl border-2 border-transparent ${selectedServiceKey === 'revocable_living_trust' ? 'border-secondary' : ''} pointer-events-none"></div>
-                </label>
-                <label class="relative border-2 ${selectedServiceKey === 'irrevocable_trust' ? 'border-secondary' : 'border-outline-variant/30'} rounded-2xl p-6 cursor-pointer hover:border-secondary transition-all group h-full flex flex-col">
-                    <input class="peer sr-only" name="trust_type" type="radio" value="irrevocable_trust" ${selectedServiceKey === 'irrevocable_trust' ? 'checked' : ''} onchange="selectTrustType('irrevocable_trust', ${irrevocableId || 'null'})"/>
-                    <div class="absolute top-6 right-6 w-6 h-6 rounded-full border-2 ${selectedServiceKey === 'irrevocable_trust' ? 'border-secondary bg-secondary' : 'border-outline-variant'} transition-colors"></div>
-                    <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-on-secondary">
-                        <span class="material-symbols-outlined text-2xl">lock</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-primary mb-3">Irrevocable Trust</h3>
-                    <p class="text-on-surface-variant leading-relaxed mb-6 flex-grow">
-                        Maximum asset protection and significant tax benefits for your estate.
-                    </p>
-                    <div class="flex items-center font-bold text-sm ${irrevocableIsFree ? 'text-green-600 dark:text-green-400' : 'text-secondary'}">
-                        <span class="material-symbols-outlined text-lg mr-1.5">${irrevocableIsFree ? 'check_circle' : 'payments'}</span>
-                        ${irrevocablePriceLabel}
-                    </div>
-                    <div class="absolute inset-0 rounded-2xl border-2 border-transparent ${selectedServiceKey === 'irrevocable_trust' ? 'border-secondary' : ''} pointer-events-none"></div>
-                </label>
+            <div class="grid grid-cols-1 ${gridCols} gap-6 mb-10">
+                ${serviceCards}
             </div>
             <div class="bg-secondary-fixed rounded-xl p-4 flex items-start space-x-3 text-on-secondary-fixed-variant border border-secondary/20">
                 <span class="material-symbols-outlined text-xl mt-0.5 flex-shrink-0 text-secondary">info</span>
@@ -710,7 +721,13 @@ function renderPersonalInfoStep() {
     `;
 }
 
+function isCryptoAssetTrustSelected() {
+    const service = getSelectedTrustService();
+    return service?.service_key === 'crypto_asset_trust';
+}
+
 function renderBeneficiariesStep() {
+    const showCryptoWallet = isCryptoAssetTrustSelected();
     const totalAllocation = onboardingData.beneficiaries.reduce((sum, ben) => sum + (parseFloat(ben.allocation) || 0), 0);
     const isValid = Math.abs(totalAllocation - 100) < 0.01;
     const hasMyself = onboardingData.beneficiaries.some(b => b.is_myself);
@@ -768,10 +785,12 @@ function renderBeneficiariesStep() {
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Allocation % *</label>
                                 <input type="number" id="allocation_${idx}" data-index="${idx}" min="0" max="100" step="0.01" value="${ben.allocation || ''}" onchange="updateBeneficiary(${idx}, 'allocation', this.value)" oninput="updateBeneficiary(${idx}, 'allocation', this.value)" placeholder="50" class="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-container-low text-primary focus:ring-2 focus:ring-secondary" required/>
                             </div>
+                            ${showCryptoWallet ? `
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-on-surface-variant mb-2">Crypto Wallet Address (Optional)</label>
                                 <input type="text" value="${escapeHtml(ben.wallet_address || '')}" onchange="updateBeneficiary(${idx}, 'wallet_address', this.value)" placeholder="0x..." class="w-full px-4 py-2 border border-outline-variant rounded-lg bg-surface-container-low text-primary focus:ring-2 focus:ring-secondary"/>
                             </div>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('')}
@@ -810,9 +829,7 @@ function renderReviewStep() {
     const paymentStage = onboardingData.payment_stage || 'select';
     const pi = onboardingData.personal_info || {};
     const serviceName = selectedService ? selectedService.service_name : 'Not selected';
-    const serviceKey = selectedService ? selectedService.service_key : '';
-    const trustTypeName = serviceKey === 'revocable_living_trust' ? 'Revocable Living Trust' : 
-                         serviceKey === 'irrevocable_trust' ? 'Irrevocable Trust' : 'Not selected';
+    const trustTypeName = serviceName;
     
     // Load payment methods only when needed (paid services)
     if (currentStep === 4 && !isFree) {
@@ -1040,8 +1057,7 @@ function renderReviewStep() {
 
 function selectTrustType(serviceKey, serviceId) {
     onboardingData.trust_service_id = serviceId;
-    onboardingData.trust_type = serviceKey === 'revocable_living_trust' ? 'revocable' : 
-                                serviceKey === 'irrevocable_trust' ? 'irrevocable' : '';
+    onboardingData.trust_type = serviceKey;
     
     // Enable next button without re-rendering the entire step
     const nextBtn = document.getElementById('nextBtn');
@@ -1160,6 +1176,9 @@ function renderOTPVerificationStep() {
                 <p class="text-on-surface-variant text-base leading-relaxed">
                     We've sent a 6-digit verification code to<br>
                     <strong class="text-primary">${escapeHtml(email)}</strong>
+                </p>
+                <p class="text-on-surface-variant text-sm leading-relaxed mt-3 max-w-sm mx-auto">
+                    Don't see it in your inbox? Check your <strong class="text-primary">spam or junk folder</strong> — verification emails sometimes land there.
                 </p>
             </div>
             
@@ -2155,7 +2174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadStep(currentStep);
     
     // Disable next button if trust type not selected on step 1
-    if (currentStep === 1 && !onboardingData.trust_type) {
+    if (currentStep === 1 && !onboardingData.trust_service_id) {
         const nextBtn = document.getElementById('nextBtn');
         if (nextBtn) nextBtn.disabled = true;
     }

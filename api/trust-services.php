@@ -8,17 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 $db = getDatabase();
 
-$forOnboarding = isset($_GET['for_onboarding']) && $_GET['for_onboarding'] === 'true';
-
 $sql = 'SELECT id, service_key, service_name, description, price, is_free, is_active, created_at, updated_at
         FROM trust_services
-        WHERE is_active = 1';
-
-if ($forOnboarding) {
-    $sql .= ' AND service_key IN ("revocable_living_trust", "irrevocable_trust")';
-}
-
-$sql .= ' ORDER BY service_name';
+        WHERE is_active = 1
+        ORDER BY service_name';
 
 $stmt = $db->query($sql);
 $services = $stmt->fetchAll();
