@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_id'])) {
 function renderAdminLayout($page_title, $active_page = 'dashboard', $content_callback = null) {
     $admin_email = $_SESSION['admin_email'] ?? 'Admin';
     
-    // Navigation items
+    // Navigation items (main menu — account settings pinned separately at bottom)
     $nav_items = [
         'dashboard' => ['label' => 'Dashboard', 'icon' => 'dashboard', 'href' => 'index.php'],
         'users' => ['label' => 'User Management', 'icon' => 'people', 'href' => 'users.php'],
@@ -23,7 +23,6 @@ function renderAdminLayout($page_title, $active_page = 'dashboard', $content_cal
         'payments' => ['label' => 'Payment Methods', 'icon' => 'payment', 'href' => 'payments.php'],
         'email-settings' => ['label' => 'Email Settings', 'icon' => 'mail', 'href' => 'email-settings.php'],
         'settings' => ['label' => 'Site Settings', 'icon' => 'settings', 'href' => 'settings.php'],
-        'profile' => ['label' => 'Profile', 'icon' => 'person', 'href' => 'profile.php'],
     ];
     ?>
 <!DOCTYPE html>
@@ -68,7 +67,7 @@ function renderAdminLayout($page_title, $active_page = 'dashboard', $content_cal
     <div id="mobileSidebarOverlay" class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden" onclick="toggleSidebar()"></div>
     
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-navy-900 border-r border-slate-200 dark:border-slate-800 z-50 sidebar-transition transform -translate-x-full lg:translate-x-0">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-navy-900 border-r border-slate-200 dark:border-slate-800 z-50 sidebar-transition transform -translate-x-full lg:translate-x-0 flex flex-col">
         <!-- Sidebar Header -->
         <div class="flex items-center justify-between h-16 px-6 border-b border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-2">
@@ -83,7 +82,7 @@ function renderAdminLayout($page_title, $active_page = 'dashboard', $content_cal
         </div>
         
         <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto py-4 px-3">
+        <nav class="flex-1 min-h-0 overflow-y-auto py-4 px-3">
             <ul class="space-y-1">
                 <?php foreach ($nav_items as $key => $item): ?>
                 <li>
@@ -95,19 +94,25 @@ function renderAdminLayout($page_title, $active_page = 'dashboard', $content_cal
                 </li>
                 <?php endforeach; ?>
             </ul>
-            
-            <!-- Logout -->
-            <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
-                <a href="../../api/admin/logout.php" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                    <span class="material-icons-outlined text-xl">logout</span>
-                    <span>Logout</span>
-                </a>
-            </div>
         </nav>
+
+        <!-- Account + Logout (always visible at bottom) -->
+        <div class="shrink-0 px-3 pb-3 border-t border-slate-200 dark:border-slate-800 pt-4 space-y-1">
+            <a href="profile.php"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors <?php echo $active_page === 'profile' ? 'bg-primary/10 text-primary dark:bg-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-navy-800 hover:text-slate-900 dark:hover:text-white'; ?>">
+                <span class="material-icons-outlined text-xl">manage_accounts</span>
+                <span>Account Settings</span>
+            </a>
+            <p class="px-4 text-[10px] text-slate-500 dark:text-slate-500 leading-snug">Change admin email &amp; password</p>
+            <a href="../../api/admin/logout.php" 
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                <span class="material-icons-outlined text-xl">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
         
         <!-- Sidebar Footer -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <div class="shrink-0 p-4 border-t border-slate-200 dark:border-slate-800">
             <div class="flex items-center gap-2 px-2 py-2 text-xs text-slate-500 dark:text-slate-400">
                 <span class="material-icons-outlined text-sm">email</span>
                 <span class="truncate"><?php echo htmlspecialchars($admin_email); ?></span>
