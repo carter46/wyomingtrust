@@ -23,7 +23,7 @@ include 'includes/header.php';
 </div>
 <div class="relative">
 <div class="aspect-video rounded-xl overflow-hidden shadow-2xl">
-<img class="w-full h-full object-cover" alt="Multi-generational family in a modern living room" src="<?php echo asset_url('Storage/images/about-family-hero.jpg'); ?>"/>
+<img class="w-full h-full object-cover" alt="Multi-generational family enjoying time together outdoors" src="<?php echo asset_url('Storage/images/hero_slide3.jpg'); ?>"/>
 </div>
 <div class="absolute -bottom-6 -left-6 bg-primary text-on-primary p-6 rounded-xl shadow-lg hidden md:block max-w-[240px]">
 <p class="font-label-md text-label-md italic">"Connecting generations through smarter planning."</p>
@@ -55,7 +55,7 @@ include 'includes/header.php';
 </div>
 <div class="lg:col-span-5 relative">
 <div class="bg-surface p-4 rounded-2xl shadow-xl transform lg:rotate-3">
-<img class="rounded-xl w-full" alt="Clean workspace with estate planning dashboard on laptop" src="<?php echo asset_url('Storage/images/about-workspace-dashboard.jpg'); ?>"/>
+<img class="rounded-xl w-full" alt="Couple reviewing estate planning documents at home" src="<?php echo asset_url('Storage/images/retirement_2.jpg'); ?>"/>
 </div>
 </div>
 </div>
@@ -71,7 +71,7 @@ include 'includes/header.php';
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div class="md:col-span-2 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
-<img alt="The Kramm Family" class="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500" src="<?php echo asset_url('Storage/images/family-multigenerational.jpg'); ?>"/>
+<img alt="WyomingTrust community and legacy planning" class="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500" src="<?php echo asset_url('Storage/images/retirement_3.jpg'); ?>"/>
 <div class="p-8">
 <h3 class="font-headline-md text-headline-md text-primary mb-2">Connecting Generations</h3>
 <p class="font-body-md text-body-md text-on-surface-variant">Justin, Vica, and their sons Alex and Oscar represent why we do what we do. They chose WyomingTrust to ensure their kids were protected, turning a "New Year's resolution" into a legacy of security.</p>

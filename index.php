@@ -59,11 +59,11 @@ include 'includes/header.php';
 <div class="max-w-container-max mx-auto px-gutter">
 <p class="text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant mb-8">Proudly Featured By</p>
 <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-14">
-<img src="<?php echo asset_url('Storage/images/Tech_Crunch.png'); ?>" alt="TechCrunch" class="h-8 md:h-10 w-auto max-w-[140px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
-<img src="<?php echo asset_url('Storage/images/Inc.png'); ?>" alt="Inc." class="h-7 md:h-9 w-auto max-w-[100px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
-<img src="<?php echo asset_url('Storage/images/image_252.png'); ?>" alt="Forbes" class="h-7 md:h-9 w-auto max-w-[120px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
-<img src="<?php echo asset_url('Storage/images/image_253.png'); ?>" alt="The New York Times" class="h-7 md:h-9 w-auto max-w-[180px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
-<img src="<?php echo asset_url('Storage/images/USA_Today.png'); ?>" alt="USA TODAY" class="h-8 md:h-10 w-auto max-w-[150px] object-contain opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/Tech_Crunch.png'); ?>" alt="TechCrunch" class="h-8 md:h-10 w-auto max-w-[140px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/Inc.png'); ?>" alt="Inc." class="h-7 md:h-9 w-auto max-w-[100px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/image_252.png'); ?>" alt="Forbes" class="h-7 md:h-9 w-auto max-w-[120px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/image_253.png'); ?>" alt="The New York Times" class="h-7 md:h-9 w-auto max-w-[180px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" loading="lazy"/>
+<img src="<?php echo asset_url('Storage/images/USA_Today.png'); ?>" alt="USA TODAY" class="h-8 md:h-10 w-auto max-w-[150px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300" loading="lazy"/>
 </div>
 </div>
 </section>
