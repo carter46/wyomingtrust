@@ -232,7 +232,7 @@ $extra_styles = '
 .crypto-action-btn { white-space: nowrap; }
 @media (max-width: 639px) {
     .crypto-layout-card { padding: 1rem !important; }
-    .crypto-beneficiary-card { padding: 1rem !important; min-width: 0; overflow: visible; }
+    .crypto-beneficiary-card { padding: 1rem !important; min-width: 0; overflow: hidden; }
 }
 ';
 include __DIR__ . '/includes/layout.php';
@@ -401,7 +401,7 @@ Liquidate Trust
 </div>
 
 <!-- Smart Contract Trust — Crypto Portfolio Dashboard layout -->
-<div id="cryptoTrustLayout" class="hidden space-y-10">
+<div id="cryptoTrustLayout" class="hidden space-y-6 sm:space-y-10">
 <section class="flex flex-wrap justify-between items-end gap-4 pb-2 border-b border-surface-container-high">
 <div class="flex flex-col gap-2">
 <div class="flex items-center gap-2">
@@ -447,7 +447,14 @@ Liquidate Trust
 </div>
 </section>
 
-<section class="bg-primary-fixed p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-gutter no-print">
+<div id="cryptoPortfolioMobileBlock" class="md:hidden bg-surface-container-lowest p-4 rounded-xl card-shadow border border-surface-container-high crypto-layout-card min-w-0">
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Crypto Portfolio</h3>
+<div id="cryptoPortfolioMobileList" class="space-y-3 min-w-0">
+<div class="py-8 text-center text-on-surface-variant text-sm">Loading portfolio...</div>
+</div>
+</div>
+
+<section id="cryptoQuickActions" class="bg-primary-fixed p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-gutter no-print">
 <span class="font-label-md text-label-md text-on-primary-fixed-variant text-xs sm:text-sm sm:ml-2">Quick Actions:</span>
 <div class="flex flex-wrap gap-2">
 <button type="button" onclick="exportTrustReport()" class="crypto-action-btn bg-surface-container-lowest text-primary px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-surface-container transition-colors border border-outline-variant">
@@ -487,11 +494,10 @@ Liquidate Trust
 </div>
 </div>
 
-<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden crypto-layout-card min-w-0">
+<div class="hidden md:block bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high overflow-hidden crypto-layout-card min-w-0">
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
 <h3 class="font-headline-md text-headline-md text-primary">Crypto Portfolio</h3>
 </div>
-<div class="hidden md:block">
 <table class="w-full text-left">
 <thead>
 <tr class="border-b border-surface-container text-on-surface-variant font-label-md text-label-md">
@@ -506,14 +512,10 @@ Liquidate Trust
 </tbody>
 </table>
 </div>
-<div id="cryptoPortfolioMobileList" class="md:hidden space-y-3 min-w-0">
-<div class="py-8 text-center text-on-surface-variant text-sm">Loading portfolio...</div>
-</div>
-</div>
 </div>
 
 <div class="lg:col-span-5 space-y-6 sm:space-y-10 min-w-0">
-<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high h-fit crypto-layout-card min-w-0 overflow-visible">
+<div class="bg-surface-container-lowest p-4 sm:p-8 rounded-xl card-shadow border border-surface-container-high h-fit crypto-layout-card min-w-0 overflow-hidden">
 <div class="flex flex-col gap-3 mb-6">
 <h3 class="font-headline-md text-headline-md text-primary">Manage Beneficiaries</h3>
 <div class="flex flex-col gap-2 w-full">
@@ -899,22 +901,24 @@ function renderCryptoBeneficiaries(beneficiaries) {
         }
 
         return `
-            <div class="crypto-beneficiary-card p-4 sm:p-5 rounded-lg border border-surface-container bg-background relative min-w-0">
+            <div class="crypto-beneficiary-card p-4 sm:p-5 rounded-lg border border-surface-container bg-background relative min-w-0 overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full ${accent}"></div>
-                <div class="flex justify-between items-start mb-4 pl-2">
-                    <div>
-                        <p class="font-bold text-body-lg text-primary">${escapeHtml(displayName)}</p>
-                        <p class="text-on-surface-variant font-label-md text-label-md">${escapeHtml(ben.email || 'No email')}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-headline-md text-headline-md text-primary">${parseFloat(ben.allocation || 0).toFixed(2)}%</p>
-                        <p class="text-[10px] uppercase font-bold text-secondary">Allocation</p>
+                <div class="mb-4 pl-3 pr-1">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-bold text-sm sm:text-base text-primary break-words leading-snug">${escapeHtml(displayName)}</p>
+                            <p class="text-on-surface-variant text-xs sm:text-sm break-all mt-0.5">${escapeHtml(ben.email || 'No email')}</p>
+                        </div>
+                        <div class="flex items-center gap-2 sm:flex-col sm:items-end sm:text-right shrink-0 bg-surface-container-low sm:bg-transparent rounded-lg px-3 py-2 sm:p-0">
+                            <p class="text-[10px] uppercase font-bold text-secondary tracking-wide">Allocation</p>
+                            <p class="text-base sm:text-lg font-bold text-primary leading-none">${parseFloat(ben.allocation || 0).toFixed(2)}%</p>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 gap-3 text-sm pl-2">
-                    <div class="flex justify-between border-t border-surface-container-high pt-2">
-                        <span class="text-on-surface-variant">Relationship:</span>
-                        <span class="font-medium">${escapeHtml(ben.relationship || '—')}</span>
+                <div class="grid grid-cols-1 gap-2 text-sm pl-3 pr-1">
+                    <div class="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:items-start border-t border-surface-container-high pt-2">
+                        <span class="text-on-surface-variant text-xs shrink-0">Relationship</span>
+                        <span class="font-medium text-sm break-words sm:text-right">${escapeHtml(ben.relationship || '—')}</span>
                     </div>
                     ${ben.wallet_address ? `
                     <div class="flex flex-col pt-2">

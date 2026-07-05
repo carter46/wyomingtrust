@@ -80,6 +80,24 @@ An administrator has not yet configured a deposit wallet address for this asset.
 
 <div id="depositAvailablePanel" class="hidden">
 <div id="depositAddressSection">
+<div id="depositAmountSection" class="mb-6 p-4 sm:p-5 bg-surface-container-low rounded-xl border border-outline-variant">
+<div class="flex flex-wrap items-start justify-between gap-3 mb-4 pb-4 border-b border-outline-variant">
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Live Price</p>
+<p id="depositLivePrice" class="text-xl sm:text-2xl font-bold text-primary">Loading...</p>
+</div>
+<p id="depositPriceChange" class="text-sm font-medium text-on-surface-variant shrink-0">--</p>
+</div>
+<div>
+<label for="depositCoinAmount" id="depositAmountLabel" class="block text-sm font-semibold text-primary mb-2">Amount to Deposit</label>
+<div class="relative max-w-xl">
+<input type="number" id="depositCoinAmount" min="0" step="any" placeholder="0.00" class="w-full px-4 py-3 pr-20 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
+<span id="depositCoinSymbolSuffix" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-on-surface-variant pointer-events-none">--</span>
+</div>
+<p id="depositUsdValue" class="text-base sm:text-lg font-bold text-secondary mt-3 min-h-[1.5em]">≈ $0.00 USD</p>
+<p id="depositRateHint" class="text-xs text-on-surface-variant mt-1">Enter the amount you plan to send in the selected cryptocurrency.</p>
+</div>
+</div>
 <div class="text-center p-6 sm:p-8 bg-surface-container-low rounded-xl">
 <div id="qrCode" class="inline-block p-4 bg-surface-container-lowest rounded-xl mb-4 border border-outline-variant">
 <canvas id="qrCodeCanvas" width="200" height="200" class="w-48 h-48"></canvas>
@@ -111,9 +129,11 @@ An administrator has not yet configured a deposit wallet address for this asset.
 <p class="text-sm text-on-surface-variant mb-6">Enter your transaction details to complete your deposit submission.</p>
 <form id="depositConfirmForm" class="space-y-5 max-w-xl">
 <input type="hidden" id="depositAddressHidden" value="">
-<div>
-<label for="depositAmount" class="block text-sm font-semibold text-primary mb-2">Amount Deposited</label>
-<input type="number" id="depositAmount" name="amount" min="0" step="any" required placeholder="0.00" class="w-full px-4 py-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary"/>
+<input type="hidden" id="depositAmount" name="amount" value="">
+<div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant">
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Deposit Amount</p>
+<p id="depositConfirmAmountDisplay" class="font-bold text-primary text-lg">--</p>
+<p id="depositConfirmUsdDisplay" class="text-sm text-on-surface-variant mt-1">--</p>
 </div>
 <div>
 <label for="depositTxHash" class="block text-sm font-semibold text-primary mb-2">Transaction Hash (TX ID)</label>
@@ -157,16 +177,200 @@ let selectedAsset = null;
 let adminAddresses = {};
 let hasPendingDeposit = false;
 let confirmFormOpen = false;
+let currentCoinPrice = 0;
+let priceRefreshTimer = null;
+
+const COINGECKO_API = '../../api/coingecko.php';
+const STABLECOIN_KEYS = new Set(['tether', 'usd-coin', 'usdt', 'usdc', 'busd', 'dai', 'true-usd']);
+
+function isStablecoin(coinKey) {
+    if (!coinKey) return false;
+    const key = coinKey.toLowerCase();
+    if (STABLECOIN_KEYS.has(key)) return true;
+    const sym = (selectedAsset?.symbol || '').toUpperCase();
+    return ['USDT', 'USDC', 'BUSD', 'DAI', 'USD'].includes(sym);
+}
+
+function formatUsd(value) {
+    return '$' + (value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatCoinAmount(amount) {
+    if (amount >= 1) return amount.toFixed(4);
+    if (amount >= 0.01) return amount.toFixed(6);
+    return amount.toFixed(8);
+}
+
+function formatPriceDisplay(price) {
+    if (!price || price <= 0) return '$0.00';
+    const maxFrac = price >= 1000 ? 2 : (price >= 1 ? 4 : 6);
+    return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: maxFrac });
+}
+
+function updateDepositAmountLabels() {
+    const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || '--';
+    const name = selectedAsset?.display_name || symbol;
+    const label = document.getElementById('depositAmountLabel');
+    const suffix = document.getElementById('depositCoinSymbolSuffix');
+    if (label) label.textContent = `Amount to Deposit (${symbol})`;
+    if (suffix) suffix.textContent = symbol;
+    const rateHint = document.getElementById('depositRateHint');
+    if (rateHint && currentCoinPrice > 0) {
+        rateHint.textContent = `Rate: ${formatPriceDisplay(currentCoinPrice)} per ${symbol}`;
+    }
+}
+
+function updateDepositUsdValue() {
+    const input = document.getElementById('depositCoinAmount');
+    const usdEl = document.getElementById('depositUsdValue');
+    if (!input || !usdEl) return;
+    const coinAmount = parseFloat(input.value) || 0;
+    if (coinAmount <= 0 || currentCoinPrice <= 0) {
+        usdEl.textContent = '≈ $0.00 USD';
+        return;
+    }
+    const usdValue = coinAmount * currentCoinPrice;
+    usdEl.textContent = `≈ ${formatUsd(usdValue)} USD`;
+}
+
+function updatePriceDisplay(price, change24h) {
+    currentCoinPrice = price || 0;
+    const priceEl = document.getElementById('depositLivePrice');
+    const changeEl = document.getElementById('depositPriceChange');
+    const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || 'coin';
+
+    if (priceEl) {
+        priceEl.textContent = currentCoinPrice > 0
+            ? `1 ${symbol} = ${formatPriceDisplay(currentCoinPrice)}`
+            : 'Price unavailable';
+    }
+    if (changeEl) {
+        if (change24h != null && !Number.isNaN(change24h)) {
+            const sign = change24h >= 0 ? '+' : '';
+            changeEl.textContent = `${sign}${change24h.toFixed(2)}% (24h)`;
+            changeEl.className = `text-sm font-medium shrink-0 ${change24h >= 0 ? 'text-deep-forest' : 'text-error'}`;
+        } else {
+            changeEl.textContent = '--';
+            changeEl.className = 'text-sm font-medium text-on-surface-variant shrink-0';
+        }
+    }
+    updateDepositAmountLabels();
+    updateDepositUsdValue();
+}
+
+function getCachedCoinPrice(coinKey) {
+    try {
+        const cached = sessionStorage.getItem('crypto_prices_cache');
+        if (!cached) return null;
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < 120000 && data && data[coinKey]) return data[coinKey];
+        return null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function cacheCoinPrice(coinKey, priceData) {
+    try {
+        const cached = sessionStorage.getItem('crypto_prices_cache');
+        const existing = cached ? JSON.parse(cached) : { data: {}, timestamp: Date.now() };
+        existing.data[coinKey] = priceData;
+        existing.timestamp = Date.now();
+        sessionStorage.setItem('crypto_prices_cache', JSON.stringify(existing));
+    } catch (e) { /* ignore */ }
+}
+
+async function fetchDepositCoinPrice() {
+    if (!selectedAsset?.coin_key) return;
+
+    const coinKey = selectedAsset.coin_key;
+    if (isStablecoin(coinKey)) {
+        updatePriceDisplay(1, 0);
+        return;
+    }
+
+    if (selectedAsset.price_usd) {
+        updatePriceDisplay(selectedAsset.price_usd, selectedAsset.price_change_24h || 0);
+    }
+
+    const cached = getCachedCoinPrice(coinKey);
+    if (cached?.usd) {
+        updatePriceDisplay(cached.usd, cached.usd_24h_change || 0);
+    }
+
+    try {
+        const response = await fetch(
+            `${COINGECKO_API}?path=/simple/price&ids=${encodeURIComponent(coinKey)}&vs_currencies=usd&include_24hr_change=true`,
+            { credentials: 'same-origin' }
+        );
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data[coinKey]) {
+                const assetData = data[coinKey];
+                cacheCoinPrice(coinKey, assetData);
+                updatePriceDisplay(assetData.usd || 0, assetData.usd_24h_change || 0);
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching deposit coin price:', error);
+    }
+
+    if (!currentCoinPrice && selectedAsset.price_usd) {
+        updatePriceDisplay(selectedAsset.price_usd, selectedAsset.price_change_24h || 0);
+    } else if (!currentCoinPrice) {
+        updatePriceDisplay(0, null);
+    }
+}
+
+function startPriceRefresh() {
+    if (priceRefreshTimer) clearInterval(priceRefreshTimer);
+    fetchDepositCoinPrice();
+    priceRefreshTimer = setInterval(fetchDepositCoinPrice, 120000);
+}
+
+function stopPriceRefresh() {
+    if (priceRefreshTimer) {
+        clearInterval(priceRefreshTimer);
+        priceRefreshTimer = null;
+    }
+}
+
+function syncConfirmAmountDisplay() {
+    const coinAmount = parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
+    const symbol = selectedAsset?.symbol || selectedAsset?.coin_key || '';
+    const amountDisplay = document.getElementById('depositConfirmAmountDisplay');
+    const usdDisplay = document.getElementById('depositConfirmUsdDisplay');
+    const hiddenAmount = document.getElementById('depositAmount');
+
+    if (hiddenAmount) hiddenAmount.value = coinAmount > 0 ? String(coinAmount) : '';
+    if (amountDisplay) {
+        amountDisplay.textContent = coinAmount > 0
+            ? `${formatCoinAmount(coinAmount)} ${symbol}`
+            : '--';
+    }
+    if (usdDisplay) {
+        const usdValue = coinAmount > 0 && currentCoinPrice > 0 ? coinAmount * currentCoinPrice : 0;
+        usdDisplay.textContent = coinAmount > 0 ? `≈ ${formatUsd(usdValue)} USD` : '--';
+    }
+}
 
 function showConfirmPaymentForm() {
     if (hasPendingDeposit || !selectedAsset) return;
+    const coinAmount = parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
+    if (!coinAmount || coinAmount <= 0) {
+        showAlertModal('Amount Required', 'Please enter the amount you want to deposit before continuing.', 'error');
+        document.getElementById('depositCoinAmount')?.focus();
+        return;
+    }
     const address = document.getElementById('receiveAddress')?.value?.trim() || '';
     const hidden = document.getElementById('depositAddressHidden');
     if (hidden) hidden.value = address;
+    syncConfirmAmountDisplay();
     confirmFormOpen = true;
     document.getElementById('depositAddressSection')?.classList.add('hidden');
     document.getElementById('depositConfirmSection')?.classList.remove('hidden');
-    document.getElementById('depositAmount')?.focus();
+    document.getElementById('depositTxHash')?.focus();
 }
 
 function hideConfirmPaymentForm() {
@@ -295,17 +499,23 @@ function updateSelectedAsset() {
     const nameEl = document.getElementById('selectedAssetName');
     if (nameEl) nameEl.textContent = selectedAsset.display_name || selectedAsset.symbol;
     document.getElementById('selectedAssetSymbol').textContent = selectedAsset.symbol || selectedAsset.coin_key || '';
+    const coinInput = document.getElementById('depositCoinAmount');
+    if (coinInput) coinInput.value = '';
+    updateDepositAmountLabels();
+    updateDepositUsdValue();
     renderDepositState();
 }
 
 function renderDepositState() {
     if (!selectedAsset) {
+        stopPriceRefresh();
         showPanel('depositUnavailablePanel');
         return;
     }
 
     const address = (adminAddresses[selectedAsset.coin_key] || '').trim();
     if (!address) {
+        stopPriceRefresh();
         document.getElementById('unavailableCoinName').textContent =
             selectedAsset.display_name || selectedAsset.symbol || selectedAsset.coin_key;
         showPanel('depositUnavailablePanel');
@@ -316,6 +526,8 @@ function renderDepositState() {
     resetDepositView();
     document.getElementById('receiveAddress').value = address;
     generateQRCode(address);
+    updateDepositAmountLabels();
+    startPriceRefresh();
     checkPendingDeposit();
 }
 
@@ -381,7 +593,9 @@ async function submitDepositConfirmation(event) {
     event.preventDefault();
     if (!selectedAsset || hasPendingDeposit) return;
 
-    const amount = parseFloat(document.getElementById('depositAmount').value);
+    syncConfirmAmountDisplay();
+    const amount = parseFloat(document.getElementById('depositAmount').value)
+        || parseFloat(document.getElementById('depositCoinAmount')?.value) || 0;
     const txHash = document.getElementById('depositTxHash').value.trim();
     const proofFile = document.getElementById('depositProof').files[0];
     const address = document.getElementById('depositAddressHidden').value.trim()
@@ -524,6 +738,14 @@ async function copyAddress() {
 document.addEventListener('DOMContentLoaded', () => {
     loadAssets();
     document.getElementById('depositConfirmForm')?.addEventListener('submit', submitDepositConfirmation);
+    document.getElementById('depositCoinAmount')?.addEventListener('input', () => {
+        updateDepositUsdValue();
+        syncConfirmAmountDisplay();
+    });
+    document.getElementById('depositCoinAmount')?.addEventListener('change', () => {
+        updateDepositUsdValue();
+        syncConfirmAmountDisplay();
+    });
 });
 </script>
 <?php include __DIR__ . '/includes/layout-footer.php'; ?>
