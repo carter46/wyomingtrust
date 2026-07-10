@@ -6,9 +6,9 @@ $method = get_request_method();
 $userId = require_user_auth();
 $db = getDatabase();
 
-function load_user_catalog_trust(PDO $db, int $userId, int $trustId): ?array {
+function load_user_trust_row(PDO $db, int $userId, int $trustId): ?array {
     $stmt = $db->prepare(
-        'SELECT ut.id, ut.trust_data, ts.service_key, ts.service_name
+        'SELECT ut.id, ut.trust_data, ut.status, ts.service_key, ts.service_name
          FROM user_trusts ut
          INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
          WHERE ut.id = :id AND ut.user_id = :user_id
@@ -19,12 +19,17 @@ function load_user_catalog_trust(PDO $db, int $userId, int $trustId): ?array {
     if (!$row) {
         return null;
     }
-    if (!trust_type_supports_asset_catalog($row['service_key'] ?? '')) {
-        return null;
-    }
     $row['trust_data'] = !empty($row['trust_data'])
         ? (json_decode($row['trust_data'], true) ?? [])
         : [];
+    return $row;
+}
+
+function load_user_catalog_trust(PDO $db, int $userId, int $trustId): ?array {
+    $row = load_user_trust_row($db, $userId, $trustId);
+    if (!$row || !trust_type_supports_asset_catalog($row['service_key'] ?? '')) {
+        return null;
+    }
     return $row;
 }
 
@@ -136,7 +141,8 @@ if ($method === 'GET') {
 
         $feeInfo = resolve_liquidation_fee_usd($db, $userId, $coinKey, $trustId);
         $coinId = (int) $coin['id'];
-        $existingPayment = user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId);
+        $existingPayment = user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId, false);
+        $approvedPayment = user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId, true);
 
         send_json([
             'success' => true,
@@ -150,11 +156,51 @@ if ($method === 'GET') {
             'fee' => $feeInfo['fee'],
             'amount' => $feeInfo['fee'],
             'has_fee' => $feeInfo['has_fee'],
-            'fee_paid' => $existingPayment !== null,
+            'fee_paid' => $approvedPayment !== null,
+            'payment_satisfied' => $approvedPayment !== null,
+            'already_submitted' => $existingPayment !== null,
             'payment_status' => $existingPayment['status'] ?? null,
+            'fee_payment_status' => $existingPayment['status'] ?? null,
             'continue_url' => $trustId > 0
                 ? "send.php?mode=liquidate&coin_key={$coinKey}&trust_id={$trustId}"
                 : "send.php?mode=liquidate&coin_key={$coinKey}",
+        ]);
+    }
+
+    if ($type === 'trust_liquidation') {
+        if ($trustId <= 0) {
+            send_json(['success' => false, 'message' => 'trust_id is required'], 400);
+        }
+
+        $trust = load_user_trust_row($db, $userId, $trustId);
+        if (!$trust) {
+            send_json(['success' => false, 'message' => 'Trust not found'], 404);
+        }
+
+        $feeInfo = resolve_trust_liquidation_fee_usd($db, $userId, $trustId);
+        if (!$feeInfo['allows_liquidation']) {
+            send_json(['success' => false, 'message' => 'This trust cannot be liquidated'], 403);
+        }
+
+        $existingPayment = user_has_trust_liquidation_fee_payment($db, $userId, $trustId, false);
+        $approvedPayment = user_has_trust_liquidation_fee_payment($db, $userId, $trustId, true);
+        $trustName = $trust['trust_data']['trust_name'] ?? $trust['service_name'] ?? 'Trust';
+
+        send_json([
+            'success' => true,
+            'type' => 'trust_liquidation',
+            'title' => 'Trust Liquidation Fee Checkout',
+            'description' => 'Pay the trust liquidation fee before your liquidation request can be processed.',
+            'purpose_label' => 'Trust Liquidation Fee',
+            'item_label' => $trustName,
+            'trust_id' => $trustId,
+            'amount' => $feeInfo['fee'],
+            'has_fee' => $feeInfo['has_fee'],
+            'fee_paid' => $approvedPayment !== null,
+            'payment_satisfied' => $approvedPayment !== null,
+            'already_submitted' => $existingPayment !== null,
+            'payment_status' => $existingPayment['status'] ?? null,
+            'continue_url' => "manage-trust.php?id={$trustId}",
         ]);
     }
 
@@ -194,6 +240,7 @@ if ($method === 'GET') {
             'asset_id' => $assetId,
             'amount' => round($amount, 2),
             'funding_status' => $status,
+            'payment_satisfied' => $status === 'funded',
             'already_submitted' => $existing !== null,
             'payment_status' => $existing['status'] ?? null,
             'continue_url' => "manage-trust.php?id={$trustId}",
@@ -210,13 +257,22 @@ if ($method === 'GET') {
             send_json(['success' => false, 'message' => 'Trust not found or does not support catalog assets'], 404);
         }
 
-        $funding = get_trust_declared_value_funding($trust['trust_data']);
+        $trustData = $trust['trust_data'];
+        if (!trust_declared_value_funding_applies($trustData)) {
+            send_json([
+                'success' => false,
+                'message' => 'This trust uses per-asset deposits. Fund each asset individually from Manage Trust.',
+            ], 400);
+        }
+
+        $funding = get_trust_declared_value_funding($trustData);
         $amount = (float) ($funding['amount_usd'] ?? 0);
         if ($amount <= 0) {
             send_json(['success' => false, 'message' => 'No declared trust value requires funding'], 400);
         }
 
         $existing = user_has_pending_asset_funding($db, $userId, $trustId, 'trust_declared_value');
+        $isFunded = ($funding['status'] ?? '') === 'funded';
 
         send_json([
             'success' => true,
@@ -228,6 +284,7 @@ if ($method === 'GET') {
             'trust_id' => $trustId,
             'amount' => round($amount, 2),
             'funding_status' => $funding['status'] ?? 'unfunded',
+            'payment_satisfied' => $isFunded,
             'already_submitted' => $existing !== null,
             'payment_status' => $existing['status'] ?? null,
             'continue_url' => "manage-trust.php?id={$trustId}",
@@ -277,7 +334,7 @@ if ($method === 'POST') {
         }
 
         $coinId = (int) $coin['id'];
-        if (user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId)) {
+        if (user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId, false)) {
             send_json(['success' => false, 'message' => 'Liquidation fee payment has already been submitted'], 409);
         }
 
@@ -308,6 +365,57 @@ if ($method === 'POST') {
         } catch (Exception $e) {
             $db->rollBack();
             error_log('Liquidation checkout failed: ' . $e->getMessage());
+            send_json(['success' => false, 'message' => 'Failed to submit payment'], 500);
+        }
+    }
+
+    if ($type === 'trust_liquidation') {
+        if ($trustId <= 0) {
+            send_json(['success' => false, 'message' => 'trust_id is required'], 400);
+        }
+
+        $trust = load_user_trust_row($db, $userId, $trustId);
+        if (!$trust) {
+            send_json(['success' => false, 'message' => 'Trust not found'], 404);
+        }
+
+        $feeInfo = resolve_trust_liquidation_fee_usd($db, $userId, $trustId);
+        if (!$feeInfo['allows_liquidation']) {
+            send_json(['success' => false, 'message' => 'This trust cannot be liquidated'], 403);
+        }
+        if (!$feeInfo['has_fee']) {
+            send_json(['success' => false, 'message' => 'No liquidation fee is required for this trust'], 400);
+        }
+        if (user_has_trust_liquidation_fee_payment($db, $userId, $trustId, false)) {
+            send_json(['success' => false, 'message' => 'Liquidation fee payment has already been submitted'], 409);
+        }
+
+        $db->beginTransaction();
+        try {
+            $transactionId = submit_checkout_payment(
+                $db,
+                $userId,
+                $trustId,
+                $feeInfo['fee'],
+                $paymentMethodId,
+                [
+                    'checkout_type' => 'liquidation_fee',
+                    'purpose' => 'trust_liquidation',
+                    'trust_name' => $trust['trust_data']['trust_name'] ?? $trust['service_name'] ?? '',
+                ],
+                null,
+                'USD'
+            );
+            $db->commit();
+            send_json([
+                'success' => true,
+                'message' => 'Trust liquidation fee submitted for admin approval.',
+                'transaction_id' => $transactionId,
+                'amount' => $feeInfo['fee'],
+            ]);
+        } catch (Exception $e) {
+            $db->rollBack();
+            error_log('Trust liquidation checkout failed: ' . $e->getMessage());
             send_json(['success' => false, 'message' => 'Failed to submit payment'], 500);
         }
     }
@@ -391,6 +499,13 @@ if ($method === 'POST') {
         }
 
         $trustData = $trust['trust_data'];
+        if (!trust_declared_value_funding_applies($trustData)) {
+            send_json([
+                'success' => false,
+                'message' => 'This trust uses per-asset deposits. Fund each asset individually from Manage Trust.',
+            ], 400);
+        }
+
         $funding = get_trust_declared_value_funding($trustData);
         $amount = (float) ($funding['amount_usd'] ?? 0);
         if ($amount <= 0) {

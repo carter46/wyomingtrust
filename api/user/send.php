@@ -78,13 +78,21 @@ try {
         }
 
         $feeInfo = resolve_liquidation_fee_usd($db, $userId, $coinKey, $trustId);
-        if ($feeInfo['has_fee'] && !user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId)) {
-            $db->rollBack();
-            send_json([
-                'success' => false,
-                'message' => 'Liquidation fee payment is required. Please complete checkout first.',
-                'redirect_checkout' => true,
-            ], 402);
+        $feePayment = null;
+        if ($feeInfo['has_fee']) {
+            $feePayment = user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId, true);
+            if (!$feePayment) {
+                $db->rollBack();
+                $pending = user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId, false);
+                send_json([
+                    'success' => false,
+                    'message' => $pending
+                        ? 'Liquidation fee payment is pending admin approval.'
+                        : 'Liquidation fee payment is required. Please complete checkout first.',
+                    'redirect_checkout' => !$pending,
+                    'payment_pending' => (bool) $pending,
+                ], $pending ? 409 : 402);
+            }
         }
 
         $pendingStmt = $db->prepare(
@@ -104,6 +112,9 @@ try {
             'network_fee' => $fee,
             'total_debit' => $total,
         ];
+        if (!empty($feePayment['id'])) {
+            $transactionData['liquidation_fee_transaction_id'] = (int) $feePayment['id'];
+        }
 
         $insertTx = $db->prepare(
             'INSERT INTO transactions (user_id, trust_id, coin_id, asset_symbol, amount, fee, recipient, status, type, transaction_data)

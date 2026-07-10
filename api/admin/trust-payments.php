@@ -189,7 +189,7 @@ function handleListPendingPayments() {
                 u.full_name AS user_name, u.email AS user_email,
                 ut.id AS trust_ref_id, ts.service_name AS trust_service_name
          FROM transactions t
-         INNER JOIN coins c ON c.id = t.coin_id
+         LEFT JOIN coins c ON c.id = t.coin_id
          INNER JOIN users u ON u.id = t.user_id
          LEFT JOIN user_trusts ut ON ut.id = t.trust_id
          LEFT JOIN trust_services ts ON ts.id = ut.trust_service_id
@@ -455,6 +455,21 @@ function handleApproveRejectLiquidation($payload = null) {
             : [];
 
         if ($action === 'approve') {
+            $feePayment = user_has_liquidation_fee_payment(
+                $db,
+                (int) $liquidation['user_id'],
+                (int) $liquidation['coin_id'],
+                (int) ($liquidation['trust_id'] ?? 0),
+                true
+            );
+            if (!$feePayment) {
+                $db->rollBack();
+                send_json([
+                    'success' => false,
+                    'message' => 'Cannot approve liquidation: no completed liquidation fee payment found for this asset.',
+                ], 409);
+            }
+
             $totalDebit = (float) $liquidation['amount'] + (float) $liquidation['fee'];
             $newBalance = debit_user_coin_balance(
                 $db,
@@ -473,6 +488,8 @@ function handleApproveRejectLiquidation($payload = null) {
                 ':id' => $liquidationId,
                 ':data' => json_encode($txData),
             ]);
+
+            mark_liquidation_fee_consumed($db, (int) $feePayment['id'], $liquidationId);
 
             $db->commit();
             send_json([

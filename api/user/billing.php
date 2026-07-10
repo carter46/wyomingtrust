@@ -164,7 +164,7 @@ $liquidationFeeStmt = $db->prepare(
     'SELECT t.id, t.amount, t.status, t.trust_id, t.created_at, t.updated_at, t.transaction_data,
             c.coin_key, c.display_name, c.symbol
      FROM transactions t
-     INNER JOIN coins c ON c.id = t.coin_id
+     LEFT JOIN coins c ON c.id = t.coin_id
      WHERE t.user_id = :user_id AND t.type = "liquidation_fee"
      ORDER BY t.created_at DESC'
 );
@@ -175,14 +175,20 @@ foreach ($liquidationFeeRows as $row) {
     $txData = !empty($row['transaction_data'])
         ? (json_decode($row['transaction_data'], true) ?? [])
         : [];
-    $displayName = $row['display_name'] ?? $row['symbol'] ?? 'Cryptocurrency';
+    $purpose = $txData['purpose'] ?? 'liquidation_fee';
+    $displayName = $row['display_name'] ?? $row['symbol'] ?? null;
+    if ($purpose === 'trust_liquidation') {
+        $label = 'Trust Liquidation Fee — ' . ($txData['trust_name'] ?? 'Trust');
+    } else {
+        $label = 'Liquidation Fee — ' . ($displayName ?? 'Cryptocurrency');
+    }
     $amountUsd = isset($txData['amount_usd']) ? (float) $txData['amount_usd'] : (float) $row['amount'];
 
     $payments[] = [
         'record_type' => 'liquidation_fee',
         'transaction_id' => (int) $row['id'],
         'trust_id' => !empty($row['trust_id']) ? (int) $row['trust_id'] : null,
-        'service_name' => 'Liquidation Fee — ' . $displayName,
+        'service_name' => $label,
         'service_key' => 'liquidation_fee',
         'coin_key' => $row['coin_key'],
         'coin_symbol' => $row['symbol'],

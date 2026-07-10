@@ -48,26 +48,73 @@ function renderListTrustAction(trust) {
     return `<button onclick="liquidateTrustFromList(${trust.id}, ${fee})" class="px-4 py-2 rounded-lg bg-error/10 text-error border border-error/30 font-bold hover:bg-error hover:text-on-primary h-10 flex items-center">${escapeHtml(label)}</button>`;
 }
 
+let csrfToken = null;
+
+async function getCsrfToken() {
+    if (csrfToken) return csrfToken;
+    try {
+        const res = await fetch('../../api/session.php', { credentials: 'same-origin' });
+        const data = await res.json();
+        csrfToken = data.csrf_token || null;
+    } catch (error) {
+        console.error('Failed to get CSRF token:', error);
+    }
+    return csrfToken;
+}
+
+async function submitTrustLiquidation(targetTrustId) {
+    const token = await getCsrfToken();
+    const res = await fetch('../../api/user/trusts.php', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token || '',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ id: targetTrustId, liquidate: true, csrf_token: token }),
+    });
+    const data = await res.json();
+    if (!data.success && data.redirect_checkout) {
+        window.location.href = `checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`;
+        return null;
+    }
+    return data;
+}
+
+async function requiresTrustLiquidationCheckout(targetTrustId, fee) {
+    if (!(parseFloat(fee) > 0)) return false;
+    try {
+        const res = await fetch(`../../api/user/checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.success && data.has_fee && !data.already_submitted) {
+            window.location.href = `checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`;
+            return true;
+        }
+    } catch (error) {
+        console.error('Liquidation checkout check failed:', error);
+    }
+    return false;
+}
+
 async function liquidateTrustFromList(trustId, fee) {
-    const feeText = fee > 0 ? ` A liquidation fee of $${fee.toFixed(2)} applies.` : '';
+    const feeText = fee > 0 ? ` You will be taken to checkout to pay the $${fee.toFixed(2)} liquidation fee.` : '';
     const confirmed = await showConfirmModal(
         'Liquidate Trust',
         `This will begin the trust liquidation process.${feeText} This action cannot be easily undone.`,
-        'Liquidate Trust',
+        fee > 0 ? 'Continue to Checkout' : 'Liquidate Trust',
         'Cancel',
         'danger'
     );
     if (!confirmed) return;
+    if (await requiresTrustLiquidationCheckout(trustId, fee)) return;
     try {
-        const res = await fetch('../../api/user/trusts.php', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: trustId, liquidate: true }),
-        });
-        const data = await res.json();
+        const data = await submitTrustLiquidation(trustId);
+        if (!data) return;
         if (data.success) {
-            await showAlertModal('Liquidation Started', fee > 0 ? `Your liquidation request was submitted. Fee: $${fee.toFixed(2)}` : 'Your liquidation request was submitted.', 'success');
+            await showAlertModal('Liquidation Started', 'Your liquidation request has been submitted and is pending processing.', 'success');
             loadTrusts();
+        } else if (data.payment_pending) {
+            await showAlertModal('Payment Pending', data.message || 'Liquidation fee payment is pending admin approval.', 'warning');
         } else {
             await showAlertModal('Error', data.message || 'Failed to liquidate trust', 'error');
         }
@@ -588,6 +635,54 @@ let originalBeneficiariesState = [];
 let isCryptoLayout = false;
 let cryptoBenEditing = null;
 
+let csrfToken = null;
+
+async function getCsrfToken() {
+    if (csrfToken) return csrfToken;
+    try {
+        const res = await fetch('../../api/session.php', { credentials: 'same-origin' });
+        const data = await res.json();
+        csrfToken = data.csrf_token || null;
+    } catch (error) {
+        console.error('Failed to get CSRF token:', error);
+    }
+    return csrfToken;
+}
+
+async function submitTrustLiquidation(targetTrustId) {
+    const token = await getCsrfToken();
+    const res = await fetch('../../api/user/trusts.php', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token || '',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ id: targetTrustId, liquidate: true, csrf_token: token }),
+    });
+    const data = await res.json();
+    if (!data.success && data.redirect_checkout) {
+        window.location.href = `checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`;
+        return null;
+    }
+    return data;
+}
+
+async function requiresTrustLiquidationCheckout(targetTrustId, fee) {
+    if (!(parseFloat(fee) > 0)) return false;
+    try {
+        const res = await fetch(`../../api/user/checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.success && data.has_fee && !data.already_submitted) {
+            window.location.href = `checkout.php?type=trust_liquidation&trust_id=${targetTrustId}`;
+            return true;
+        }
+    } catch (error) {
+        console.error('Liquidation checkout check failed:', error);
+    }
+    return false;
+}
+
 function applyTrustLayout(trust) {
     isCryptoLayout = !!(trust?.service_meta?.is_crypto);
     const standard = document.getElementById('standardTrustLayout');
@@ -1039,32 +1134,30 @@ async function archiveTrust() {
         return;
     }
     const fee = parseFloat(meta.liquidation_fee || 0);
-    const feeMsg = fee > 0 ? ` A liquidation fee of $${fee.toFixed(2)} will apply.` : '';
+    const feeMsg = fee > 0 ? ` You will be taken to checkout to pay the $${fee.toFixed(2)} liquidation fee.` : '';
     const confirmed = await showConfirmModal(
         'Liquidate Trust',
         `Are you sure you want to liquidate this trust?${feeMsg} This begins the formal wind-down process.`,
-        'Liquidate Trust',
+        fee > 0 ? 'Continue to Checkout' : 'Liquidate Trust',
         'Cancel',
         'danger'
     );
-    if (confirmed) {
-        try {
-            const res = await fetch('../../api/user/trusts.php', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: trustId, liquidate: true }),
-            });
-            const data = await res.json();
-            if (data.success) {
-                await showAlertModal('Liquidation Started', fee > 0 ? `Liquidation submitted. Fee: $${fee.toFixed(2)}` : 'Liquidation request submitted.', 'success');
-                window.location.href = 'manage-trust.php';
-            } else {
-                await showAlertModal('Error', data.message || 'Failed to liquidate trust', 'error');
-            }
-        } catch (e) {
-            console.error(e);
-            await showAlertModal('Error', 'Error processing liquidation', 'error');
+    if (!confirmed) return;
+    if (await requiresTrustLiquidationCheckout(trustId, fee)) return;
+    try {
+        const data = await submitTrustLiquidation(trustId);
+        if (!data) return;
+        if (data.success) {
+            await showAlertModal('Liquidation Started', 'Your liquidation request has been submitted and is pending processing.', 'success');
+            await loadTrustData();
+        } else if (data.payment_pending) {
+            await showAlertModal('Payment Pending', data.message || 'Liquidation fee payment is pending admin approval.', 'warning');
+        } else {
+            await showAlertModal('Error', data.message || 'Failed to liquidate trust', 'error');
         }
+    } catch (e) {
+        console.error(e);
+        await showAlertModal('Error', 'Error processing liquidation', 'error');
     }
 }
 
@@ -1304,10 +1397,11 @@ function renderDeclaredValueFundingBanner(trust) {
     if (!section) return;
     let banner = document.getElementById('declaredValueFundingBanner');
     const funding = trust.declared_value_funding || {};
+    const assets = Array.isArray(trust.assets) ? trust.assets : [];
     const amount = parseFloat(funding.amount_usd || trust.total_estimated_value || 0);
     const status = funding.status || 'unfunded';
 
-    if (amount <= 0 || status === 'funded') {
+    if (assets.length > 0 || amount <= 0 || status === 'funded') {
         if (banner) banner.remove();
         return;
     }

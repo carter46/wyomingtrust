@@ -423,6 +423,20 @@ function get_trust_asset_usd_value(array $asset): float {
     return 0.0;
 }
 
+/**
+ * Declared lump-sum funding applies only when the trust has no catalog assets yet.
+ */
+function trust_declared_value_funding_applies(array $trustData): bool {
+    $assets = is_array($trustData['assets'] ?? null) ? $trustData['assets'] : [];
+    if (count($assets) > 0) {
+        return false;
+    }
+
+    $funding = get_trust_declared_value_funding($trustData);
+
+    return (float) ($funding['amount_usd'] ?? 0) > 0;
+}
+
 function get_trust_declared_value_funding(array $trustData): array {
     $funding = is_array($trustData['declared_value_funding'] ?? null)
         ? $trustData['declared_value_funding']

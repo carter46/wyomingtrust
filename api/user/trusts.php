@@ -55,7 +55,9 @@ function enrich_user_trust_row(array $trust): array {
     $trust['entrusted_coins'] = $trustData['entrusted_coins'] ?? [];
     $trust['service_meta'] = build_trust_service_meta($trust);
     $trust['assets_summary'] = compute_trust_assets_summary($trust['assets']);
-    $trust['declared_value_funding'] = get_trust_declared_value_funding($trustData);
+    $trust['declared_value_funding'] = trust_declared_value_funding_applies($trustData)
+        ? get_trust_declared_value_funding($trustData)
+        : ['amount_usd' => 0, 'status' => 'not_applicable', 'funded_amount_usd' => 0, 'transaction_id' => null];
     $trust['declared_funded_value'] = get_trust_declared_funded_value($trustData);
     return $trust;
 }
@@ -140,6 +142,7 @@ function normalize_beneficiaries($beneficiariesRaw) {
 
 function handleUpdateUserTrust() {
     $userId = require_user_auth();
+    require_csrf_token();
     $payload = get_json_input();
 
     $trustId = isset($payload['id']) ? (int) $payload['id'] : 0;
@@ -162,6 +165,7 @@ function handleUpdateUserTrust() {
 
     $updatesMade = false;
     $statusUpdate = null;
+    $liquidationFeePaymentId = null;
 
     if (isset($payload['trust_name'])) {
         $trustName = sanitize_text($payload['trust_name']);
@@ -254,12 +258,39 @@ function handleUpdateUserTrust() {
         if (!trust_allows_liquidation($trustType)) {
             send_json(['success' => false, 'message' => 'Irrevocable trusts cannot be liquidated'], 403);
         }
+
+        $statusStmt = $db->prepare('SELECT status FROM user_trusts WHERE id = :id AND user_id = :user_id LIMIT 1');
+        $statusStmt->execute([':id' => $trustId, ':user_id' => $userId]);
+        $currentStatus = strtolower((string) ($statusStmt->fetchColumn() ?: ''));
+        if ($currentStatus === 'liquidated') {
+            send_json(['success' => false, 'message' => 'This trust has already been liquidated'], 409);
+        }
+
         $fee = isset($svc['liquidation_fee']) ? (float) $svc['liquidation_fee'] : 0.0;
+        $feePayment = null;
+        if ($fee > 0) {
+            $feePayment = user_has_trust_liquidation_fee_payment($db, $userId, $trustId, true);
+            if (!$feePayment) {
+                $submitted = user_has_trust_liquidation_fee_payment($db, $userId, $trustId, false);
+                send_json([
+                    'success' => false,
+                    'message' => $submitted
+                        ? 'Liquidation fee payment is pending admin approval.'
+                        : 'Liquidation fee payment is required. Please complete checkout first.',
+                    'redirect_checkout' => !$submitted,
+                    'payment_pending' => (bool) $submitted,
+                ], $submitted ? 409 : 402);
+            }
+        }
         $trustData['liquidation'] = [
             'requested_at' => date('c'),
             'fee' => $fee,
             'status' => 'pending',
         ];
+        if ($feePayment) {
+            $trustData['liquidation']['fee_transaction_id'] = (int) $feePayment['id'];
+            $liquidationFeePaymentId = (int) $feePayment['id'];
+        }
         $statusUpdate = 'liquidated';
         $updatesMade = true;
     }
@@ -278,6 +309,10 @@ function handleUpdateUserTrust() {
                 ':id' => $trustId,
                 ':user_id' => $userId,
             ]);
+
+            if ($liquidationFeePaymentId) {
+                mark_liquidation_fee_consumed($db, $liquidationFeePaymentId, $trustId);
+            }
         } else {
             // Only update trust_data
             $up = $db->prepare('UPDATE user_trusts SET trust_data = :trust_data WHERE id = :id AND user_id = :user_id');

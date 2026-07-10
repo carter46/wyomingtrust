@@ -188,27 +188,38 @@ async function ensureLiquidationCheckout() {
         const res = await fetch(`../../api/user/checkout.php?${params.toString()}`, { credentials: 'same-origin' });
         const data = await res.json();
 
-        if (!data.success) return true;
+        if (!data.success) {
+            console.error('Checkout verification failed:', data.message || 'Unknown error');
+            return false;
+        }
 
-        if (data.has_fee && !data.fee_paid) {
+        if (!data.has_fee) return true;
+
+        if (!data.payment_satisfied && !data.fee_paid) {
+            if (data.already_submitted && data.payment_status === 'pending') {
+                const notice = document.getElementById('liquidationFeeNotice');
+                const noticeText = document.getElementById('liquidationFeeNoticeText');
+                if (notice) notice.classList.remove('hidden');
+                if (noticeText) {
+                    noticeText.textContent = `$${parseFloat(data.fee).toFixed(2)} fee payment is pending admin approval. You cannot submit liquidation until it is approved.`;
+                }
+                return false;
+            }
             window.location.href = `checkout.php?${params.toString()}`;
             return false;
         }
 
-        if (data.has_fee && data.fee_paid) {
-            const notice = document.getElementById('liquidationFeeNotice');
-            const noticeText = document.getElementById('liquidationFeeNoticeText');
-            if (notice) notice.classList.remove('hidden');
-            if (noticeText) {
-                const statusLabel = data.fee_payment_status === 'completed' ? 'approved' : 'pending admin approval';
-                noticeText.textContent = `$${parseFloat(data.fee).toFixed(2)} paid at checkout (${statusLabel}). Only network fees apply to the crypto transfer.`;
-            }
+        const notice = document.getElementById('liquidationFeeNotice');
+        const noticeText = document.getElementById('liquidationFeeNoticeText');
+        if (notice) notice.classList.remove('hidden');
+        if (noticeText) {
+            noticeText.textContent = `$${parseFloat(data.fee).toFixed(2)} liquidation fee approved. Only network fees apply to the crypto transfer.`;
         }
 
         return true;
     } catch (error) {
         console.error('Checkout verification failed:', error);
-        return true;
+        return false;
     }
 }
 
@@ -533,7 +544,14 @@ async function getCsrfToken() {
 document.addEventListener('DOMContentLoaded', async () => {
     await getCsrfToken();
     const canProceed = await ensureLiquidationCheckout();
-    if (!canProceed) return;
+    if (!canProceed) {
+        const notice = document.getElementById('liquidationFeeNotice');
+        const pendingShown = notice && !notice.classList.contains('hidden');
+        if (!pendingShown) {
+            alert('Unable to verify liquidation fee. Please try again or return to the asset page.');
+        }
+        return;
+    }
     await loadAssets();
     await fetchCryptoPrices();
 });

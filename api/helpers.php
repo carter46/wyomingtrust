@@ -888,9 +888,49 @@ function resolve_liquidation_fee_usd(PDO $db, int $userId, string $coinKey, int 
 }
 
 /**
- * Find an active liquidation fee payment (pending or completed) for this asset.
+ * Whether a liquidation fee row has already been used for an approved liquidation.
  */
-function user_has_liquidation_fee_payment(PDO $db, int $userId, int $coinId, int $trustId = 0): ?array {
+function liquidation_fee_is_consumed(array $row): bool {
+    $data = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+
+    return !empty($data['consumed_by_liquidation_id']);
+}
+
+/**
+ * Mark a completed liquidation fee as consumed by a liquidation transaction.
+ */
+function mark_liquidation_fee_consumed(PDO $db, int $feeTransactionId, int $liquidationId): void {
+    $stmt = $db->prepare('SELECT transaction_data FROM transactions WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $feeTransactionId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        return;
+    }
+
+    $data = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+    $data['consumed_by_liquidation_id'] = $liquidationId;
+    $data['consumed_at'] = date('c');
+
+    $update = $db->prepare(
+        'UPDATE transactions SET transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+    );
+    $update->execute([
+        ':id' => $feeTransactionId,
+        ':data' => json_encode($data),
+    ]);
+}
+
+/**
+ * Find a liquidation fee payment for this asset.
+ *
+ * When $approvedOnly is false: pending or completed-but-unconsumed (blocks duplicate checkout).
+ * When $approvedOnly is true: completed and unconsumed (authorizes liquidation).
+ */
+function user_has_liquidation_fee_payment(PDO $db, int $userId, int $coinId, int $trustId = 0, bool $approvedOnly = false): ?array {
     $sql = 'SELECT t.id, t.status, t.amount, t.transaction_data, t.created_at
             FROM transactions t
             WHERE t.user_id = :user_id
@@ -904,16 +944,99 @@ function user_has_liquidation_fee_payment(PDO $db, int $userId, int $coinId, int
         $params[':trust_id'] = $trustId;
     }
 
-    $sql .= ' ORDER BY t.created_at DESC LIMIT 1';
+    $sql .= ' ORDER BY t.created_at DESC LIMIT 10';
 
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    return $row ?: null;
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $consumed = liquidation_fee_is_consumed($row);
+        if ($approvedOnly) {
+            if ($row['status'] === 'completed' && !$consumed) {
+                return $row;
+            }
+            continue;
+        }
+        if ($row['status'] === 'pending' || ($row['status'] === 'completed' && !$consumed)) {
+            return $row;
+        }
+    }
+
+    return null;
 }
 
-/** @deprecated Use get_trust_asset_category_catalog() */
+/**
+ * Resolve trust-level liquidation fee from the trust service (all trust types).
+ *
+ * @return array{fee: float, has_fee: bool, allows_liquidation: bool}
+ */
+function resolve_trust_liquidation_fee_usd(PDO $db, int $userId, int $trustId): array {
+    $extra = trust_services_has_liquidation_fee_column($db) ? ', ts.liquidation_fee' : '';
+    $stmt = $db->prepare(
+        "SELECT ts.service_key{$extra}
+         FROM user_trusts ut
+         INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE ut.id = :id AND ut.user_id = :user_id
+         LIMIT 1"
+    );
+    $stmt->execute([':id' => $trustId, ':user_id' => $userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        return ['fee' => 0.0, 'has_fee' => false, 'allows_liquidation' => false];
+    }
+
+    $trustType = $row['service_key'] ?? '';
+    $allows = trust_allows_liquidation($trustType);
+    $fee = $allows && isset($row['liquidation_fee']) ? (float) $row['liquidation_fee'] : 0.0;
+    $fee = round(max(0, $fee), 2);
+
+    return [
+        'fee' => $fee,
+        'has_fee' => $fee > 0,
+        'allows_liquidation' => $allows,
+    ];
+}
+
+/**
+ * Trust-level liquidation fee payment (not tied to a specific coin).
+ */
+function user_has_trust_liquidation_fee_payment(PDO $db, int $userId, int $trustId, bool $approvedOnly = false): ?array {
+    $stmt = $db->prepare(
+        'SELECT t.id, t.status, t.amount, t.transaction_data, t.created_at
+         FROM transactions t
+         WHERE t.user_id = :user_id
+           AND t.trust_id = :trust_id
+           AND t.type = "liquidation_fee"
+           AND t.coin_id IS NULL
+           AND t.status IN ("pending", "completed")
+         ORDER BY t.created_at DESC
+         LIMIT 10'
+    );
+    $stmt->execute([':user_id' => $userId, ':trust_id' => $trustId]);
+
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $data = !empty($row['transaction_data'])
+            ? (json_decode($row['transaction_data'], true) ?? [])
+            : [];
+        if (($data['purpose'] ?? '') !== 'trust_liquidation') {
+            continue;
+        }
+
+        $consumed = liquidation_fee_is_consumed($row);
+        if ($approvedOnly) {
+            if ($row['status'] === 'completed' && !$consumed) {
+                return $row;
+            }
+            continue;
+        }
+        if ($row['status'] === 'pending' || ($row['status'] === 'completed' && !$consumed)) {
+            return $row;
+        }
+    }
+
+    return null;
+}
 function get_suggested_asset_types(): array {
     return array_values(array_map(function ($cat) {
         return $cat['label'];

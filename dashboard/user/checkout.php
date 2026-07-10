@@ -11,7 +11,7 @@ $assetIdParam = isset($_GET['asset_id']) ? sanitize_text($_GET['asset_id']) : ''
 $page_title = 'Checkout | WyomingTrust';
 $active_nav = $trustIdParam > 0 ? 'trusts' : '';
 
-$allowedTypes = ['liquidation', 'asset_funding', 'trust_value'];
+$allowedTypes = ['liquidation', 'asset_funding', 'trust_value', 'trust_liquidation'];
 if (!in_array($checkoutType, $allowedTypes, true)) {
     header('Location: dashboard.php');
     exit;
@@ -20,7 +20,7 @@ if ($checkoutType === 'liquidation' && $coinKeyParam === '') {
     header('Location: dashboard.php');
     exit;
 }
-if (in_array($checkoutType, ['asset_funding', 'trust_value'], true) && $trustIdParam <= 0) {
+if (in_array($checkoutType, ['asset_funding', 'trust_value', 'trust_liquidation'], true) && $trustIdParam <= 0) {
     header('Location: dashboard.php');
     exit;
 }
@@ -179,6 +179,54 @@ function formatUsd(amount) {
     return '$' + parseFloat(amount || 0).toFixed(2);
 }
 
+function shouldSkipCheckout(data) {
+    if (checkoutType === 'liquidation' || checkoutType === 'trust_liquidation') {
+        if (!data.has_fee) return true;
+        return !!(data.payment_satisfied || data.fee_paid);
+    }
+    if (checkoutType === 'asset_funding' || checkoutType === 'trust_value') {
+        return data.funding_status === 'funded' || data.payment_satisfied === true;
+    }
+    return false;
+}
+
+function isPaymentPendingApproval(data) {
+    if (data.payment_satisfied || data.fee_paid || data.funding_status === 'funded') return false;
+    if (data.already_submitted && data.payment_status === 'pending') return true;
+    if ((checkoutType === 'asset_funding' || checkoutType === 'trust_value') && data.funding_status === 'pending') {
+        return true;
+    }
+    return false;
+}
+
+function showPendingApprovalState(data) {
+    document.getElementById('checkoutTitle').textContent = data.title || 'Checkout';
+    document.getElementById('checkoutDescription').textContent = 'Your payment has been submitted and is awaiting administrator approval.';
+    document.getElementById('checkoutItemLabel').textContent = checkoutType === 'trust_value' ? 'Trust' : 'Asset';
+    document.getElementById('checkoutAssetName').textContent = data.item_label || data.asset_name || '—';
+    document.getElementById('checkoutPurposeLabel').textContent = data.purpose_label || 'Payment';
+    document.getElementById('summaryLineLabel').textContent = data.purpose_label || 'Amount';
+    const amount = parseFloat(data.amount ?? data.fee ?? 0);
+    document.getElementById('summaryFeeAmount').textContent = formatUsd(amount);
+    document.getElementById('summaryTotalAmount').textContent = formatUsd(amount);
+
+    const flow = document.getElementById('paymentFlowContainer');
+    if (flow) {
+        flow.innerHTML = `
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                <p class="font-bold text-primary">Payment pending approval</p>
+                <p class="text-sm text-on-surface-variant mt-1">An administrator must approve your payment before you can continue.</p>
+                <a href="${escapeHtml(buildContinueUrl())}" class="inline-flex mt-4 text-sm font-semibold text-secondary hover:underline">Return without paying again</a>
+            </div>
+        `;
+    }
+    const summaryActions = document.getElementById('summaryActions');
+    if (summaryActions) summaryActions.classList.add('hidden');
+
+    document.getElementById('checkoutLoading').classList.add('hidden');
+    document.getElementById('checkoutContent').classList.remove('hidden');
+}
+
 async function loadCheckout() {
     try {
         const res = await fetch(`../../api/user/checkout.php?${buildCheckoutQuery()}`, { credentials: 'same-origin' });
@@ -191,22 +239,17 @@ async function loadCheckout() {
 
         checkoutData = data;
 
+        if (shouldSkipCheckout(data)) {
+            window.location.href = buildContinueUrl();
+            return;
+        }
+
+        if (isPaymentPendingApproval(data)) {
+            showPendingApprovalState(data);
+            return;
+        }
+
         const amount = parseFloat(data.amount ?? data.fee ?? 0);
-        const alreadyDone = checkoutType === 'liquidation'
-            ? (data.fee_paid || !data.has_fee)
-            : (data.already_submitted || data.funding_status === 'funded');
-
-        if (alreadyDone) {
-            window.location.href = buildContinueUrl();
-            return;
-        }
-
-        if (checkoutType === 'liquidation' && !data.has_fee) {
-            window.location.href = buildContinueUrl();
-            return;
-        }
-
-        document.getElementById('checkoutTitle').textContent = data.title || 'Checkout';
         document.getElementById('checkoutDescription').textContent = data.description || '';
         document.getElementById('checkoutItemLabel').textContent = checkoutType === 'trust_value' ? 'Trust' : 'Asset';
         document.getElementById('checkoutAssetName').textContent = data.item_label || data.asset_name || '—';

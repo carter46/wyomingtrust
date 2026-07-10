@@ -175,27 +175,33 @@ async function handleDeposit() {
 
 async function handleLiquidate() {
     try {
-        const params = new URLSearchParams({ coin_key: coinKey });
+        const params = new URLSearchParams({ type: 'liquidation', coin_key: coinKey });
         if (trustId > 0) params.set('trust_id', String(trustId));
-        const res = await fetch(`../../api/user/asset-liquidation-fee.php?${params.toString()}`, { credentials: 'same-origin' });
+        const res = await fetch(`../../api/user/checkout.php?${params.toString()}`, { credentials: 'same-origin' });
         const data = await res.json();
-        const sendParams = new URLSearchParams({ coin_key: coinKey });
-        if (trustId > 0) sendParams.set('trust_id', String(trustId));
-        sendParams.set('mode', 'liquidate');
 
-        if (data.success && data.has_fee) {
-            const checkoutParams = new URLSearchParams({ type: 'liquidation', coin_key: coinKey });
-            if (trustId > 0) checkoutParams.set('trust_id', String(trustId));
-            window.location.href = `checkout.php?${checkoutParams.toString()}`;
+        const sendParams = new URLSearchParams({ coin_key: coinKey, mode: 'liquidate' });
+        if (trustId > 0) sendParams.set('trust_id', String(trustId));
+
+        if (!data.success) {
+            alert(data.message || 'Unable to verify liquidation fee. Please try again.');
             return;
         }
 
-        window.location.href = `send.php?${sendParams.toString()}`;
+        if (!data.has_fee || data.payment_satisfied || data.fee_paid) {
+            window.location.href = `send.php?${sendParams.toString()}`;
+            return;
+        }
+
+        if (data.already_submitted && data.payment_status === 'pending') {
+            alert('Your liquidation fee payment is pending admin approval. You will be able to liquidate once it is approved.');
+            return;
+        }
+
+        window.location.href = `checkout.php?${params.toString()}`;
     } catch (error) {
         console.error('Liquidation fee check failed:', error);
-        const fallback = new URLSearchParams({ coin_key: coinKey, mode: 'liquidate' });
-        if (trustId > 0) fallback.set('trust_id', String(trustId));
-        window.location.href = `send.php?${fallback.toString()}`;
+        alert('Unable to verify liquidation fee. Please try again.');
     }
 }
 

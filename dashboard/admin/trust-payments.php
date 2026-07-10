@@ -262,6 +262,13 @@ function renderLiquidationFees(fees) {
     }
 
     const txData = (f) => f.transaction_data || {};
+    const feeLabel = (f) => {
+        const purpose = txData(f).purpose || '';
+        if (purpose === 'trust_liquidation') {
+            return txData(f).trust_name || 'Trust Liquidation';
+        }
+        return f.coin_name || f.coin_key || '—';
+    };
     const html = `
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left">
@@ -285,7 +292,7 @@ function renderLiquidationFees(fees) {
                                 <div class="font-medium">${escapeHtml(f.user_name || 'N/A')}</div>
                                 <div class="text-xs text-slate-500">${escapeHtml(f.user_email || '')}</div>
                             </td>
-                            <td class="px-4 py-3 text-sm">${escapeHtml(f.coin_name || f.coin_key)} <span class="text-xs text-slate-500">${escapeHtml(f.coin_symbol || '')}</span></td>
+                            <td class="px-4 py-3 text-sm">${escapeHtml(feeLabel(f))} <span class="text-xs text-slate-500">${escapeHtml(f.coin_symbol || (txData(f).purpose === 'trust_liquidation' ? 'Trust' : ''))}</span></td>
                             <td class="px-4 py-3 text-sm font-semibold">$${parseFloat(f.amount).toFixed(2)}</td>
                             <td class="px-4 py-3 text-sm">${escapeHtml(txData(f).payment_method_name || 'N/A')}</td>
                             <td class="px-4 py-3 text-sm">${f.trust_id ? '#' + f.trust_id : '—'}</td>
@@ -305,7 +312,7 @@ function renderLiquidationFees(fees) {
             ${fees.map(f => `
                 <div class="bg-slate-50 dark:bg-navy-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
                     <div class="flex justify-between mb-2">
-                        <span class="font-bold text-sm">#${f.id} · ${escapeHtml(f.coin_symbol || f.coin_key)}</span>
+                        <span class="font-bold text-sm">#${f.id} · ${escapeHtml(feeLabel(f))}</span>
                         <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Pending</span>
                     </div>
                     <div class="space-y-1 text-xs">
