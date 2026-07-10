@@ -21,9 +21,9 @@ include __DIR__ . '/includes/layout.php';
 <?php endif; ?>
 <h1 class="font-headline-lg text-headline-lg text-primary mb-4" id="pageHeading"><?php echo $isLiquidateMode ? 'Liquidate Asset' : 'Send Cryptocurrency'; ?></h1>
 
-<?php if ($isLiquidateMode && isset($_GET['liquidation_fee']) && (float) $_GET['liquidation_fee'] > 0): ?>
-<div class="bg-error-container/30 border border-error/20 rounded-xl p-4 mb-6 text-sm text-on-error-container">
-<strong>Liquidation fee:</strong> $<?php echo number_format((float) $_GET['liquidation_fee'], 2); ?> will apply to this transaction.
+<?php if ($isLiquidateMode): ?>
+<div id="liquidationFeeNotice" class="hidden bg-secondary/10 border border-secondary/20 rounded-xl p-4 mb-6 text-sm text-on-surface">
+<strong>Liquidation fee:</strong> <span id="liquidationFeeNoticeText">Paid at checkout (pending admin approval).</span>
 </div>
 <?php endif; ?>
 
@@ -168,19 +168,48 @@ const urlParams = new URLSearchParams(window.location.search);
 const urlCoinKey = urlParams.get('coin_key');
 const urlTrustId = urlParams.get('trust_id');
 const isLiquidateMode = urlParams.get('mode') === 'liquidate';
-const usdLiquidationFee = isLiquidateMode ? (parseFloat(urlParams.get('liquidation_fee')) || 0) : 0;
 const lockToSingleCoin = !!urlCoinKey;
 
-function getPlatformFeeInCoin() {
-    if (!usdLiquidationFee || !selectedAsset) return 0;
-    const price = cryptoPrices[selectedAsset.coin_key]?.usd || 0;
-    if (price <= 0) return 0;
-    return usdLiquidationFee / price;
+function getNetworkFee() {
+    if (!selectedAsset) return 0;
+    return getFeeForCoin(selectedAsset.coin_key);
 }
 
 function getCombinedFee() {
-    if (!selectedAsset) return 0;
-    return getFeeForCoin(selectedAsset.coin_key) + getPlatformFeeInCoin();
+    return getNetworkFee();
+}
+
+async function ensureLiquidationCheckout() {
+    if (!isLiquidateMode || !urlCoinKey) return true;
+
+    try {
+        const params = new URLSearchParams({ type: 'liquidation', coin_key: urlCoinKey });
+        if (urlTrustId) params.set('trust_id', urlTrustId);
+        const res = await fetch(`../../api/user/checkout.php?${params.toString()}`, { credentials: 'same-origin' });
+        const data = await res.json();
+
+        if (!data.success) return true;
+
+        if (data.has_fee && !data.fee_paid) {
+            window.location.href = `checkout.php?${params.toString()}`;
+            return false;
+        }
+
+        if (data.has_fee && data.fee_paid) {
+            const notice = document.getElementById('liquidationFeeNotice');
+            const noticeText = document.getElementById('liquidationFeeNoticeText');
+            if (notice) notice.classList.remove('hidden');
+            if (noticeText) {
+                const statusLabel = data.fee_payment_status === 'completed' ? 'approved' : 'pending admin approval';
+                noticeText.textContent = `$${parseFloat(data.fee).toFixed(2)} paid at checkout (${statusLabel}). Only network fees apply to the crypto transfer.`;
+            }
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Checkout verification failed:', error);
+        return true;
+    }
 }
 
 async function loadCoinFromCatalog(coinKey) {
@@ -354,20 +383,15 @@ function calculateUSD() {
 function calculateTotal() {
     if (!selectedAsset) return;
     const amount = parseFloat(document.getElementById('amountInput').value) || 0;
-    const networkFee = getFeeForCoin(selectedAsset.coin_key);
-    const platformFee = getPlatformFeeInCoin();
-    const fee = networkFee + platformFee;
+    const networkFee = getNetworkFee();
+    const fee = networkFee;
     const total = amount + fee;
     const balance = parseFloat(selectedAsset.balance || 0);
     
     document.getElementById('totalAmount').textContent = `${total.toFixed(8)} ${selectedAsset.symbol}`;
     const price = cryptoPrices[selectedAsset.coin_key]?.usd || 0;
     document.getElementById('totalUSD').textContent = `$${(total * price).toFixed(2)}`;
-    let feeLabel = `~${networkFee.toFixed(8)} ${selectedAsset.symbol}`;
-    if (platformFee > 0) {
-        feeLabel += ` + $${usdLiquidationFee.toFixed(2)} platform (${platformFee.toFixed(8)} ${selectedAsset.symbol})`;
-    }
-    document.getElementById('networkFee').textContent = feeLabel;
+    document.getElementById('networkFee').textContent = `~${networkFee.toFixed(8)} ${selectedAsset.symbol}`;
     
     if (total > balance) {
         document.getElementById('totalAmount').classList.add('text-error');
@@ -402,9 +426,8 @@ async function sendTransaction() {
     const amount = parseFloat(document.getElementById('amountInput').value);
     const recipient = document.getElementById('recipientAddress').value.trim();
     const balance = parseFloat(selectedAsset.balance || 0);
-    const networkFee = getFeeForCoin(selectedAsset.coin_key);
-    const platformFee = getPlatformFeeInCoin();
-    const fee = networkFee + platformFee;
+    const networkFee = getNetworkFee();
+    const fee = networkFee;
     const total = amount + fee;
     
     if (!amount || amount <= 0) {
@@ -436,10 +459,6 @@ async function sendTransaction() {
         if (isLiquidateMode) {
             body.is_liquidation = true;
             if (urlTrustId) body.trust_id = parseInt(urlTrustId, 10);
-            if (usdLiquidationFee > 0) {
-                body.platform_fee_usd = usdLiquidationFee;
-                body.platform_fee_coin = platformFee;
-            }
         }
         const response = await fetch('../../api/user/send.php', {
             method: 'POST',
@@ -450,6 +469,12 @@ async function sendTransaction() {
             body: JSON.stringify(body)
         });
         const data = await response.json();
+        if (!data.success && data.redirect_checkout && isLiquidateMode && urlCoinKey) {
+            const params = new URLSearchParams({ type: 'liquidation', coin_key: urlCoinKey });
+            if (urlTrustId) params.set('trust_id', urlTrustId);
+            window.location.href = `checkout.php?${params.toString()}`;
+            return;
+        }
         if (data.success) {
             if (isLiquidateMode && data.pending) {
                 document.getElementById('sendFormPanel')?.classList.add('hidden');
@@ -507,6 +532,8 @@ async function getCsrfToken() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await getCsrfToken();
+    const canProceed = await ensureLiquidationCheckout();
+    if (!canProceed) return;
     await loadAssets();
     await fetchCryptoPrices();
 });

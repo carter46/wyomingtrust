@@ -15,44 +15,11 @@ if ($coinKey === '') {
 }
 
 $db = getDatabase();
-$fee = 0.0;
-$feeSource = 'none';
-
-if (coins_has_liquidation_fee_column($db)) {
-    $stmt = $db->prepare('SELECT liquidation_fee FROM coins WHERE coin_key = :coin_key LIMIT 1');
-    $stmt->execute([':coin_key' => $coinKey]);
-    $row = $stmt->fetch();
-    if ($row && isset($row['liquidation_fee'])) {
-        $coinFee = (float) $row['liquidation_fee'];
-        if ($coinFee > 0) {
-            $fee = $coinFee;
-            $feeSource = 'coin';
-        }
-    }
-}
-
-if ($fee <= 0 && $trustId > 0 && trust_services_has_liquidation_fee_column($db)) {
-    $stmt = $db->prepare(
-        'SELECT ts.liquidation_fee, ts.service_key
-         FROM user_trusts ut
-         INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
-         WHERE ut.id = :id AND ut.user_id = :user_id
-         LIMIT 1'
-    );
-    $stmt->execute([':id' => $trustId, ':user_id' => $userId]);
-    $trust = $stmt->fetch();
-    if ($trust && trust_allows_liquidation($trust['service_key'] ?? '')) {
-        $trustFee = (float) ($trust['liquidation_fee'] ?? 0);
-        if ($trustFee > 0) {
-            $fee = $trustFee;
-            $feeSource = 'trust';
-        }
-    }
-}
+$feeInfo = resolve_liquidation_fee_usd($db, $userId, $coinKey, $trustId);
 
 send_json([
     'success' => true,
-    'fee' => round($fee, 2),
-    'has_fee' => $fee > 0,
-    'fee_source' => $feeSource,
+    'fee' => $feeInfo['fee'],
+    'has_fee' => $feeInfo['has_fee'],
+    'fee_source' => $feeInfo['fee_source'],
 ]);

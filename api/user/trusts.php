@@ -55,6 +55,8 @@ function enrich_user_trust_row(array $trust): array {
     $trust['entrusted_coins'] = $trustData['entrusted_coins'] ?? [];
     $trust['service_meta'] = build_trust_service_meta($trust);
     $trust['assets_summary'] = compute_trust_assets_summary($trust['assets']);
+    $trust['declared_value_funding'] = get_trust_declared_value_funding($trustData);
+    $trust['declared_funded_value'] = get_trust_declared_funded_value($trustData);
     return $trust;
 }
 
@@ -421,7 +423,7 @@ function handleCreateUserTrust() {
     $db = getDatabase();
     
     // Verify trust service exists and is active
-    $stmt = $db->prepare('SELECT id, price, is_free FROM trust_services WHERE id = :id AND is_active = 1 LIMIT 1');
+    $stmt = $db->prepare('SELECT id, price, is_free, service_key FROM trust_services WHERE id = :id AND is_active = 1 LIMIT 1');
     $stmt->execute([':id' => $trustServiceId]);
     $trustService = $stmt->fetch();
     
@@ -437,6 +439,18 @@ function handleCreateUserTrust() {
     }
     // Ensure stored data is normalized
     $trustData['beneficiaries'] = $normalizedBeneficiaries;
+
+    if (trust_type_supports_asset_catalog($trustService['service_key'] ?? '')) {
+        $declared = isset($trustData['total_estimated_value']) ? (float) $trustData['total_estimated_value'] : 0.0;
+        if ($declared > 0) {
+            $trustData['declared_value_funding'] = [
+                'amount_usd' => round($declared, 2),
+                'status' => 'unfunded',
+                'funded_amount_usd' => 0.0,
+                'transaction_id' => null,
+            ];
+        }
+    }
     
     try {
         $status = 'pending';

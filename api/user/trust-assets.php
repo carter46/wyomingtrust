@@ -116,15 +116,34 @@ function handleSaveTrustAsset() {
     $assets = is_array($trustData['assets'] ?? null) ? $trustData['assets'] : [];
     $assetId = $normalized['id'];
     $found = false;
+    $newUsd = get_trust_asset_usd_value($normalized);
     foreach ($assets as $i => $asset) {
         if (($asset['id'] ?? '') === $assetId) {
             $normalized['created_at'] = $asset['created_at'] ?? $normalized['created_at'];
-            $assets[$i] = $normalized;
+            $oldUsd = get_trust_asset_usd_value($asset);
             $found = true;
+            if (abs($oldUsd - $newUsd) > 0.001) {
+                $normalized['funding_amount_usd'] = $newUsd;
+                $normalized['funding_status'] = $newUsd > 0 ? 'unfunded' : 'funded';
+                $normalized['funded_amount_usd'] = $newUsd > 0 ? 0.0 : 0.0;
+                $normalized['funding_transaction_id'] = null;
+            } else {
+                $normalized['funding_amount_usd'] = (float) ($asset['funding_amount_usd'] ?? $newUsd);
+                $normalized['funding_status'] = sanitize_text($asset['funding_status'] ?? ($newUsd > 0 ? 'unfunded' : 'funded'));
+                $normalized['funded_amount_usd'] = (float) ($asset['funded_amount_usd'] ?? 0);
+                $normalized['funding_transaction_id'] = !empty($asset['funding_transaction_id'])
+                    ? (int) $asset['funding_transaction_id']
+                    : null;
+            }
+            $assets[$i] = $normalized;
             break;
         }
     }
     if (!$found) {
+        $normalized['funding_amount_usd'] = $newUsd;
+        $normalized['funding_status'] = $newUsd > 0 ? 'unfunded' : 'funded';
+        $normalized['funded_amount_usd'] = 0.0;
+        $normalized['funding_transaction_id'] = null;
         $assets[] = $normalized;
     }
     $trustData['assets'] = array_values($assets);
@@ -141,6 +160,8 @@ function handleSaveTrustAsset() {
         'message' => $found ? 'Asset updated' : 'Asset added',
         'asset' => $normalized,
         'summary' => compute_trust_assets_summary($trustData['assets']),
+        'requires_funding' => ($normalized['funding_status'] ?? '') === 'unfunded' && $newUsd > 0,
+        'funding_amount' => $newUsd,
     ]);
 }
 

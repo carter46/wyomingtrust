@@ -2082,7 +2082,13 @@ async function confirmPaymentAndCreateTrust() {
 }
 
 function doneToDashboard() {
+    const trustId = onboardingData.created_trust_id;
+    const needsFunding = isCatalogTrustSelected() && (parseFloat(onboardingData.total_estimated_value) || 0) > 0;
     clearOnboardingStorage();
+    if (needsFunding && trustId) {
+        window.location.href = `../dashboard/user/checkout.php?type=trust_value&trust_id=${trustId}`;
+        return;
+    }
     window.location.href = '../dashboard/user/dashboard.php';
 }
 
@@ -2275,15 +2281,21 @@ async function createTrust(options = { redirect: true }) {
         }
         
         if (data.success) {
-            onboardingData.created_trust_id = data.trust?.id || null;
-            
-            // Clear storage after successful trust creation
-            clearOnboardingStorage();
-            
+            const newTrustId = data.trust?.id || null;
+            onboardingData.created_trust_id = newTrustId;
+
             if (options && options.redirect) {
+                clearOnboardingStorage();
+                if (isCatalogTrustSelected()) {
+                    const totalValue = parseFloat(onboardingData.total_estimated_value) || 0;
+                    if (totalValue > 0 && newTrustId) {
+                        window.location.href = `../dashboard/user/checkout.php?type=trust_value&trust_id=${newTrustId}`;
+                        return { success: true, trust_id: newTrustId };
+                    }
+                }
                 window.location.href = '../dashboard/user/dashboard.php';
             }
-            return { success: true, trust_id: onboardingData.created_trust_id };
+            return { success: true, trust_id: newTrustId };
         } else {
             const errorMsg = data.message || data.error_details || 'Unknown error';
             console.error('Trust creation failed:', data);

@@ -386,18 +386,81 @@ function normalize_trust_asset_entry(array $asset, array $enabledCategories): ?a
 }
 
 function compute_trust_assets_summary(array $assets): array {
-    $totalValue = 0.0;
+    $totalEstimated = 0.0;
+    $totalFunded = 0.0;
+    $totalPending = 0.0;
+    $totalUnfunded = 0.0;
+
     foreach ($assets as $asset) {
-        $fields = $asset['fields'] ?? [];
-        foreach (['estimated_value', 'estimated_balance', 'coverage_amount'] as $k) {
-            if (isset($fields[$k])) {
-                $totalValue += (float) preg_replace('/[^0-9.]/', '', (string) $fields[$k]);
-                break;
-            }
+        $usd = get_trust_asset_usd_value($asset);
+        $totalEstimated += $usd;
+        $status = sanitize_text($asset['funding_status'] ?? 'unfunded');
+        if ($status === 'funded') {
+            $totalFunded += (float) ($asset['funded_amount_usd'] ?? $usd);
+        } elseif ($status === 'pending') {
+            $totalPending += (float) ($asset['funding_amount_usd'] ?? $usd);
+        } else {
+            $totalUnfunded += $usd;
         }
     }
+
     return [
         'count' => count($assets),
-        'total_estimated_value' => round($totalValue, 2),
+        'total_estimated_value' => round($totalEstimated, 2),
+        'total_funded_value' => round($totalFunded, 2),
+        'total_pending_value' => round($totalPending, 2),
+        'total_unfunded_value' => round($totalUnfunded, 2),
     ];
+}
+
+function get_trust_asset_usd_value(array $asset): float {
+    $fields = $asset['fields'] ?? [];
+    foreach (['estimated_value', 'estimated_balance', 'coverage_amount'] as $key) {
+        if (isset($fields[$key]) && $fields[$key] !== '') {
+            return (float) preg_replace('/[^0-9.]/', '', (string) $fields[$key]);
+        }
+    }
+    return 0.0;
+}
+
+function get_trust_declared_value_funding(array $trustData): array {
+    $funding = is_array($trustData['declared_value_funding'] ?? null)
+        ? $trustData['declared_value_funding']
+        : [];
+    $declared = isset($trustData['total_estimated_value'])
+        ? (float) $trustData['total_estimated_value']
+        : 0.0;
+
+    if (empty($funding) && $declared > 0) {
+        return [
+            'amount_usd' => $declared,
+            'status' => 'unfunded',
+            'funded_amount_usd' => 0.0,
+            'transaction_id' => null,
+        ];
+    }
+
+    return [
+        'amount_usd' => (float) ($funding['amount_usd'] ?? $declared),
+        'status' => sanitize_text($funding['status'] ?? 'unfunded'),
+        'funded_amount_usd' => (float) ($funding['funded_amount_usd'] ?? 0),
+        'transaction_id' => !empty($funding['transaction_id']) ? (int) $funding['transaction_id'] : null,
+    ];
+}
+
+function get_trust_declared_funded_value(array $trustData): float {
+    $funding = get_trust_declared_value_funding($trustData);
+    if (($funding['status'] ?? '') === 'funded') {
+        return (float) ($funding['funded_amount_usd'] ?? $funding['amount_usd'] ?? 0);
+    }
+    return 0.0;
+}
+
+function find_trust_asset_index(array $assets, string $assetId): ?int {
+    foreach ($assets as $index => $asset) {
+        if (($asset['id'] ?? '') === $assetId) {
+            return $index;
+        }
+    }
+    return null;
 }

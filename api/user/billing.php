@@ -160,13 +160,90 @@ foreach ($liquidationRows as $row) {
     ];
 }
 
+$liquidationFeeStmt = $db->prepare(
+    'SELECT t.id, t.amount, t.status, t.trust_id, t.created_at, t.updated_at, t.transaction_data,
+            c.coin_key, c.display_name, c.symbol
+     FROM transactions t
+     INNER JOIN coins c ON c.id = t.coin_id
+     WHERE t.user_id = :user_id AND t.type = "liquidation_fee"
+     ORDER BY t.created_at DESC'
+);
+$liquidationFeeStmt->execute([':user_id' => $userId]);
+$liquidationFeeRows = $liquidationFeeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($liquidationFeeRows as $row) {
+    $txData = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+    $displayName = $row['display_name'] ?? $row['symbol'] ?? 'Cryptocurrency';
+    $amountUsd = isset($txData['amount_usd']) ? (float) $txData['amount_usd'] : (float) $row['amount'];
+
+    $payments[] = [
+        'record_type' => 'liquidation_fee',
+        'transaction_id' => (int) $row['id'],
+        'trust_id' => !empty($row['trust_id']) ? (int) $row['trust_id'] : null,
+        'service_name' => 'Liquidation Fee — ' . $displayName,
+        'service_key' => 'liquidation_fee',
+        'coin_key' => $row['coin_key'],
+        'coin_symbol' => $row['symbol'],
+        'amount' => $amountUsd,
+        'amount_usd' => $amountUsd,
+        'is_free' => false,
+        'payment_status' => $row['status'],
+        'trust_status' => null,
+        'payment_method_name' => $txData['payment_method_name'] ?? 'Payment',
+        'payment_method_type' => $txData['payment_method_type'] ?? null,
+        'payment_type' => 'liquidation_fee',
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at'],
+    ];
+}
+
+$assetFundingStmt = $db->prepare(
+    'SELECT t.id, t.amount, t.status, t.trust_id, t.created_at, t.updated_at, t.transaction_data
+     FROM transactions t
+     WHERE t.user_id = :user_id AND t.type = "asset_funding"
+     ORDER BY t.created_at DESC'
+);
+$assetFundingStmt->execute([':user_id' => $userId]);
+$assetFundingRows = $assetFundingStmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($assetFundingRows as $row) {
+    $txData = !empty($row['transaction_data'])
+        ? (json_decode($row['transaction_data'], true) ?? [])
+        : [];
+    $amountUsd = (float) $row['amount'];
+    $purpose = $txData['purpose'] ?? 'asset_funding';
+    $label = $purpose === 'trust_declared_value'
+        ? ('Trust Value — ' . ($txData['trust_name'] ?? 'Trust'))
+        : ('Asset Deposit — ' . ($txData['asset_label'] ?? 'Asset'));
+
+    $payments[] = [
+        'record_type' => 'asset_funding',
+        'transaction_id' => (int) $row['id'],
+        'trust_id' => !empty($row['trust_id']) ? (int) $row['trust_id'] : null,
+        'service_name' => $label,
+        'service_key' => 'asset_funding',
+        'amount' => $amountUsd,
+        'amount_usd' => $amountUsd,
+        'is_free' => false,
+        'payment_status' => $row['status'],
+        'trust_status' => null,
+        'payment_method_name' => $txData['payment_method_name'] ?? 'Payment',
+        'payment_method_type' => $txData['payment_method_type'] ?? null,
+        'payment_type' => 'asset_funding',
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at'],
+    ];
+}
+
 usort($payments, static function (array $a, array $b): int {
     return strtotime((string) ($b['created_at'] ?? '')) <=> strtotime((string) ($a['created_at'] ?? ''));
 });
 
 $lastPayment = null;
 foreach ($payments as $payment) {
-    if ($payment['record_type'] === 'crypto_deposit' || $payment['record_type'] === 'crypto_liquidation' || empty($payment['is_free'])) {
+    if ($payment['record_type'] === 'crypto_deposit' || $payment['record_type'] === 'crypto_liquidation' || $payment['record_type'] === 'liquidation_fee' || $payment['record_type'] === 'asset_funding' || empty($payment['is_free'])) {
         $lastPayment = $payment;
         break;
     }

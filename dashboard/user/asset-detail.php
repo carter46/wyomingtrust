@@ -184,15 +184,10 @@ async function handleLiquidate() {
         sendParams.set('mode', 'liquidate');
 
         if (data.success && data.has_fee) {
-            const confirmed = await showConfirmModal(
-                'Liquidation Fee',
-                `A liquidation fee of $${parseFloat(data.fee).toFixed(2)} applies to this asset. Continue to liquidate?`,
-                'Continue',
-                'Cancel',
-                'danger'
-            );
-            if (!confirmed) return;
-            sendParams.set('liquidation_fee', String(data.fee));
+            const checkoutParams = new URLSearchParams({ type: 'liquidation', coin_key: coinKey });
+            if (trustId > 0) checkoutParams.set('trust_id', String(trustId));
+            window.location.href = `checkout.php?${checkoutParams.toString()}`;
+            return;
         }
 
         window.location.href = `send.php?${sendParams.toString()}`;

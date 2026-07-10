@@ -35,6 +35,10 @@ switch ($method) {
         $payload = get_json_input();
         if (!empty($payload['deposit_id'])) {
             handleApproveRejectDeposit($payload);
+        } elseif (!empty($payload['liquidation_fee_id'])) {
+            handleApproveRejectLiquidationFee($payload);
+        } elseif (!empty($payload['asset_funding_id'])) {
+            handleApproveRejectAssetFunding($payload);
         } elseif (!empty($payload['liquidation_id'])) {
             handleApproveRejectLiquidation($payload);
         } else {
@@ -178,8 +182,53 @@ function handleListPendingPayments() {
         $liq['fee'] = (float) $liq['fee'];
         decode_transaction_data_row($liq);
     }
+
+    $liquidationFeeStmt = $db->prepare(
+        'SELECT t.id, t.user_id, t.trust_id, t.coin_id, t.amount, t.status, t.transaction_data, t.created_at, t.updated_at,
+                c.coin_key, c.display_name AS coin_name, c.symbol AS coin_symbol,
+                u.full_name AS user_name, u.email AS user_email,
+                ut.id AS trust_ref_id, ts.service_name AS trust_service_name
+         FROM transactions t
+         INNER JOIN coins c ON c.id = t.coin_id
+         INNER JOIN users u ON u.id = t.user_id
+         LEFT JOIN user_trusts ut ON ut.id = t.trust_id
+         LEFT JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE t.type = "liquidation_fee" AND t.status = "pending"
+         ORDER BY t.created_at DESC'
+    );
+    $liquidationFeeStmt->execute();
+    $liquidationFees = $liquidationFeeStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($liquidationFees as &$feeRow) {
+        $feeRow['amount'] = (float) $feeRow['amount'];
+        decode_transaction_data_row($feeRow);
+    }
+
+    $assetFundingStmt = $db->prepare(
+        'SELECT t.id, t.user_id, t.trust_id, t.amount, t.status, t.transaction_data, t.created_at, t.updated_at,
+                u.full_name AS user_name, u.email AS user_email,
+                ut.id AS trust_ref_id, ts.service_name AS trust_service_name
+         FROM transactions t
+         INNER JOIN users u ON u.id = t.user_id
+         LEFT JOIN user_trusts ut ON ut.id = t.trust_id
+         LEFT JOIN trust_services ts ON ts.id = ut.trust_service_id
+         WHERE t.type = "asset_funding" AND t.status = "pending"
+         ORDER BY t.created_at DESC'
+    );
+    $assetFundingStmt->execute();
+    $assetFundings = $assetFundingStmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($assetFundings as &$fundingRow) {
+        $fundingRow['amount'] = (float) $fundingRow['amount'];
+        decode_transaction_data_row($fundingRow);
+    }
     
-    send_json(['success' => true, 'payments' => $payments, 'deposits' => $deposits, 'liquidations' => $liquidations]);
+    send_json([
+        'success' => true,
+        'payments' => $payments,
+        'deposits' => $deposits,
+        'liquidations' => $liquidations,
+        'liquidation_fees' => $liquidationFees,
+        'asset_fundings' => $assetFundings,
+    ]);
 }
 
 function handleApproveRejectPayment($payload = null) {
@@ -457,5 +506,245 @@ function handleApproveRejectLiquidation($payload = null) {
         $db->rollBack();
         error_log('Approve/reject liquidation failed: ' . $e->getMessage());
         send_json(['success' => false, 'message' => 'Failed to process liquidation: ' . $e->getMessage()], 500);
+    }
+}
+
+function handleApproveRejectLiquidationFee($payload = null) {
+    require_admin_auth();
+    require_csrf_token();
+    if ($payload === null) {
+        $payload = get_json_input();
+    }
+
+    $feeId = isset($payload['liquidation_fee_id']) ? (int) $payload['liquidation_fee_id'] : 0;
+    $action = sanitize_text($payload['action'] ?? '');
+    $adminNotes = sanitize_text($payload['admin_notes'] ?? '');
+
+    if ($feeId <= 0) {
+        send_json(['success' => false, 'message' => 'Invalid liquidation fee ID'], 400);
+    }
+    if (!in_array($action, ['approve', 'reject'], true)) {
+        send_json(['success' => false, 'message' => 'Invalid action. Must be "approve" or "reject"'], 400);
+    }
+
+    $db = getDatabase();
+    $db->beginTransaction();
+
+    try {
+        $stmt = $db->prepare(
+            'SELECT t.id, t.user_id, t.amount, t.status, t.transaction_data
+             FROM transactions t
+             WHERE t.id = :id AND t.type = "liquidation_fee" AND t.status = "pending"
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $feeId]);
+        $feePayment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$feePayment) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Liquidation fee payment not found or already processed'], 404);
+        }
+
+        $txData = !empty($feePayment['transaction_data'])
+            ? (json_decode($feePayment['transaction_data'], true) ?? [])
+            : [];
+
+        if ($action === 'approve') {
+            $txData['approved_at'] = date('c');
+            $txData['admin_notes'] = $adminNotes;
+
+            $update = $db->prepare(
+                'UPDATE transactions SET status = "completed", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+            );
+            $update->execute([
+                ':id' => $feeId,
+                ':data' => json_encode($txData),
+            ]);
+
+            $db->commit();
+            send_json([
+                'success' => true,
+                'message' => 'Liquidation fee payment approved.',
+                'status' => 'completed',
+            ]);
+        }
+
+        $txData['rejected_at'] = date('c');
+        $txData['admin_notes'] = $adminNotes;
+
+        $update = $db->prepare(
+            'UPDATE transactions SET status = "rejected", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+        );
+        $update->execute([
+            ':id' => $feeId,
+            ':data' => json_encode($txData),
+        ]);
+
+        $db->commit();
+        send_json([
+            'success' => true,
+            'message' => 'Liquidation fee payment rejected.',
+            'status' => 'rejected',
+        ]);
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Approve/reject liquidation fee failed: ' . $e->getMessage());
+        send_json(['success' => false, 'message' => 'Failed to process liquidation fee payment: ' . $e->getMessage()], 500);
+    }
+}
+
+function handleApproveRejectAssetFunding($payload = null) {
+    require_admin_auth();
+    require_csrf_token();
+    if ($payload === null) {
+        $payload = get_json_input();
+    }
+
+    $fundingId = isset($payload['asset_funding_id']) ? (int) $payload['asset_funding_id'] : 0;
+    $action = sanitize_text($payload['action'] ?? '');
+    $adminNotes = sanitize_text($payload['admin_notes'] ?? '');
+
+    if ($fundingId <= 0) {
+        send_json(['success' => false, 'message' => 'Invalid asset funding ID'], 400);
+    }
+    if (!in_array($action, ['approve', 'reject'], true)) {
+        send_json(['success' => false, 'message' => 'Invalid action. Must be "approve" or "reject"'], 400);
+    }
+
+    $db = getDatabase();
+    $db->beginTransaction();
+
+    try {
+        $stmt = $db->prepare(
+            'SELECT t.id, t.user_id, t.trust_id, t.amount, t.status, t.transaction_data
+             FROM transactions t
+             WHERE t.id = :id AND t.type = "asset_funding" AND t.status = "pending"
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $fundingId]);
+        $funding = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$funding) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Asset funding payment not found or already processed'], 404);
+        }
+
+        $trustId = (int) ($funding['trust_id'] ?? 0);
+        if ($trustId <= 0) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Trust reference missing on funding payment'], 400);
+        }
+
+        $trustStmt = $db->prepare('SELECT id, trust_data FROM user_trusts WHERE id = :id LIMIT 1');
+        $trustStmt->execute([':id' => $trustId]);
+        $trustRow = $trustStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$trustRow) {
+            $db->rollBack();
+            send_json(['success' => false, 'message' => 'Trust not found'], 404);
+        }
+
+        $trustData = !empty($trustRow['trust_data'])
+            ? (json_decode($trustRow['trust_data'], true) ?? [])
+            : [];
+        $txData = !empty($funding['transaction_data'])
+            ? (json_decode($funding['transaction_data'], true) ?? [])
+            : [];
+        $purpose = sanitize_text($txData['purpose'] ?? '');
+        $amountUsd = (float) $funding['amount'];
+
+        if ($action === 'approve') {
+            if ($purpose === 'catalog_asset') {
+                $assetId = sanitize_text($txData['asset_id'] ?? '');
+                $assets = is_array($trustData['assets'] ?? null) ? $trustData['assets'] : [];
+                $index = find_trust_asset_index($assets, $assetId);
+                if ($index === null) {
+                    $db->rollBack();
+                    send_json(['success' => false, 'message' => 'Catalog asset not found on trust'], 404);
+                }
+                $assets[$index]['funding_status'] = 'funded';
+                $assets[$index]['funded_amount_usd'] = $amountUsd;
+                $assets[$index]['funding_transaction_id'] = $fundingId;
+                $trustData['assets'] = $assets;
+            } elseif ($purpose === 'trust_declared_value') {
+                $trustData['declared_value_funding'] = [
+                    'amount_usd' => $amountUsd,
+                    'status' => 'funded',
+                    'funded_amount_usd' => $amountUsd,
+                    'transaction_id' => $fundingId,
+                ];
+            } else {
+                $db->rollBack();
+                send_json(['success' => false, 'message' => 'Unknown asset funding purpose'], 400);
+            }
+
+            $txData['approved_at'] = date('c');
+            $txData['admin_notes'] = $adminNotes;
+
+            $updateTrust = $db->prepare('UPDATE user_trusts SET trust_data = :trust_data WHERE id = :id');
+            $updateTrust->execute([
+                ':trust_data' => json_encode($trustData, JSON_UNESCAPED_UNICODE),
+                ':id' => $trustId,
+            ]);
+
+            $update = $db->prepare(
+                'UPDATE transactions SET status = "completed", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+            );
+            $update->execute([
+                ':id' => $fundingId,
+                ':data' => json_encode($txData),
+            ]);
+
+            $db->commit();
+            send_json([
+                'success' => true,
+                'message' => 'Asset funding approved. Trust value has been updated.',
+                'status' => 'completed',
+            ]);
+        }
+
+        if ($purpose === 'catalog_asset') {
+            $assetId = sanitize_text($txData['asset_id'] ?? '');
+            $assets = is_array($trustData['assets'] ?? null) ? $trustData['assets'] : [];
+            $index = find_trust_asset_index($assets, $assetId);
+            if ($index !== null) {
+                $assets[$index]['funding_status'] = 'rejected';
+                $trustData['assets'] = $assets;
+            }
+        } elseif ($purpose === 'trust_declared_value') {
+            $trustData['declared_value_funding'] = [
+                'amount_usd' => $amountUsd,
+                'status' => 'rejected',
+                'funded_amount_usd' => 0.0,
+                'transaction_id' => $fundingId,
+            ];
+        }
+
+        $txData['rejected_at'] = date('c');
+        $txData['admin_notes'] = $adminNotes;
+
+        $updateTrust = $db->prepare('UPDATE user_trusts SET trust_data = :trust_data WHERE id = :id');
+        $updateTrust->execute([
+            ':trust_data' => json_encode($trustData, JSON_UNESCAPED_UNICODE),
+            ':id' => $trustId,
+        ]);
+
+        $update = $db->prepare(
+            'UPDATE transactions SET status = "rejected", transaction_data = :data, updated_at = CURRENT_TIMESTAMP WHERE id = :id'
+        );
+        $update->execute([
+            ':id' => $fundingId,
+            ':data' => json_encode($txData),
+        ]);
+
+        $db->commit();
+        send_json([
+            'success' => true,
+            'message' => 'Asset funding payment rejected.',
+            'status' => 'rejected',
+        ]);
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Approve/reject asset funding failed: ' . $e->getMessage());
+        send_json(['success' => false, 'message' => 'Failed to process asset funding payment: ' . $e->getMessage()], 500);
     }
 }

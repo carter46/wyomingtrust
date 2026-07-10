@@ -33,7 +33,7 @@
         return '—';
     }
 
-    function renderAssetList(assets, categories, containerId, onRemove) {
+    function renderAssetList(assets, categories, containerId, onRemove, trustId) {
         const container = document.getElementById(containerId);
         if (!container) return;
         if (!assets.length) {
@@ -55,16 +55,50 @@
                             <p class="font-bold text-primary truncate">${escapeHtml(asset.label || catLabel)}</p>
                             <p class="text-xs text-on-surface-variant mt-0.5">${escapeHtml(catLabel)}${asset.subtype ? ' · ' + escapeHtml(asset.subtype.replace(/_/g, ' ')) : ''}</p>
                             <p class="text-sm font-semibold text-on-surface mt-1">${valueLabel}: ${escapeHtml(String(value))}</p>
+                            ${renderFundingBadge(asset)}
                             ${asset.document?.filename ? `<p class="text-xs text-secondary mt-1">📎 ${escapeHtml(asset.document.filename)}</p>` : ''}
                         </div>
                     </div>
-                    <button type="button" class="text-error text-sm font-bold hover:underline shrink-0" data-remove-asset="${escapeHtml(asset.id)}">Remove</button>
+                    <div class="flex flex-col items-end gap-2 shrink-0">
+                        ${renderFundingAction(asset, trustId)}
+                        <button type="button" class="text-error text-sm font-bold hover:underline" data-remove-asset="${escapeHtml(asset.id)}">Remove</button>
+                    </div>
                 </div>
             `;
         }).join('');
         container.querySelectorAll('[data-remove-asset]').forEach(btn => {
             btn.addEventListener('click', () => onRemove(btn.getAttribute('data-remove-asset')));
         });
+        container.querySelectorAll('[data-fund-asset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-fund-asset');
+                if (!trustId || !id) return;
+                window.location.href = `checkout.php?type=asset_funding&trust_id=${encodeURIComponent(trustId)}&asset_id=${encodeURIComponent(id)}`;
+            });
+        });
+    }
+
+    function renderFundingBadge(asset) {
+        const status = asset.funding_status || 'unfunded';
+        const amount = parseFloat(asset.funding_amount_usd || 0);
+        if (amount <= 0) return '';
+        if (status === 'funded') {
+            return '<p class="text-xs font-bold text-deep-forest mt-1">Funded</p>';
+        }
+        if (status === 'pending') {
+            return '<p class="text-xs font-bold text-secondary mt-1">Deposit pending approval</p>';
+        }
+        if (status === 'rejected') {
+            return '<p class="text-xs font-bold text-error mt-1">Deposit rejected — resubmit payment</p>';
+        }
+        return '<p class="text-xs font-bold text-amber-700 mt-1">Deposit required to fund this value</p>';
+    }
+
+    function renderFundingAction(asset, trustId) {
+        const status = asset.funding_status || 'unfunded';
+        const amount = parseFloat(asset.funding_amount_usd || 0);
+        if (!trustId || amount <= 0 || status === 'funded' || status === 'pending') return '';
+        return `<button type="button" data-fund-asset="${escapeHtml(asset.id)}" class="text-secondary text-sm font-bold hover:underline">Deposit Value</button>`;
     }
 
     function buildFieldInput(field) {

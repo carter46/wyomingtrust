@@ -1125,9 +1125,9 @@ async function updateTrustMetrics(trust) {
 }
 
 function updateCatalogMetrics(trust, valueEl) {
-    const declared = parseFloat(trust.total_estimated_value ?? trust.trust_data?.total_estimated_value ?? 0) || 0;
-    const catalog = parseFloat(trust.assets_summary?.total_estimated_value ?? 0) || 0;
-    if (valueEl) valueEl.textContent = formatUsd(declared + catalog);
+    const declaredFunded = parseFloat(trust.declared_funded_value ?? 0) || 0;
+    const catalogFunded = parseFloat(trust.assets_summary?.total_funded_value ?? 0) || 0;
+    if (valueEl) valueEl.textContent = formatUsd(declaredFunded + catalogFunded);
     if (typeof window.fitDashboardAmounts === 'function') window.fitDashboardAmounts();
 }
 
@@ -1294,13 +1294,54 @@ function loadTrustAssetsUI(trust) {
     const countLabel = document.getElementById('assetsCountLabel');
     if (countLabel) countLabel.textContent = assets.length ? `(${assets.length})` : '';
     if (typeof TrustAssetUI !== 'undefined') {
-        TrustAssetUI.renderAssetList(assets, categories, 'trustAssetsList', removeTrustAsset);
+        TrustAssetUI.renderAssetList(assets, categories, 'trustAssetsList', removeTrustAsset, trustId);
     }
+    renderDeclaredValueFundingBanner(trust);
+}
+
+function renderDeclaredValueFundingBanner(trust) {
+    const section = document.getElementById('trustAssetsSection');
+    if (!section) return;
+    let banner = document.getElementById('declaredValueFundingBanner');
+    const funding = trust.declared_value_funding || {};
+    const amount = parseFloat(funding.amount_usd || trust.total_estimated_value || 0);
+    const status = funding.status || 'unfunded';
+
+    if (amount <= 0 || status === 'funded') {
+        if (banner) banner.remove();
+        return;
+    }
+
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'declaredValueFundingBanner';
+        banner.className = 'mb-4 rounded-xl border border-secondary/20 bg-secondary/10 p-4 flex flex-wrap items-center justify-between gap-3';
+        section.insertBefore(banner, section.querySelector('#trustAssetsList'));
+    }
+
+    const label = status === 'pending'
+        ? `Declared trust value deposit of ${formatUsd(amount)} is pending admin approval.`
+        : status === 'rejected'
+            ? `Declared trust value deposit of ${formatUsd(amount)} was rejected. Please submit payment again.`
+            : `Deposit ${formatUsd(amount)} to fund your declared total asset value.`;
+
+    banner.innerHTML = `
+        <p class="text-sm text-on-surface">${escapeHtml(label)}</p>
+        ${status === 'unfunded' || status === 'rejected' ? `
+            <a href="checkout.php?type=trust_value&trust_id=${trustId}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-bold hover:bg-primary/90">
+                Deposit Trust Value
+            </a>
+        ` : '<span class="text-xs font-bold text-secondary uppercase tracking-wide">Pending</span>'}
+    `;
 }
 
 function openAddAssetModal() {
     if (!currentTrust?.service_meta?.supports_assets) return;
     TrustAssetUI.showAddAssetModal(currentTrust.service_meta.asset_categories || [], trustId, async (data) => {
+        if (data.requires_funding && data.asset?.id) {
+            window.location.href = `checkout.php?type=asset_funding&trust_id=${trustId}&asset_id=${encodeURIComponent(data.asset.id)}`;
+            return;
+        }
         await loadTrustData();
     });
 }

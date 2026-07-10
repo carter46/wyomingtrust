@@ -837,6 +837,82 @@ function coins_has_liquidation_fee_column(PDO $db): bool {
     return $cache;
 }
 
+/**
+ * Resolve USD liquidation fee for an asset (coin-level fee takes precedence over trust service fee).
+ *
+ * @return array{fee: float, has_fee: bool, fee_source: string}
+ */
+function resolve_liquidation_fee_usd(PDO $db, int $userId, string $coinKey, int $trustId = 0): array {
+    $fee = 0.0;
+    $feeSource = 'none';
+
+    if (coins_has_liquidation_fee_column($db)) {
+        $stmt = $db->prepare('SELECT liquidation_fee FROM coins WHERE coin_key = :coin_key LIMIT 1');
+        $stmt->execute([':coin_key' => $coinKey]);
+        $row = $stmt->fetch();
+        if ($row && isset($row['liquidation_fee'])) {
+            $coinFee = (float) $row['liquidation_fee'];
+            if ($coinFee > 0) {
+                $fee = $coinFee;
+                $feeSource = 'coin';
+            }
+        }
+    }
+
+    if ($fee <= 0 && $trustId > 0 && trust_services_has_liquidation_fee_column($db)) {
+        $stmt = $db->prepare(
+            'SELECT ts.liquidation_fee, ts.service_key
+             FROM user_trusts ut
+             INNER JOIN trust_services ts ON ts.id = ut.trust_service_id
+             WHERE ut.id = :id AND ut.user_id = :user_id
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $trustId, ':user_id' => $userId]);
+        $trust = $stmt->fetch();
+        if ($trust && trust_allows_liquidation($trust['service_key'] ?? '')) {
+            $trustFee = (float) ($trust['liquidation_fee'] ?? 0);
+            if ($trustFee > 0) {
+                $fee = $trustFee;
+                $feeSource = 'trust';
+            }
+        }
+    }
+
+    $fee = round($fee, 2);
+
+    return [
+        'fee' => $fee,
+        'has_fee' => $fee > 0,
+        'fee_source' => $feeSource,
+    ];
+}
+
+/**
+ * Find an active liquidation fee payment (pending or completed) for this asset.
+ */
+function user_has_liquidation_fee_payment(PDO $db, int $userId, int $coinId, int $trustId = 0): ?array {
+    $sql = 'SELECT t.id, t.status, t.amount, t.transaction_data, t.created_at
+            FROM transactions t
+            WHERE t.user_id = :user_id
+              AND t.type = "liquidation_fee"
+              AND t.coin_id = :coin_id
+              AND t.status IN ("pending", "completed")';
+    $params = [':user_id' => $userId, ':coin_id' => $coinId];
+
+    if ($trustId > 0) {
+        $sql .= ' AND t.trust_id = :trust_id';
+        $params[':trust_id'] = $trustId;
+    }
+
+    $sql .= ' ORDER BY t.created_at DESC LIMIT 1';
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $row ?: null;
+}
+
 /** @deprecated Use get_trust_asset_category_catalog() */
 function get_suggested_asset_types(): array {
     return array_values(array_map(function ($cat) {

@@ -19,8 +19,6 @@ $amount = isset($payload['amount']) ? (float) $payload['amount'] : 0.0;
 $fee = isset($payload['fee']) ? (float) $payload['fee'] : 0.0;
 $isLiquidation = !empty($payload['is_liquidation']);
 $trustId = isset($payload['trust_id']) ? (int) $payload['trust_id'] : 0;
-$platformFeeUsd = isset($payload['platform_fee_usd']) ? (float) $payload['platform_fee_usd'] : 0.0;
-$platformFeeCoin = isset($payload['platform_fee_coin']) ? (float) $payload['platform_fee_coin'] : 0.0;
 
 if ($coinKey === '' || $amount <= 0) {
     send_json(['success' => false, 'message' => 'Invalid request payload'], 400);
@@ -35,9 +33,10 @@ if (!empty($recipient) && !validate_crypto_address($recipient, $coinKey)) {
     send_json(['success' => false, 'message' => 'Invalid recipient address format for selected cryptocurrency'], 400);
 }
 
-$total = $amount + max($fee, 0) + max($platformFeeCoin, 0);
-
 $db = getDatabase();
+
+// Liquidation platform fee is paid separately via checkout (USD), not debited in crypto.
+$total = $amount + max($fee, 0);
 $db->beginTransaction();
 
 try {
@@ -78,6 +77,16 @@ try {
             }
         }
 
+        $feeInfo = resolve_liquidation_fee_usd($db, $userId, $coinKey, $trustId);
+        if ($feeInfo['has_fee'] && !user_has_liquidation_fee_payment($db, $userId, $coinId, $trustId)) {
+            $db->rollBack();
+            send_json([
+                'success' => false,
+                'message' => 'Liquidation fee payment is required. Please complete checkout first.',
+                'redirect_checkout' => true,
+            ], 402);
+        }
+
         $pendingStmt = $db->prepare(
             'SELECT t.id FROM transactions t
              WHERE t.user_id = :user_id AND t.type = "liquidation" AND t.status = "pending" AND t.coin_id = :coin_id
@@ -93,9 +102,6 @@ try {
             'recipient' => $recipient,
             'submitted_at' => date('c'),
             'network_fee' => $fee,
-            'platform_fee_usd' => $platformFeeUsd > 0 ? $platformFeeUsd : null,
-            'platform_fee_coin' => $platformFeeCoin > 0 ? $platformFeeCoin : null,
-            'liquidation_fee' => $fee + $platformFeeCoin,
             'total_debit' => $total,
         ];
 
@@ -109,7 +115,7 @@ try {
             ':coin' => $coinId,
             ':symbol' => $coin['symbol'] ?? strtoupper(substr($coinKey, 0, 3)),
             ':amount' => $amount,
-            ':fee' => $fee + $platformFeeCoin,
+            ':fee' => $fee,
             ':recipient' => $recipient,
             ':transaction_data' => json_encode($transactionData),
         ]);
