@@ -102,12 +102,6 @@ $page_title = 'Admin Login - WyomingTrust';
             </div>
         </div>
 
-        <!-- Reset Password Link -->
-        <div class="text-center">
-            <a href="reset-admin-password.php" class="text-sm text-slate-600 dark:text-slate-400 hover:text-primary">
-                Reset Admin Password
-            </a>
-        </div>
     </div>
 
     <script>
@@ -133,12 +127,21 @@ $page_title = 'Admin Login - WyomingTrust';
                     })
                 });
 
-                const data = await response.json();
+                const raw = await response.text();
+                let data = null;
+                try {
+                    data = raw ? JSON.parse(raw) : null;
+                } catch (parseError) {
+                    console.error('Login error: non-JSON response', response.status, raw);
+                    errorMessage.textContent = 'Server error (' + response.status + '). Check database configuration.';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
                 
-                if (data.success) {
+                if (data && data.success) {
                     window.location.href = 'index.php';
                 } else {
-                    errorMessage.textContent = data.message || 'Login failed. Please check your credentials.';
+                    errorMessage.textContent = (data && data.message) || 'Login failed. Please check your credentials.';
                     errorMessage.classList.remove('hidden');
                 }
             } catch (error) {

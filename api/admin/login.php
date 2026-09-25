@@ -18,25 +18,33 @@ if (!validate_email($email)) {
     send_json(['success' => false, 'message' => 'Invalid email address'], 400);
 }
 
-$db = getDatabase();
+try {
+    $db = getDatabase();
 
-$stmt = $db->prepare('SELECT id, email, password FROM admins WHERE email = :email LIMIT 1');
-$stmt->execute([':email' => $email]);
-$admin = $stmt->fetch();
+    $stmt = $db->prepare('SELECT id, email, password FROM admins WHERE email = :email LIMIT 1');
+    $stmt->execute([':email' => $email]);
+    $admin = $stmt->fetch();
 
-if (!$admin || !password_verify($password, $admin['password'])) {
-    send_json(['success' => false, 'message' => 'Invalid email or password'], 401);
+    if (!$admin || !password_verify($password, $admin['password'])) {
+        send_json(['success' => false, 'message' => 'Invalid email or password'], 401);
+    }
+
+    // Set session
+    $_SESSION['admin_id'] = (int) $admin['id'];
+    $_SESSION['admin_email'] = $admin['email'];
+
+    send_json([
+        'success' => true,
+        'message' => 'Login successful',
+        'admin' => [
+            'id' => (int) $admin['id'],
+            'email' => $admin['email'],
+        ],
+    ]);
+} catch (Throwable $e) {
+    error_log('[admin/login] ' . $e->getMessage());
+    $message = (stripos($e->getMessage(), 'Database connection failed') !== false)
+        ? 'Database connection failed. Please verify api/config.php credentials on the server.'
+        : 'Login failed due to a server error. Please try again.';
+    send_json(['success' => false, 'message' => $message], 500);
 }
-
-// Set session
-$_SESSION['admin_id'] = (int) $admin['id'];
-$_SESSION['admin_email'] = $admin['email'];
-
-send_json([
-    'success' => true,
-    'message' => 'Login successful',
-    'admin' => [
-        'id' => (int) $admin['id'],
-        'email' => $admin['email'],
-    ],
-]);

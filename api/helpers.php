@@ -18,6 +18,22 @@ if (!function_exists('session_status') || session_status() !== PHP_SESSION_ACTIV
     }
 }
 
+// Return JSON for uncaught exceptions on API requests (avoids empty 500 bodies)
+if (!empty($_SERVER['SCRIPT_NAME']) && strpos(str_replace('\\', '/', $_SERVER['SCRIPT_NAME']), '/api/') !== false) {
+    set_exception_handler(static function ($e) {
+        error_log('[api] Uncaught ' . get_class($e) . ': ' . $e->getMessage());
+        $message = 'An unexpected server error occurred';
+        if ($e instanceof RuntimeException && stripos($e->getMessage(), 'Database connection failed') !== false) {
+            $message = 'Database connection failed. Please verify api/config.php credentials on the server.';
+        }
+        if (!headers_sent()) {
+            send_json(['success' => false, 'message' => $message], 500);
+        }
+        echo json_encode(['success' => false, 'message' => $message]);
+        exit;
+    });
+}
+
 /**
  * Send JSON response and exit
  */
