@@ -3,3 +3,9 @@ design reference/
 
 # Pre-redesign backup copy
 Backup/
+
+# Secrets / environment (never deploy-overwrite production)
+api/config.php
+.env
+.env.*
+!.env.example
